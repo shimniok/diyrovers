@@ -28,7 +28,7 @@ all: Blinky.axf
 Blinky.axf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU Linker'
-	arm-none-eabi-gcc -nostdlib -L"/home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug" -L"/home/mes/Projects/diyrovers/CMSIS_CORE_LPC17xx/Release" -Xlinker -Map="Blinky.map" -Xlinker --gc-sections -mcpu=cortex-m3 -mthumb -T "Blinky_Release.ld" -o "Blinky.axf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -nostdlib -L"/home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release" -L"/home/mes/Projects/diyrovers/CMSIS_CORE_LPC17xx/Release" -Xlinker -Map="Blinky.map" -Xlinker --gc-sections -mcpu=cortex-m3 -mthumb -T "Blinky_Release.ld" -o "Blinky.axf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

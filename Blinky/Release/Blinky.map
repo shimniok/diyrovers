@@ -1,9 +1,14 @@
 Archive member included because of file (symbol)
 
-/home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+/home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
                               ./cr_startup_lpc176x.o (SystemInit)
 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a(__weak__main.o)
                               ./cr_startup_lpc176x.o (__main)
+
+Allocating common symbols
+Common symbol       size              file
+
+msTicks             0x4               ./main.o
 
 Discarded input sections
 
@@ -14,11 +19,8 @@ Discarded input sections
  .data          0x00000000        0x0 ./main.o
  .bss           0x00000000        0x0 ./main.o
  .crp           0x00000000        0x4 ./main.o
- .text          0x00000000        0x0 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
- .data          0x00000000        0x4 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
- .bss           0x00000000        0x0 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
- .text.SystemClockUpdate
-                0x00000000      0x224 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .text          0x00000000        0x0 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .bss           0x00000000        0x0 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
  .text          0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a(__weak__main.o)
  .data          0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a(__weak__main.o)
  .bss           0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a(__weak__main.o)
@@ -35,7 +37,7 @@ Linker script and memory map
 
 LOAD ./cr_startup_lpc176x.o
 LOAD ./main.o
-LOAD /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a
+LOAD /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a
 LOAD /home/mes/Projects/diyrovers/CMSIS_CORE_LPC17xx/Release/libCMSIS_CORE_LPC17xx.a
 START GROUP
 LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a
@@ -45,7 +47,7 @@ END GROUP
                 0x10008000                __top_RamLoc32 = 0x10008000
                 0x20084000                __top_RamAHB32 = 0x20084000
 
-.text           0x00000000      0x42c
+.text           0x00000000      0x410
  FILL mask 0xff
                 0x00000000                __vectors_start__ = ABSOLUTE (.)
  *(.isr_vector)
@@ -54,16 +56,16 @@ END GROUP
                 0x000000cc                . = ALIGN (0x4)
                 0x000000cc                __section_table_start = .
                 0x000000cc                __data_section_table = .
-                0x000000cc        0x4 LONG 0x42c LOADADDR (.data)
+                0x000000cc        0x4 LONG 0x410 LOADADDR (.data)
                 0x000000d0        0x4 LONG 0x10000000 ADDR (.data)
-                0x000000d4        0x4 LONG 0x0 SIZEOF (.data)
-                0x000000d8        0x4 LONG 0x42c LOADADDR (.data_RAM2)
+                0x000000d4        0x4 LONG 0x4 SIZEOF (.data)
+                0x000000d8        0x4 LONG 0x410 LOADADDR (.data_RAM2)
                 0x000000dc        0x4 LONG 0x2007c000 ADDR (.data_RAM2)
                 0x000000e0        0x4 LONG 0x0 SIZEOF (.data_RAM2)
                 0x000000e4                __data_section_table_end = .
                 0x000000e4                __bss_section_table = .
-                0x000000e4        0x4 LONG 0x10000000 ADDR (.bss)
-                0x000000e8        0x4 LONG 0x0 SIZEOF (.bss)
+                0x000000e4        0x4 LONG 0x10000004 ADDR (.bss)
+                0x000000e8        0x4 LONG 0x4 SIZEOF (.bss)
                 0x000000ec        0x4 LONG 0x2007c000 ADDR (.bss_RAM2)
                 0x000000f0        0x4 LONG 0x0 SIZEOF (.bss_RAM2)
                 0x000000f4                __bss_section_table_end = .
@@ -79,7 +81,6 @@ END GROUP
                 0x00000108                SVCall_Handler
                 0x0000010c                DebugMon_Handler
                 0x00000110                PendSV_Handler
-                0x00000114                SysTick_Handler
                 0x00000118                ResetISR
                 0x000001b0                data_init
                 0x000001e4                bss_init
@@ -121,40 +122,46 @@ END GROUP
                 0x00000214                ENET_IRQHandler
  *(.text*)
  .text.startup.main
-                0x00000218       0x2c ./main.o
+                0x00000218       0x8c ./main.o
                 0x00000218                main
+ .text.SysTick_Handler
+                0x000002a4       0x10 ./main.o
+                0x000002a4                SysTick_Handler
  .text.SystemInit
-                0x00000244      0x1e4 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
-                0x00000244                SystemInit
+                0x000002b4       0xb0 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x000002b4                SystemInit
+ .text.SystemClockUpdate
+                0x00000364       0xa8 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x00000364                SystemClockUpdate
  .text.__weak_main
-                0x00000428        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a(__weak__main.o)
-                0x00000428                __main
-                0x00000428                __weak_main
+                0x0000040c        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a(__weak__main.o)
+                0x0000040c                __main
+                0x0000040c                __weak_main
  *(.rodata .rodata.*)
-                0x0000042c                . = ALIGN (0x4)
+                0x00000410                . = ALIGN (0x4)
 
-.glue_7         0x0000042c        0x0
+.glue_7         0x00000410        0x0
  .glue_7        0x00000000        0x0 linker stubs
 
-.glue_7t        0x0000042c        0x0
+.glue_7t        0x00000410        0x0
  .glue_7t       0x00000000        0x0 linker stubs
 
-.vfp11_veneer   0x0000042c        0x0
+.vfp11_veneer   0x00000410        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x0000042c        0x0
+.v4_bx          0x00000410        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x0000042c                __exidx_start = .
+                0x00000410                __exidx_start = .
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x0000042c                __exidx_end = .
-                0x0000042c                _etext = .
+                0x00000410                __exidx_end = .
+                0x00000410                _etext = .
 
-.data_RAM2      0x2007c000        0x0 load address 0x0000042c
+.data_RAM2      0x2007c000        0x0 load address 0x00000410
  FILL mask 0xff
  *(.data.$RAM2*)
  *(.data.$RamAHB32*)
@@ -166,86 +173,91 @@ END GROUP
                 0x10000000                . = ALIGN (0x4)
                 0x10000000                _end_uninit_RESERVED = .
 
-.data           0x10000000        0x0 load address 0x0000042c
+.data           0x10000000        0x4 load address 0x00000410
  FILL mask 0xff
                 0x10000000                _data = .
  *(vtable)
  *(.data*)
-                0x10000000                . = ALIGN (0x4)
-                0x10000000                _edata = .
+ .data          0x10000000        0x4 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x10000000                SystemFrequency
+                0x10000004                . = ALIGN (0x4)
+                0x10000004                _edata = .
 
 .bss_RAM2       0x2007c000        0x0
  *(.bss.$RAM2*)
  *(.bss.$RamAHB32*)
                 0x2007c000                . = ALIGN (0x4)
 
-.bss            0x10000000        0x0
-                0x10000000                _bss = .
+.bss            0x10000004        0x4
+                0x10000004                _bss = .
  *(.bss*)
  *(COMMON)
-                0x10000000                . = ALIGN (0x4)
-                0x10000000                _ebss = .
-                0x10000000                PROVIDE (end, .)
+ COMMON         0x10000004        0x4 ./main.o
+                0x10000004                msTicks
+                0x10000008                . = ALIGN (0x4)
+                0x10000008                _ebss = .
+                0x10000008                PROVIDE (end, .)
 
 .noinit_RAM2    0x2007c000        0x0
  *(.noinit.$RAM2*)
  *(.noinit.$RamAHB32*)
                 0x2007c000                . = ALIGN (0x4)
 
-.noinit         0x10000000        0x0
-                0x10000000                _noinit = .
+.noinit         0x10000008        0x0
+                0x10000008                _noinit = .
  *(.noinit*)
-                0x10000000                . = ALIGN (0x4)
-                0x10000000                _end_noinit = .
-                0x10000000                PROVIDE (_pvHeapStart, .)
+                0x10000008                . = ALIGN (0x4)
+                0x10000008                _end_noinit = .
+                0x10000008                PROVIDE (_pvHeapStart, .)
                 0x10008000                PROVIDE (_vStackTop, (__top_RamLoc32 - 0x0))
 OUTPUT(Blinky.axf elf32-littlearm)
 
-.debug_info     0x00000000      0xcc2
+.debug_info     0x00000000     0x120f
  .debug_info    0x00000000      0x3b6 ./cr_startup_lpc176x.o
- .debug_info    0x000003b6      0x584 ./main.o
- .debug_info    0x0000093a      0x388 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .debug_info    0x000003b6      0xad4 ./main.o
+ .debug_info    0x00000e8a      0x385 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
 
-.debug_abbrev   0x00000000      0x337
+.debug_abbrev   0x00000000      0x453
  .debug_abbrev  0x00000000      0x14c ./cr_startup_lpc176x.o
- .debug_abbrev  0x0000014c      0x108 ./main.o
- .debug_abbrev  0x00000254       0xe3 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .debug_abbrev  0x0000014c      0x224 ./main.o
+ .debug_abbrev  0x00000370       0xe3 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
 
-.debug_loc      0x00000000      0x380
+.debug_loc      0x00000000      0x36f
  .debug_loc     0x00000000      0x31c ./cr_startup_lpc176x.o
- .debug_loc     0x0000031c       0x64 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .debug_loc     0x0000031c       0x33 ./main.o
+ .debug_loc     0x0000034f       0x20 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
 
-.debug_aranges  0x00000000       0xc8
+.debug_aranges  0x00000000       0xd0
  .debug_aranges
                 0x00000000       0x80 ./cr_startup_lpc176x.o
  .debug_aranges
-                0x00000080       0x20 ./main.o
+                0x00000080       0x28 ./main.o
  .debug_aranges
-                0x000000a0       0x28 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x000000a8       0x28 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
 
-.debug_ranges   0x00000000      0x110
+.debug_ranges   0x00000000      0x178
  .debug_ranges  0x00000000       0xd0 ./cr_startup_lpc176x.o
- .debug_ranges  0x000000d0       0x28 ./main.o
- .debug_ranges  0x000000f8       0x18 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .debug_ranges  0x000000d0       0x90 ./main.o
+ .debug_ranges  0x00000160       0x18 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
 
-.debug_line     0x00000000      0x5f6
+.debug_line     0x00000000      0x667
  .debug_line    0x00000000       0xe5 ./cr_startup_lpc176x.o
- .debug_line    0x000000e5      0x10a ./main.o
- .debug_line    0x000001ef      0x407 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .debug_line    0x000000e5      0x18e ./main.o
+ .debug_line    0x00000273      0x3f4 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
 
-.debug_str      0x00000000      0x672
+.debug_str      0x00000000      0x954
  .debug_str     0x00000000      0x242 ./cr_startup_lpc176x.o
                                 0x26a (size before relaxing)
- .debug_str     0x00000242      0x273 ./main.o
-                                0x361 (size before relaxing)
- .debug_str     0x000004b5      0x1bd /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
-                                0x292 (size before relaxing)
+ .debug_str     0x00000242      0x594 ./main.o
+                                0x697 (size before relaxing)
+ .debug_str     0x000007d6      0x17e /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                                0x28b (size before relaxing)
 
 .comment        0x00000000       0x70
  .comment       0x00000000       0x70 ./cr_startup_lpc176x.o
                                  0x71 (size before relaxing)
  .comment       0x00000000       0x71 ./main.o
- .comment       0x00000000       0x71 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .comment       0x00000000       0x71 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
  .comment       0x00000000       0x71 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a(__weak__main.o)
 
 .ARM.attributes
@@ -255,15 +267,15 @@ OUTPUT(Blinky.axf elf32-littlearm)
  .ARM.attributes
                 0x00000033       0x33 ./main.o
  .ARM.attributes
-                0x00000066       0x33 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x00000066       0x33 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
  .ARM.attributes
                 0x00000099       0x33 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a(__weak__main.o)
 
-.debug_frame    0x00000000      0x164
+.debug_frame    0x00000000      0x174
  .debug_frame   0x00000000      0x100 ./cr_startup_lpc176x.o
- .debug_frame   0x00000100       0x20 ./main.o
- .debug_frame   0x00000120       0x44 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .debug_frame   0x00000100       0x3c ./main.o
+ .debug_frame   0x0000013c       0x38 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
 
-.debug_macinfo  0x00000000     0x5622
+.debug_macinfo  0x00000000     0x5638
  .debug_macinfo
-                0x00000000     0x5622 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x00000000     0x5638 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
