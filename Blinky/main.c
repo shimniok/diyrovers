@@ -1,3 +1,5 @@
+/** Demonstration of LED Blinky functionality on LPCXpresso */
+
 #ifdef __USE_CMSIS
 #include "LPC17xx.h"
 #include "system_LPC17xx.h"

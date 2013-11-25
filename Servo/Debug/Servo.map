@@ -1,0 +1,346 @@
+Archive member included because of file (symbol)
+
+/home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                              ./main.o (SystemFrequency)
+
+Allocating common symbols
+Common symbol       size              file
+
+msTicks             0x4               ./main.o
+
+Discarded input sections
+
+ .text          0x00000000        0x0 ./cr_startup_lpc176x.o
+ .data          0x00000000        0x0 ./cr_startup_lpc176x.o
+ .bss           0x00000000        0x0 ./cr_startup_lpc176x.o
+ .text          0x00000000        0x0 ./main.o
+ .data          0x00000000        0x0 ./main.o
+ .bss           0x00000000        0x0 ./main.o
+ .crp           0x00000000        0x4 ./main.o
+ .text          0x00000000        0x0 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .bss           0x00000000        0x0 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .text          0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crti.o
+ .data          0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crti.o
+ .bss           0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crti.o
+ .text          0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtn.o
+ .data          0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtn.o
+ .bss           0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtn.o
+ .data          0x00000000        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+ .fini_array    0x00000000        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+ .text          0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtend.o
+ .data          0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtend.o
+ .bss           0x00000000        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtend.o
+ .eh_frame      0x00000000        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtend.o
+ .jcr           0x00000000        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtend.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+MFlash512        0x00000000         0x00080000         xr
+RamLoc32         0x10000000         0x00008000         xrw
+RamAHB32         0x2007c000         0x00008000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD ./cr_startup_lpc176x.o
+LOAD ./main.o
+LOAD /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a
+START GROUP
+LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/libgcc.a
+LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libc.a
+LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libstdc++.a
+LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libm.a
+LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crti.o
+LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtn.o
+LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtend.o
+END GROUP
+                0x00080000                __top_MFlash512 = 0x80000
+                0x10008000                __top_RamLoc32 = 0x10008000
+                0x20084000                __top_RamAHB32 = 0x20084000
+
+.text           0x00000000      0xa14
+ FILL mask 0xff
+                0x00000000                __vectors_start__ = ABSOLUTE (.)
+ *(.isr_vector)
+ .isr_vector    0x00000000       0xcc ./cr_startup_lpc176x.o
+                0x00000000                g_pfnVectors
+                0x000000cc                . = ALIGN (0x4)
+                0x000000cc                __section_table_start = .
+                0x000000cc                __data_section_table = .
+                0x000000cc        0x4 LONG 0xa14 LOADADDR (.data)
+                0x000000d0        0x4 LONG 0x10000000 ADDR (.data)
+                0x000000d4        0x4 LONG 0x4 SIZEOF (.data)
+                0x000000d8        0x4 LONG 0xa14 LOADADDR (.data_RAM2)
+                0x000000dc        0x4 LONG 0x2007c000 ADDR (.data_RAM2)
+                0x000000e0        0x4 LONG 0x0 SIZEOF (.data_RAM2)
+                0x000000e4                __data_section_table_end = .
+                0x000000e4                __bss_section_table = .
+                0x000000e4        0x4 LONG 0x10000004 ADDR (.bss)
+                0x000000e8        0x4 LONG 0x24 SIZEOF (.bss)
+                0x000000ec        0x4 LONG 0x2007c000 ADDR (.bss_RAM2)
+                0x000000f0        0x4 LONG 0x0 SIZEOF (.bss_RAM2)
+                0x000000f4                __bss_section_table_end = .
+                0x000000f4                __section_table_end = .
+ *(.after_vectors*)
+ .after_vectors
+                0x000000f4      0x174 ./cr_startup_lpc176x.o
+                0x000000f4                data_init
+                0x00000144                bss_init
+                0x00000184                ResetISR
+                0x00000218                NMI_Handler
+                0x00000220                HardFault_Handler
+                0x00000228                MemManage_Handler
+                0x00000230                BusFault_Handler
+                0x00000238                UsageFault_Handler
+                0x00000240                SVCall_Handler
+                0x00000248                DebugMon_Handler
+                0x00000250                PendSV_Handler
+                0x00000260                TIMER2_IRQHandler
+                0x00000260                RIT_IRQHandler
+                0x00000260                I2C0_IRQHandler
+                0x00000260                USBActivity_IRQHandler
+                0x00000260                PWM1_IRQHandler
+                0x00000260                I2C1_IRQHandler
+                0x00000260                EINT2_IRQHandler
+                0x00000260                UART1_IRQHandler
+                0x00000260                EINT3_IRQHandler
+                0x00000260                CANActivity_IRQHandler
+                0x00000260                TIMER3_IRQHandler
+                0x00000260                UART0_IRQHandler
+                0x00000260                IntDefaultHandler
+                0x00000260                PLL0_IRQHandler
+                0x00000260                CAN_IRQHandler
+                0x00000260                PLL1_IRQHandler
+                0x00000260                SSP0_IRQHandler
+                0x00000260                I2S_IRQHandler
+                0x00000260                I2C2_IRQHandler
+                0x00000260                RTC_IRQHandler
+                0x00000260                TIMER0_IRQHandler
+                0x00000260                SPI_IRQHandler
+                0x00000260                EINT1_IRQHandler
+                0x00000260                TIMER1_IRQHandler
+                0x00000260                UART2_IRQHandler
+                0x00000260                ADC_IRQHandler
+                0x00000260                SSP1_IRQHandler
+                0x00000260                USB_IRQHandler
+                0x00000260                BOD_IRQHandler
+                0x00000260                WDT_IRQHandler
+                0x00000260                QEI_IRQHandler
+                0x00000260                EINT0_IRQHandler
+                0x00000260                DMA_IRQHandler
+                0x00000260                UART3_IRQHandler
+                0x00000260                MCPWM_IRQHandler
+                0x00000260                ENET_IRQHandler
+ *(.text*)
+ .text.NVIC_SetPriority
+                0x00000268       0x5c ./main.o
+ .text.SysTick_Config
+                0x000002c4       0x64 ./main.o
+ .text.delay_ms
+                0x00000328       0x34 ./main.o
+ .text.main     0x0000035c      0x124 ./main.o
+                0x0000035c                main
+ .text.InitPWM  0x00000480       0xb4 ./main.o
+                0x00000480                InitPWM
+ .text.SetPWM   0x00000534       0x44 ./main.o
+                0x00000534                SetPWM
+ .text.SysTick_Handler
+                0x00000578       0x24 ./main.o
+                0x00000578                SysTick_Handler
+ .text.SystemInit
+                0x0000059c      0x1e4 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x0000059c                SystemInit
+ .text.SystemClockUpdate
+                0x00000780      0x224 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x00000780                SystemClockUpdate
+ .text          0x000009a4       0x54 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+ *(.rodata .rodata.*)
+                0x000009f8                . = ALIGN (0x4)
+                0x000009f8                . = ALIGN (0x4)
+ *(.init)
+ .init          0x000009f8        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crti.o
+                0x000009f8                _init
+ .init          0x000009fc        0x8 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtn.o
+                0x00000a04                . = ALIGN (0x4)
+                0x00000a04                __preinit_array_start = .
+ *(.preinit_array)
+                0x00000a04                __preinit_array_end = .
+                0x00000a04                . = ALIGN (0x4)
+                0x00000a04                __init_array_start = .
+ *(SORT(.init_array.*))
+ *(.init_array)
+ .init_array    0x00000a04        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+                0x00000a08                __init_array_end = .
+ *(.fini)
+ .fini          0x00000a08        0x4 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crti.o
+                0x00000a08                _fini
+ .fini          0x00000a0c        0x8 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtn.o
+                0x00000a14                . = ALIGN (0x4)
+ *crtbegin.o(.ctors)
+ *(EXCLUDE_FILE(*crtend.o) .ctors)
+ *(SORT(.ctors.*))
+ *crtend.o(.ctors)
+                0x00000a14                . = ALIGN (0x4)
+ *crtbegin.o(.dtors)
+ *(EXCLUDE_FILE(*crtend.o) .dtors)
+ *(SORT(.dtors.*))
+ *crtend.o(.dtors)
+
+.glue_7         0x00000a14        0x0
+ .glue_7        0x00000000        0x0 linker stubs
+
+.glue_7t        0x00000a14        0x0
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0x00000a14        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x00000a14        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.eh_frame       0x00000a14        0x0
+ .eh_frame      0x00000a14        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+
+.ARM.extab
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+                0x00000a14                __exidx_start = .
+
+.ARM.exidx
+ *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+                0x00000a14                __exidx_end = .
+                0x00000a14                _etext = .
+
+.data_RAM2      0x2007c000        0x0 load address 0x00000a14
+ FILL mask 0xff
+ *(.data.$RAM2*)
+ *(.data.$RamAHB32*)
+                0x2007c000                . = ALIGN (0x4)
+
+.uninit_RESERVED
+                0x10000000        0x0
+ *(.bss.$RESERVED*)
+                0x10000000                . = ALIGN (0x4)
+                0x10000000                _end_uninit_RESERVED = .
+
+.data           0x10000000        0x4 load address 0x00000a14
+ FILL mask 0xff
+                0x10000000                _data = .
+ *(vtable)
+ *(.data*)
+ .data          0x10000000        0x4 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                0x10000000                SystemFrequency
+                0x10000004                . = ALIGN (0x4)
+                0x10000004                _edata = .
+
+.jcr            0x10000004        0x0 load address 0x00000a18
+ .jcr           0x10000004        0x0 /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+
+.bss_RAM2       0x2007c000        0x0
+ *(.bss.$RAM2*)
+ *(.bss.$RamAHB32*)
+                0x2007c000                . = ALIGN (0x4)
+
+.bss            0x10000004       0x24
+                0x10000004                _bss = .
+ *(.bss*)
+ .bss.i.4452    0x10000004        0x4 ./main.o
+ .bss           0x10000008       0x1c /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+ *(COMMON)
+ COMMON         0x10000024        0x4 ./main.o
+                0x10000024                msTicks
+                0x10000028                . = ALIGN (0x4)
+                0x10000028                _ebss = .
+                0x10000028                PROVIDE (end, .)
+
+.noinit_RAM2    0x2007c000        0x0
+ *(.noinit.$RAM2*)
+ *(.noinit.$RamAHB32*)
+                0x2007c000                . = ALIGN (0x4)
+
+.noinit         0x10000028        0x0
+                0x10000028                _noinit = .
+ *(.noinit*)
+                0x10000028                . = ALIGN (0x4)
+                0x10000028                _end_noinit = .
+                0x10000028                PROVIDE (_pvHeapStart, .)
+                0x10008000                PROVIDE (_vStackTop, (__top_RamLoc32 - 0x0))
+OUTPUT(Servo.axf elf32-littlearm)
+
+.debug_info     0x00000000     0x1548
+ .debug_info    0x00000000      0x2ea ./cr_startup_lpc176x.o
+ .debug_info    0x000002ea      0xed6 ./main.o
+ .debug_info    0x000011c0      0x388 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+
+.debug_abbrev   0x00000000      0x3e8
+ .debug_abbrev  0x00000000       0xf8 ./cr_startup_lpc176x.o
+ .debug_abbrev  0x000000f8      0x20d ./main.o
+ .debug_abbrev  0x00000305       0xe3 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+
+.debug_loc      0x00000000      0x428
+ .debug_loc     0x00000000      0x260 ./cr_startup_lpc176x.o
+ .debug_loc     0x00000260      0x164 ./main.o
+ .debug_loc     0x000003c4       0x64 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+
+.debug_aranges  0x00000000       0xf8
+ .debug_aranges
+                0x00000000       0x80 ./cr_startup_lpc176x.o
+ .debug_aranges
+                0x00000080       0x50 ./main.o
+ .debug_aranges
+                0x000000d0       0x28 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+
+.debug_ranges   0x00000000       0xc8
+ .debug_ranges  0x00000000       0x70 ./cr_startup_lpc176x.o
+ .debug_ranges  0x00000070       0x40 ./main.o
+ .debug_ranges  0x000000b0       0x18 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+
+.debug_line     0x00000000      0xb11
+ .debug_line    0x00000000      0x30f ./cr_startup_lpc176x.o
+ .debug_line    0x0000030f      0x3fb ./main.o
+ .debug_line    0x0000070a      0x407 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+
+.debug_macinfo  0x00000000     0xcbf0
+ .debug_macinfo
+                0x00000000     0x2c4e ./cr_startup_lpc176x.o
+ .debug_macinfo
+                0x00002c4e     0x4980 ./main.o
+ .debug_macinfo
+                0x000075ce     0x5622 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+
+.debug_str      0x00000000      0x981
+ .debug_str     0x00000000      0x238 ./cr_startup_lpc176x.o
+                                0x272 (size before relaxing)
+ .debug_str     0x00000238      0x6d5 ./main.o
+                                0x7e8 (size before relaxing)
+ .debug_str     0x0000090d       0x74 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+                                0x292 (size before relaxing)
+
+.comment        0x00000000       0x70
+ .comment       0x00000000       0x70 ./cr_startup_lpc176x.o
+                                 0x71 (size before relaxing)
+ .comment       0x00000000       0x71 ./main.o
+ .comment       0x00000000       0x71 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+
+.ARM.attributes
+                0x00000000       0x33
+ .ARM.attributes
+                0x00000000       0x33 ./cr_startup_lpc176x.o
+ .ARM.attributes
+                0x00000033       0x33 ./main.o
+ .ARM.attributes
+                0x00000066       0x33 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)
+ .ARM.attributes
+                0x00000099       0x1d /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crti.o
+ .ARM.attributes
+                0x000000b6       0x1d /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtn.o
+ .ARM.attributes
+                0x000000d3       0x2d /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtbegin.o
+ .ARM.attributes
+                0x00000100       0x2d /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/crtend.o
+
+.debug_frame    0x00000000      0x26c
+ .debug_frame   0x00000000      0x158 ./cr_startup_lpc176x.o
+ .debug_frame   0x00000158       0xd0 ./main.o
+ .debug_frame   0x00000228       0x44 /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Debug/libCMSISv2_LPC17xx.a(system_LPC17xx.o)

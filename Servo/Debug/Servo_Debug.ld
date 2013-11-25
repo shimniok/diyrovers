@@ -3,13 +3,13 @@
  * (c) Code Red Technologies Ltd, 2008-2013
  * (c) NXP Semiconductors 2013-2013
  * Generated linker script file for LPC1769
- * Created from generic_c.ld (LPCXpresso v6.1 (0 [Build 164] [2013-10-21] ))
- * By LPCXpresso v6.1.0 [Build 164] [2013-10-21]  on Sun Nov 24 22:21:14 MST 2013
+ * Created from generic_cpp.ld (LPCXpresso v6.1 (0 [Build 164] [2013-10-21] ))
+ * By LPCXpresso v6.1.0 [Build 164] [2013-10-21]  on Sun Nov 24 22:06:59 MST 2013
  */
 
 
-INCLUDE "Blinky_Debug_lib.ld"
-INCLUDE "Blinky_Debug_mem.ld"
+INCLUDE "Servo_Debug_lib.ld"
+INCLUDE "Servo_Debug_mem.ld"
 
 ENTRY(ResetISR)
 
@@ -54,6 +54,35 @@ SECTIONS
         *(.rodata .rodata.*)
         . = ALIGN(4);
         
+        /* C++ constructors etc */
+        . = ALIGN(4);
+        KEEP(*(.init))
+        
+        . = ALIGN(4);
+        __preinit_array_start = .;
+        KEEP (*(.preinit_array))
+        __preinit_array_end = .;
+        
+        . = ALIGN(4);
+        __init_array_start = .;
+        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.init_array))
+        __init_array_end = .;
+        
+        KEEP(*(.fini));
+        
+        . = ALIGN(4);
+        KEEP (*crtbegin.o(.ctors))
+        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP (*(SORT(.ctors.*)))
+        KEEP (*crtend.o(.ctors))
+        
+        . = ALIGN(4);
+        KEEP (*crtbegin.o(.dtors))
+        KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
+        KEEP (*(SORT(.dtors.*)))
+        KEEP (*crtend.o(.dtors))
+        /* End C++ */
     } > MFlash512
 
     /*

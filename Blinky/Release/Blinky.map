@@ -38,7 +38,6 @@ Linker script and memory map
 LOAD ./cr_startup_lpc176x.o
 LOAD ./main.o
 LOAD /home/mes/Projects/diyrovers/CMSISv2_LPC17xx/Release/libCMSISv2_LPC17xx.a
-LOAD /home/mes/Projects/diyrovers/CMSIS_CORE_LPC17xx/Release/libCMSIS_CORE_LPC17xx.a
 START GROUP
 LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../../arm-none-eabi/lib/armv7-m/libcr_c.a
 LOAD /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.6.2/armv7-m/libcr_eabihelpers.a
