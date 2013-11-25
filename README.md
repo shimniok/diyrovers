@@ -11,6 +11,8 @@ Files for DIY Rovers code for autonomous robot rovers
 
 `Blinky/` is an LED blinky demo; it blinks LED2 on the LPCXpresso board
 
+`Servo/` is a demo of hardware pwm for controlling servos on the LPCXpresso board.
+
 `Servo_Test/` tests basic servo library with mbed SDK, exported from mbed.org for Code Sourcery g++ Lite
 
 `datasheets/` contains datasheets for LPCXpresso, LPC1769
