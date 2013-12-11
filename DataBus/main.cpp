@@ -139,13 +139,10 @@ int compassSwing(void);
 int gyroSwing(void);
 int setBacklight(void);
 int reverseScreen(void);
-//float gyroRate(unsigned int adc);
-//float sonarDistance(unsigned int adc);
 float irDistance(unsigned int adc);
-//float getVoltage(void);
 extern "C" void mbed_reset();
 
-extern unsigned int matrix_error;
+//extern unsigned int matrix_error;
 
 // If we don't close the log file, when we restart, all the written data
 // will be lost.  So we have to use a button to force mbed to close the
@@ -483,7 +480,7 @@ int autonomousMode()
 {
     bool goGoGo = false;                    // signal to start moving
     bool navDone;                      // signal that we're done navigating
-    extern int tSensor, tGPS, tAHRS, tLog;
+    //extern int tSensor, tGPS, tAHRS, tLog;
 
     sensors.gps.reset_available();
 
