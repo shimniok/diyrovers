@@ -77,10 +77,20 @@ void Venus638flpx::setNmeaMessages(char gga, char gsa, char gsv, char gll, char 
 
 void Venus638flpx::setUpdateRate(int rate)
 {
-    char msg[10] = { 0xA0, 0xA1, 0x00, 0x03,
-                     0x0E, rate&0xFF, 01,
-                     0, 0x0D, 0x0A
+    char msg[10] = {0xA0,
+    				0xA1,
+    				0x00,
+    				0x03,
+    				0x0E,
+    				0,	// rate
+    				01,
+    				0,
+    				0x0D,
+    				0x0A
                    };
+
+    msg[5] = rate&0xff;
+
     for (int i=4; i < 7; i++) {
         msg[7] ^= msg[i];
     }
