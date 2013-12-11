@@ -69,6 +69,7 @@ bool TinyGPS::encode(char c)
   {
   case ',': // term terminators
     _parity ^= c;
+    // no break
   case '\r':
   case '\n':
   case '*':
