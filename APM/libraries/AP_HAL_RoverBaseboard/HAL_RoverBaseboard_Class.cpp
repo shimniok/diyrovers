@@ -1,6 +1,6 @@
 
 #include <AP_HAL.h>
-//#if CONFIG_HAL_BOARD == HAL_BOARD_ROVERBASEBOARD
+#if CONFIG_HAL_BOARD == HAL_BOARD_ROVERBASEBOARD
 
 #include "HAL_RoverBaseboard_Class.h"
 #include "AP_HAL_RoverBaseboard_Private.h"
@@ -50,4 +50,4 @@ void HAL_RoverBaseboard::init(int argc,char* const argv[]) const {
 
 const HAL_RoverBaseboard AP_HAL_RoverBaseboard;
 
-//#endif
+#endif

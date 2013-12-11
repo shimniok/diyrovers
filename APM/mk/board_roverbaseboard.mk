@@ -40,9 +40,9 @@ NATIVE_CPUFLAGS     = -D_GNU_SOURCE
 NATIVE_CPULDFLAGS   = -g
 NATIVE_OPTFLAGS     = -O0 -g
 
-AVR_CPUFLAGS        = -mmcu=$(MCU) -mcall-prologues 
-AVR_CPULDFLAGS      = -Wl,-m,avr6
-AVR_OPTFLAGS        = -Os
+ARM_CPUFLAGS        = -mcpu=$(FAMILY) -mthumb
+#ARM_CPULDFLAGS      = -Wl,-m,avr6
+ARM_OPTFLAGS        = -Os
 
 CPUFLAGS= $($(TOOLCHAIN)_CPUFLAGS)
 CPULDFLAGS= $($(TOOLCHAIN)_CPULDFLAGS)
@@ -53,7 +53,7 @@ OPTFLAGS= $($(TOOLCHAIN)_OPTFLAGS)
 #-L"$(HELPERLIBS)" # ugh, just trying to include this stupid ARM library
 
 # This is kind of kludgey...
-ARMOPTS			= -nostdlib -Xlinker -Map="Servo.map" -Xlinker --gc-sections -mcpu=$(FAMILY) -mthumb
+ARMOPTS			= -nostdlib -Wl,--gc-sections -Wl,-Map 
 ARMINCLUDES		= -I/usr/local/arm/arm-none-eabi/include/sys/ -I/usr/local/arm/arm-none-eabi/include/
 
 CXXFLAGS        =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS)
@@ -62,8 +62,8 @@ CFLAGS          =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS)
 CFLAGS         +=   $(WARNFLAGS) $(DEPFLAGS) $(COPTS) $(ARMOPTS)
 ASFLAGS         =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(DEPFLAGS)
 ASFLAGS        +=   $(ASOPTS)
-LDFLAGS         =   -g $(CPUFLAGS) $(OPTFLAGS) $(WARNFLAGS)
-LDFLAGS        +=   -Wl,--gc-sections -Wl,-Map -Wl,$(SKETCHMAP)
+LDFLAGS         =   -g $(CPUFLAGS) $(OPTFLAGS) $(WARNFLAGS) -Xlinker
+LDFLAGS        +=   --gc-sections -Wl,-Map -Wl,$(SKETCHMAP)
 
 ifneq ($(BOARD),mega)
   LDFLAGS      +=   $(CPULDFLAGS)
@@ -73,9 +73,9 @@ endif
 # a bug. Give the user a way to disable this flag per-sketch.
 # I know this is a rotten hack but we're really close to sunset on AVR.
 EXCLUDE_RELAX := $(wildcard $(SRCROOT)/norelax.inoflag)
-ifeq ($(EXCLUDE_RELAX),)
-  LDFLAGS      +=   -Wl,--relax
-endif
+#ifeq ($(EXCLUDE_RELAX),)
+  #LDFLAGS      +=   -Wl,--relax
+#endif
 
 LIBS = -lm
 

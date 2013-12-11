@@ -130,6 +130,10 @@ ifneq ($(findstring apm2, $(MAKECMDGOALS)),)
 HAL_BOARD = HAL_BOARD_APM2
 endif
 
+ifneq ($(findstring roverbaseboard, $(MAKECMDGOALS)),)
+HAL_BOARD = HAL_BOARD_ROVERBASEBOARD
+endif
+
 ifneq ($(findstring flymaple, $(MAKECMDGOALS)),)
 HAL_BOARD = HAL_BOARD_FLYMAPLE
 endif
