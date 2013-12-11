@@ -32,7 +32,7 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 #include "debug.h"
 #include "stdio.h"
 
-#define GYRO_SCALE 14.49787 // TODO: is the sign right here?? yes, see g_sign
+#define GYRO_SCALE 14.49787 // Is the sign right here?? yes, see g_sign
 
 #define VFF 50.0 // voltage filter factor
 
@@ -54,7 +54,7 @@ Sensors::Sensors():
         m_scale[i] = 1;
     }
 
-    // TODO: parameterize
+    // TODO 2 parameterize
     g_scale[0] = 1;
     g_scale[1] = 1;
     g_scale[2] = GYRO_SCALE;
@@ -100,14 +100,14 @@ void Sensors::Read_Encoders()
     leftTotal += leftCount;
     rightTotal += rightCount;
             
-    // TODO--> sanity check on encoders; if difference between them
+    // TODO 2 sanity check on encoders; if difference between them
     //  is huge, what do we do?  Slipping wheel?  Skidding wheel?
     //  front encoders would be ideal as additional sanity check
     
-    // TODO: move this into scheduler??
+    // TODO 2 move this into scheduler??
     
-    // TODO: how do we track distance, should we only check distance everytime we do a nav/pos update?
-    // TODO: get rid of state variable
+    // TODO 2 how do we track distance, should we only check distance everytime we do a nav/pos update?
+    // TODO 3 get rid of state variable
     lrEncDistance  = (WHEEL_CIRC / WHEEL_STRIPES) * (double) leftCount;
     rrEncDistance = (WHEEL_CIRC / WHEEL_STRIPES) * (double) rightCount;
     //encDistance = (lrEncDistance + rrEncDistance) / 2.0;
@@ -168,7 +168,7 @@ void Sensors::Read_Accel()
 void Sensors::Read_Compass()
 {
     _compass.readMag(m);
-    // TODO: parameterize sign
+    // TODO 2 parameterize sign
     // adjust for compass axis offsets and scale
     for (int i=0; i < 3; i++) {
         mag[i] = ((float) m[i] - m_offset[i]) * m_scale[i] * m_sign[i];
@@ -205,7 +205,7 @@ void Sensors::Calculate_Offsets()
         a_offset[y] /= samples;
     }
 
-    //TODO: if we ever get back to using accelerometer, do something about this.
+    //TODO 4 if we ever get back to using accelerometer, do something about this.
     //a_offset[_z_] -= GRAVITY * a_sign[_z_]; // I don't get why we're doing this...?
 }
 
@@ -254,7 +254,7 @@ float Sensors::getVoltage() {
     static float filter = -1.0;
     float v = _voltage * 3.3 * 4.12712;        // 242.3mV/V
 
-    // TODO: median filter to eliminate spikes
+    // TODO 3 median filter to eliminate spikes
     if (filter < 0) {
         filter = v * VFF;
     } else {
@@ -286,7 +286,7 @@ float Sensors::getCurrent() {
 
 void Sensors::Read_Power()
 {
-    // TODO: exponential or median filtering on these to get rid of spikes
+    // TODO 3 exponential or median filtering on these to get rid of spikes
     //
     voltage = getVoltage();
     current = getCurrent();

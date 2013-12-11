@@ -194,7 +194,7 @@ int main()
     
     // Send data back to the PC
     pc.baud(115200);
-    fprintf(stdout, "Data Bus 2013\n");
+    fprintf(stdout, "Data Bus 2014\n");
     while (pc.readable()) pc.getc();        // flush buffer on reset
 
     display.init();
@@ -312,7 +312,7 @@ int main()
             s.gpsSats = sensors.gps.sat_count();
             display.update(s);
             nextUpdate = thisUpdate + 2000;
-            // TODO move this statistic into display class
+            // TODO 3 move this statistic into display class
             //fprintf(stdout, "update time: %d\n", getUpdateTime());
         }
         
@@ -346,7 +346,7 @@ int main()
             printLCDMenu = false;
         }
         
-                
+        // TODO 2 move to UI area
         if (printMenu) {
             int i=0;
             fprintf(stdout, "\n==============\nData Bus Menu\n==============\n");
@@ -759,7 +759,7 @@ int compassSwing()
     }
     fprintf(stdout, ">>>> Index detected. Starting data collection\n");
     leftCount = 0;
-    // TODO: how to parameterize status?
+    // TODO 3 how to parameterize status?
     lcd.pos(0,1);
     lcd.printf("%1d %-14s", revolutions, "revs left");
 
@@ -1134,7 +1134,7 @@ void mavlinkMode() {
     return;
 }
 
-// TODO: move to display
+// TODO 2 move to display
 int setBacklight(void) {
     Menu bmenu;
     bool done = false;

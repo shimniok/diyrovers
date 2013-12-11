@@ -149,7 +149,7 @@ unsigned long TinyGPS::parse_decimal()
         ret += p[2] - '0';
     }
   }
-  return isneg ? -ret : ret; // TODO:  can't return - when we're returning an unsigned!
+  return isneg ? -ret : ret; // TODO 2 can't return negative when we're returning an unsigned!
 }
 
 // mes 04/27/12 increased fractional precision to 7 digits, was 5
@@ -239,7 +239,7 @@ bool TinyGPS::term_complete()
     /*
     if (_sentence_type == _GPS_SENTENCE_GPGSV) {
         // $GPGSV,3,1,12,05,54,069,45,12,44,061,44,21,07,184,46,22,78,289,47*72<CR><LF>
-        // TODO: need to maintain a list of 12 structs with sat info and update it each time
+        // TODO 4 need to maintain a list of 12 structs with sat info and update it each time
         switch (_term_number) {
         case 0 : // number of messages
             break;

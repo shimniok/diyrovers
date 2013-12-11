@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "Venus638flpx.h"
 
-// TODO: parameterize LED
+// TODO 3 parameterize LED
 
 Venus638flpx::Venus638flpx(PinName tx, PinName rx):
     serial(tx, rx)

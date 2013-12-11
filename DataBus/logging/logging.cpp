@@ -250,7 +250,7 @@ FILE *openlog(const char *prefix)
         pc.printf("file write failed: %s\n", myname);
     } else {
 
-        // TODO -- set error message, get rid of writing to terminal
+        // TODO 3 set error message, get rid of writing to terminal
 
         //status = true;
         pc.printf("opened %s for writing\n", myname);

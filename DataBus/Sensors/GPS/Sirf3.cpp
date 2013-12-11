@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "Sirf3.h"
 
-// TODO: parameterize LED
+// TODO 3 parameterize LED
 
 Sirf3::Sirf3(PinName tx, PinName rx):
     serial(tx, rx)

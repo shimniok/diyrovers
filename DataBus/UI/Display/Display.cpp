@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "Display.h"
 
-// TODO: would also be nice if we did all the printf crap here too
+// TODO 3 would also be nice if we did all the printf crap here too
 
 #define LCD_FMT "%-20s" // used to fill a single line on the LCD screen
 
@@ -62,7 +62,7 @@ void Display::gauge(int slot)
 
 
 void Display::update(SystemState state) {
-    v.update(state.voltage); // TODO: use state variable instead
+    v.update(state.voltage);
     //a.update(state.current);
     g1.update((float) state.gpsSats);
     g2.update(state.gpsHDOP);
@@ -95,7 +95,7 @@ void Display::update(SystemState state) {
     // TODO: 3 display scheduler() timing
 }
 
- void Display::redraw() { // TODO: rename
+ void Display::redraw() { // TODO 3 rename
     v.init();
     //a.init();
     g1.init();

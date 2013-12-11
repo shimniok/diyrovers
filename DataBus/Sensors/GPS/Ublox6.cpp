@@ -49,7 +49,7 @@ void Ublox6::disable(void)
  */
 void Ublox6::enableVerbose(void)
 {
-    // TODO: enable Verbose code
+    // TODO 3 enable Verbose code
 }
 
 /**
@@ -57,7 +57,7 @@ void Ublox6::enableVerbose(void)
  */
 void Ublox6::disableVerbose(void)
 {
-    // TODO: disable Verbose code
+    // TODO 3 disable Verbose code
 }
 
 bool Ublox6::available(void)

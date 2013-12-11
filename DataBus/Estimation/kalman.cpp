@@ -76,7 +76,7 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
             
     // Depending on what sensor measurements we've gotten,
     // switch between observer (H) matrices and measurement noise (R) matrices
-    // TODO: incorporate HDOP or sat count in R
+    // TODO 3 incorporate HDOP or sat count in R
     if (gps) {
         H[0] = 1.0;
         z[0] = Hgps;
