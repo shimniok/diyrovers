@@ -2,9 +2,9 @@
 #ifndef __AP_HAL_EMPTY_RCOUTPUT_H__
 #define __AP_HAL_EMPTY_RCOUTPUT_H__
 
-#include <AP_HAL_Empty.h>
+#include <AP_HAL_RoverBaseboard.h>
 
-class Empty::EmptyRCOutput : public AP_HAL::RCOutput {
+class RoverBaseboard::RoverBaseboardRCOutput : public AP_HAL::RCOutput {
     void     init(void* machtnichts);
     void     set_freq(uint32_t chmask, uint16_t freq_hz);
     uint16_t get_freq(uint8_t ch);

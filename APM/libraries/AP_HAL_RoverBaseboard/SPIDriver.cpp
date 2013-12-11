@@ -1,45 +1,45 @@
 
 #include "SPIDriver.h"
 
-using namespace Empty;
+using namespace RoverBaseboard;
 
-EmptySPIDeviceDriver::EmptySPIDeviceDriver()
+RoverBaseboardSPIDeviceDriver::RoverBaseboardSPIDeviceDriver()
 {}
 
-void EmptySPIDeviceDriver::init()
+void RoverBaseboardSPIDeviceDriver::init()
 {}
 
-AP_HAL::Semaphore* EmptySPIDeviceDriver::get_semaphore()
+AP_HAL::Semaphore* RoverBaseboardSPIDeviceDriver::get_semaphore()
 {
     return &_semaphore;
 }
 
-void EmptySPIDeviceDriver::transaction(const uint8_t *tx, uint8_t *rx, uint16_t len)
+void RoverBaseboardSPIDeviceDriver::transaction(const uint8_t *tx, uint8_t *rx, uint16_t len)
 {}
 
 
-void EmptySPIDeviceDriver::cs_assert()
+void RoverBaseboardSPIDeviceDriver::cs_assert()
 {}
 
-void EmptySPIDeviceDriver::cs_release()
+void RoverBaseboardSPIDeviceDriver::cs_release()
 {}
 
-uint8_t EmptySPIDeviceDriver::transfer (uint8_t data)
+uint8_t RoverBaseboardSPIDeviceDriver::transfer (uint8_t data)
 {
     return 0;
 }
 
-void EmptySPIDeviceDriver::transfer (const uint8_t *data, uint16_t len)
+void RoverBaseboardSPIDeviceDriver::transfer (const uint8_t *data, uint16_t len)
 {
 }
 
-EmptySPIDeviceManager::EmptySPIDeviceManager()
+RoverBaseboardSPIDeviceManager::RoverBaseboardSPIDeviceManager()
 {}
 
-void EmptySPIDeviceManager::init(void *)
+void RoverBaseboardSPIDeviceManager::init(void *)
 {}
 
-AP_HAL::SPIDeviceDriver* EmptySPIDeviceManager::device(enum AP_HAL::SPIDevice)
+AP_HAL::SPIDeviceDriver* RoverBaseboardSPIDeviceManager::device(enum AP_HAL::SPIDevice)
 {
     return &_device;
 }

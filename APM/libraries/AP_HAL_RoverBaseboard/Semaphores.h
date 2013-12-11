@@ -2,11 +2,11 @@
 #ifndef __AP_HAL_EMPTY_SEMAPHORE_H__
 #define __AP_HAL_EMPTY_SEMAPHORE_H__
 
-#include <AP_HAL_Empty.h>
+#include <AP_HAL_RoverBaseboard.h>
 
-class Empty::EmptySemaphore : public AP_HAL::Semaphore {
+class RoverBaseboard::RoverBaseboardSemaphore : public AP_HAL::Semaphore {
 public:
-    EmptySemaphore() : _taken(false) {}
+    RoverBaseboardSemaphore() : _taken(false) {}
     bool give();
     bool take(uint32_t timeout_ms);
     bool take_nonblocking();

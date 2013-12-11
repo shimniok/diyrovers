@@ -1,64 +1,64 @@
 
 #include "GPIO.h"
 
-using namespace Empty;
+using namespace RoverBaseboard;
 
-EmptyGPIO::EmptyGPIO()
+RoverBaseboardGPIO::RoverBaseboardGPIO()
 {}
 
-void EmptyGPIO::init()
+void RoverBaseboardGPIO::init()
 {}
 
-void EmptyGPIO::pinMode(uint8_t pin, uint8_t output)
+void RoverBaseboardGPIO::pinMode(uint8_t pin, uint8_t output)
 {}
 
-int8_t EmptyGPIO::analogPinToDigitalPin(uint8_t pin)
+int8_t RoverBaseboardGPIO::analogPinToDigitalPin(uint8_t pin)
 {
 	return -1;
 }
 
 
-uint8_t EmptyGPIO::read(uint8_t pin) {
+uint8_t RoverBaseboardGPIO::read(uint8_t pin) {
     return 0;
 }
 
-void EmptyGPIO::write(uint8_t pin, uint8_t value)
+void RoverBaseboardGPIO::write(uint8_t pin, uint8_t value)
 {}
 
-void EmptyGPIO::toggle(uint8_t pin)
+void RoverBaseboardGPIO::toggle(uint8_t pin)
 {}
 
 /* Alternative interface: */
-AP_HAL::DigitalSource* EmptyGPIO::channel(uint16_t n) {
-    return new EmptyDigitalSource(0);
+AP_HAL::DigitalSource* RoverBaseboardGPIO::channel(uint16_t n) {
+    return new RoverBaseboardDigitalSource(0);
 }
 
 /* Interrupt interface: */
-bool EmptyGPIO::attach_interrupt(uint8_t interrupt_num, AP_HAL::Proc p,
+bool RoverBaseboardGPIO::attach_interrupt(uint8_t interrupt_num, AP_HAL::Proc p,
         uint8_t mode) {
     return true;
 }
 
-bool EmptyGPIO::usb_connected(void)
+bool RoverBaseboardGPIO::usb_connected(void)
 {
     return false;
 }
 
-EmptyDigitalSource::EmptyDigitalSource(uint8_t v) :
+RoverBaseboardDigitalSource::RoverBaseboardDigitalSource(uint8_t v) :
     _v(v)
 {}
 
-void EmptyDigitalSource::mode(uint8_t output)
+void RoverBaseboardDigitalSource::mode(uint8_t output)
 {}
 
-uint8_t EmptyDigitalSource::read() {
+uint8_t RoverBaseboardDigitalSource::read() {
     return _v;
 }
 
-void EmptyDigitalSource::write(uint8_t value) {
+void RoverBaseboardDigitalSource::write(uint8_t value) {
     _v = value;
 }
 
-void EmptyDigitalSource::toggle() {
+void RoverBaseboardDigitalSource::toggle() {
     _v = !_v;
 }

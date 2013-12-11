@@ -3,7 +3,7 @@
 
 using namespace RoverBaseboard;
 
-RoverBaseboardUARTDriver::RoverBaseboardUARTDriver() {}
+//RoverBaseboard::RoverBaseboardUARTDriver() {}
 
 void RoverBaseboardUARTDriver::begin(uint32_t b) {}
 void RoverBaseboardUARTDriver::begin(uint32_t b, uint16_t rxS, uint16_t txS) {}

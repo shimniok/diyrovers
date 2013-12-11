@@ -2,11 +2,11 @@
 #ifndef __AP_HAL_EMPTY_RCINPUT_H__
 #define __AP_HAL_EMPTY_RCINPUT_H__
 
-#include <AP_HAL_Empty.h>
+#include <AP_HAL_RoverBaseboard.h>
 
-class Empty::EmptyRCInput : public AP_HAL::RCInput {
+class RoverBaseboard::RoverBaseboardRCInput : public AP_HAL::RCInput {
 public:
-    EmptyRCInput();
+    RoverBaseboardRCInput();
     void init(void* machtnichts);
     uint8_t  valid_channels();
     uint16_t read(uint8_t ch);

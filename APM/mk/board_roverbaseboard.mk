@@ -2,10 +2,10 @@
 #
 # Build APMrover2 for RoverBaseboard
 
+TOOLCHAIN = ARM
+
 include $(MK_DIR)/find_arduino.mk
 include $(MK_DIR)/find_tools.mk
-
-TOOLCHAIN = ARM
 
 #HARDWARE := leaflabs
 MCU := LPC1769
@@ -48,10 +48,17 @@ CPUFLAGS= $($(TOOLCHAIN)_CPUFLAGS)
 CPULDFLAGS= $($(TOOLCHAIN)_CPULDFLAGS)
 OPTFLAGS= $($(TOOLCHAIN)_OPTFLAGS)
 
+# This is kind of kludgey...
+#HELPERLIBS		= /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/lib/gcc/arm-none-eabi/4.6.2/thumb/
+#-L"$(HELPERLIBS)" # ugh, just trying to include this stupid ARM library
+
+# This is kind of kludgey...
+ARMOPTS			= -nostdlib -Xlinker -Map="Servo.map" -Xlinker --gc-sections -mcpu=$(FAMILY) -mthumb
+
 CXXFLAGS        =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS)
-CXXFLAGS       +=   $(WARNFLAGS) $(WARNFLAGSCXX) $(DEPFLAGS) $(CXXOPTS)
+CXXFLAGS       +=   $(WARNFLAGS) $(WARNFLAGSCXX) $(DEPFLAGS) $(CXXOPTS) $(ARMOPTS)
 CFLAGS          =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS)
-CFLAGS         +=   $(WARNFLAGS) $(DEPFLAGS) $(COPTS)
+CFLAGS         +=   $(WARNFLAGS) $(DEPFLAGS) $(COPTS) $(ARMOPTS)
 ASFLAGS         =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(DEPFLAGS)
 ASFLAGS        +=   $(ASOPTS)
 LDFLAGS         =   -g $(CPUFLAGS) $(OPTFLAGS) $(WARNFLAGS)

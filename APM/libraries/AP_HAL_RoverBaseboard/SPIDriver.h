@@ -2,12 +2,12 @@
 #ifndef __AP_HAL_EMPTY_SPIDRIVER_H__
 #define __AP_HAL_EMPTY_SPIDRIVER_H__
 
-#include <AP_HAL_Empty.h>
+#include <AP_HAL_RoverBaseboard.h>
 #include "Semaphores.h"
 
-class Empty::EmptySPIDeviceDriver : public AP_HAL::SPIDeviceDriver {
+class RoverBaseboard::RoverBaseboardSPIDeviceDriver : public AP_HAL::SPIDeviceDriver {
 public:
-    EmptySPIDeviceDriver();
+    RoverBaseboardSPIDeviceDriver();
     void init();
     AP_HAL::Semaphore* get_semaphore();
     void transaction(const uint8_t *tx, uint8_t *rx, uint16_t len);
@@ -17,16 +17,16 @@ public:
     uint8_t transfer (uint8_t data);
     void transfer (const uint8_t *data, uint16_t len);
 private:
-    EmptySemaphore _semaphore;
+    RoverBaseboardSemaphore _semaphore;
 };
 
-class Empty::EmptySPIDeviceManager : public AP_HAL::SPIDeviceManager {
+class RoverBaseboard::RoverBaseboardSPIDeviceManager : public AP_HAL::SPIDeviceManager {
 public:
-    EmptySPIDeviceManager();
+    RoverBaseboardSPIDeviceManager();
     void init(void *);
     AP_HAL::SPIDeviceDriver* device(enum AP_HAL::SPIDevice);
 private:
-    EmptySPIDeviceDriver _device;
+    RoverBaseboardSPIDeviceDriver _device;
 };
 
 #endif // __AP_HAL_EMPTY_SPIDRIVER_H__

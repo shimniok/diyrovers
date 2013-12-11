@@ -2,11 +2,11 @@
 #ifndef __AP_HAL_EMPTY_SCHEDULER_H__
 #define __AP_HAL_EMPTY_SCHEDULER_H__
 
-#include <AP_HAL_Empty.h>
+#include <AP_HAL_RoverBaseboard.h>
 
-class Empty::EmptyScheduler : public AP_HAL::Scheduler {
+class RoverBaseboard::RoverBaseboardScheduler : public AP_HAL::Scheduler {
 public:
-    EmptyScheduler();
+    RoverBaseboardScheduler();
     void     init(void* machtnichts);
     void     delay(uint16_t ms);
     uint32_t millis();
