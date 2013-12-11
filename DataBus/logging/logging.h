@@ -6,7 +6,7 @@
 #include "mbed.h"
 #include "SystemState.h"
 
-FILE *openlog(char *prefix);
+FILE *openlog(const char *prefix);
 bool initLogfile(void);
 void clearState( SystemState *s );
 void logData( SystemState s );

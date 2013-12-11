@@ -220,7 +220,7 @@ void logData( const SystemState s )
 }
 
 
-FILE *openlog(char *prefix)
+FILE *openlog(const char *prefix)
 {
     FILE *fp = 0;
     char myname[64];
