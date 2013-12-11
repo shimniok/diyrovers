@@ -54,6 +54,7 @@ OPTFLAGS= $($(TOOLCHAIN)_OPTFLAGS)
 
 # This is kind of kludgey...
 ARMOPTS			= -nostdlib -Xlinker -Map="Servo.map" -Xlinker --gc-sections -mcpu=$(FAMILY) -mthumb
+ARMINCLUDES		= -I/usr/local/arm/arm-none-eabi/include/sys/ -I/usr/local/arm/arm-none-eabi/include/
 
 CXXFLAGS        =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS)
 CXXFLAGS       +=   $(WARNFLAGS) $(WARNFLAGSCXX) $(DEPFLAGS) $(CXXOPTS) $(ARMOPTS)
