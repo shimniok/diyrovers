@@ -7,7 +7,7 @@ Menu::Menu():
 {
 }
 
-void Menu::add(char *name, FunctionPtr f)
+void Menu::add(const char *name, FunctionPtr f)
 {
     if (_itemCount < _ITEM_MAX) {
         _exec[_itemCount] = f;

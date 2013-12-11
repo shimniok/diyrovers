@@ -14,7 +14,7 @@ public:
     
     /** add a new menu item
      */
-    void add(char *name, FunctionPtr f);
+    void add(const char *name, FunctionPtr f);
     
     /** select the next menu item as the current item
      */
