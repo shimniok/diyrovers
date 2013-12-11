@@ -25,6 +25,7 @@
 .metadata/
 .settings/
 .vagrant
+.hg/
 /tmp/*
 APM/Tools/ArdupilotMegaPlanner/3DRRadio/bin
 APM/Tools/ArdupilotMegaPlanner/3DRRadio/obj
