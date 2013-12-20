@@ -1,122 +1,148 @@
-#include <stdio.h>
 #include "mbed.h"
-#include "stdint.h"
 #include "DirHandle.h"
 #include "SDHCFileSystem.h"
 #include "util.h"
 #include "Buttons.h"
 
-extern SDFileSystem sd;
+#define MAXCMDARR	18
+#define MAXCMD		16
+#define MAXDESC		32
+
 extern Serial pc;
 extern Buttons keypad;
 
 char cwd[64];
 char buf[128];
+int status;
 bool debug=false;
+bool done=false;
+
+typedef struct {
+	const char *cmd;
+	int (*f)(const char *arg0);
+	const char *desc;
+} cmd;
 
 void shell(void);
+//void addcmd(const char *cmd, int (*f)(const char *arg0), const char *desc);
+void docmd(char *cmdline);
 void termInput(char *cmd);
 void resolveDirectory(char *newpath, char *path);
-void splitName(char *path, char *dirname, char *basename);
-void ls(char *path);
-void cd(char *path);
-void pwd(void);
-void touch(char *path);
-void head(char *path);
-void cat(char *path);
-void send(char *path);
+void splitName(const char *path, char *dirname, char *basename);
+int dols(const char *path);
+int docd(const char *path);
+int dopwd(const char *s);
+int dotouch(const char *path);
+int domkdir(const char *path);
+int dohead(const char *path);
+int docat(const char *path);
+int dosend(const char *path);
+int doexit(const char *s);
+int dodebug(const char *s);
+int dohelp(const char *s);
+int doinstrchk(const char *s);
+int docompswing(const char *s);
+int dogyroswing(const char *s);
+int doreset(const char *s);
+int doautonomous(const char *s);
+
+cmd command[MAXCMDARR] = {
+		{ "ls", dols, "list files" },
+    	{ "cd", docd, "change directory" },
+    	{ "pwd", dopwd, "print working directory" },
+    	{ "touch", dotouch, "create, update file" },
+    	{ "mkdir", domkdir, "make directory" },
+    	{ "head", dohead, "output first part of file" },
+    	{ "cat", docat, "output file" },
+    	{ "send", dosend, "send file to terminal" },
+    	{ "rm", remove, "remove file" },
+    	{ "debug", dodebug, "toggle debug mode" },
+    	{ "exit", doexit, "exit shell" },
+    	{ "help", dohelp, "print this help" },
+    	{ "stat", doinstrchk, "instrument check" },
+    	{ "comp", docompswing, "compass swing" },
+    	{ "gyro", dogyroswing, "gyro swing" },
+    	{ "reset", doreset, "reset the MCU" },
+    	{ "auto", doautonomous, "run autonomous mode" },
+    	{ 0, 0, 0 }
+};
+
 
 void shell() {
     FILE *fp;
-    char newpath[64], *arg, cmd[64], cmdline[64];
-    bool done=false;
-
-    //Logger.SelectCRCMode(1);
-    
-    //pc.printf("Formatting...\n");
-    //int i = Logger.format(32);
-    //pc.printf("format result: %d\n", i);
-
+    char cmdline[64];
+    /*
     if ((fp = fopen("/log/message.txt", "w")) != NULL) {
         for (int i=0; i < 20; i++)
             fprintf(fp, "Hello, World!\n");
         fclose(fp);
-        //pc.printf("created!\n");
     } else {
         pc.printf("Error creating file\n");
     }
     pc.printf("\n");
+    */
+
+    pc.printf("Type help for assistance\n");
     
     strcpy(cwd, "/log");
 
+    status=0;
+    done=false;
     while (!done) {
         termInput(cmdline);
-        arg = split(cmd, cmdline, 64, ' ');
-        resolveDirectory(newpath, arg);
-        
+
+        // interrupt operation if keypad button is pressed
         if (keypad.pressed) {
             keypad.pressed = false;
             break;
         }        
+
+        docmd(cmdline);
         
-        if (debug) pc.printf("cmdline:<%s> cmd:<%s> arg:<%s> newpath:<%s>\n", cmdline, cmd, arg, newpath);
-        
-        if (!strcmp(cmd, "ls")) {
-            ls(newpath);
-        } else if (!strcmp(cmd, "cd")) {
-            cd(newpath);
-        } else if (!strcmp(cmd, "pwd")) {
-            pwd();
-        } else if (!strcmp(cmd, "head")) {
-            head(newpath);
-        } else if (!strcmp(cmd, "cat")) {
-            cat(newpath);
-        } else if (!strcmp(cmd, "send")) {
-            send(newpath);
-        } else if (!strcmp(cmd, "mkdir")) {
-            mkdir(newpath, 1023);
-        } else if (!strcmp(cmd, "debug")) {
-            debug = !debug;
-        } else if (!strcmp(cmd, "touch")) {
-            touch(newpath);
-        } else if (!strcmp(cmd, "rm")) {
-            remove(newpath);
-        } else if (!strcmp(cmd, "exit")) {
-            done = true;
-        } else if (cmd[0] == '\0') {
-            // ignore
-        } else {
-            pc.printf("%s: command not found\n", cmd);
-        }
     }
-
-/*
-    pc.printf("Printing splitName()\n");
-    splitName("/SDCard/testdir", dirname, basename);
-    pc.printf("%s %s\n", dirname, basename);
-
-    pc.printf("Printing resolveDirectory()\n");
-    resolveDirectory(newpath, "test");
-    pc.printf("%s\n", newpath);
-*/
-
-//    remove("/SDCard/testdir/TEST.txt");
-    
-    /*
-    int test = rename("/SDCard/message.txt", "/SDCard/message2.txt");
-    fp = fopen("/SDCard/message.txt", "a");
-    fprintf(fp, "  Result = %d", test);
-    fclose(fp);
-    */
-
     pc.printf ("exiting shell\n");
 
     return;
 }
 
 
+/** docmd
+ * Run a command by looking it up the command requested on the shell command line in the
+ * command array.  If it's found, run the associated function. If not, print an error.
+ */
+void docmd(char *cmdline) {
+	char *arg;
+	char cmd[64];
+	char newpath[64];
+	bool found = false;
+
+    arg = split(cmd, cmdline, 64, ' ');
+
+    if (strlen(cmd) > 0) {
+
+		resolveDirectory(newpath, arg);
+
+		if (debug) pc.printf("cmdline:<%s> cmd:<%s> arg:<%s> newpath:<%s>\n", cmdline, cmd, arg, newpath);
+
+		for (int i=0; command[i].cmd; i++) {
+			if (!strcmp(cmd, command[i].cmd)) {
+				found = true;
+				command[i].f(newpath);
+			}
+		}
+
+		if (!found) {
+			pc.printf("%s: command not found\n", cmd);
+		}
+
+    }
+
+	return;
+}
+
+
 /** termInput
- *
+ * read input from the terminal
  */
 void termInput(char *cmd) {
     int i=0;
@@ -172,10 +198,12 @@ void resolveDirectory(char *newpath, char *path) {
     }
 }
 
-// copy t to s until space is reached
-// return location of delimiter+1 in t
-// if space not found, return t pointing to end of string
-// if s or t null, return null
+/** splitCmd
+ * copy t to s until space is reached
+ * return location of delimiter+1 in t
+ * if space not found, return t pointing to end of string
+ * if s or t null, return null
+ */
 char *splitCmd(char *s, char *t, int max)
 {
   int i = 0;
@@ -199,7 +227,7 @@ char *splitCmd(char *s, char *t, int max)
 /** splitName
  * split the path into a dirname and a 
  */
-void splitName(char *path, char *dirname, char *basename) {
+void splitName(const char *path, char *dirname, char *basename) {
     int sep;
     
     sep = 0;
@@ -214,7 +242,7 @@ void splitName(char *path, char *dirname, char *basename) {
         dirname[j] = path[j];
         dirname[j+1] = 0;
     }
-    for (int k=sep+1; k < strlen(path); k++) {
+    for (unsigned int k=sep+1; k != strlen(path); k++) {
         if (debug) pc.printf("* %c\n", path[k]);
         basename[k-(sep+1)] = path[k];
         basename[k-sep] = 0;    
@@ -225,7 +253,7 @@ void splitName(char *path, char *dirname, char *basename) {
 /** ls
  * lists files in the current working directory, 4 columns
  */
-void ls(char *path) {
+int dols(const char *path) {
     if (debug) pc.printf("%s\n", cwd);
     DIR *d;
     struct dirent *p;
@@ -243,41 +271,57 @@ void ls(char *path) {
         if (count < 3)
             pc.printf("\n");
         closedir(d);
+        status = 0;
     } else {
         pc.printf("%s: No such directory\n", path);
+        status = 1;
     }
+
+    return status;
 }
 
 /** cd
  * changes current working directory
  */
-void cd(char *path) {
+int docd(const char *path) {
     strcpy(cwd, path);
+
+    return 0;
 }
 
 /** pwd
  * print current working directory
  */
-void pwd() {
+int dopwd(const char *s) {
     pc.printf("%s\n", cwd);
+
+    return 0;
 }
 
 /** touch
  * create an empty file
  */
-void touch(char *path) {
+int dotouch(const char *path) {
     FILE *fp;
     if ((fp = fopen(path, "w")) != NULL) {
         fclose(fp);
+        status = 0;
     } else {
         pc.printf("%s: No such file\n", path);
+        status = 1;
     }
+
+    return status;
 } 
+
+int domkdir(const char *path) {
+	return mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO);
+}
 
 /** head
  * print the first 10 lines of a file
  */
-void head(char *path) {
+int dohead(const char *path) {
     FILE *fp;
     char line = 0;
     
@@ -287,15 +331,19 @@ void head(char *path) {
             pc.printf("%s", buf);
         }
         fclose(fp);
+        status = 0;
     } else {
         pc.printf("%s: No such file\n", path);
+        status = 1;
     }
+
+    return status;
 }
 
 /** cat
  * display the content of a file
  */
-void cat(char *path) {
+int docat(const char *path) {
     FILE *fp;
 
     if ((fp = fopen(path, "r")) != NULL) {
@@ -304,9 +352,13 @@ void cat(char *path) {
                 pc.printf("%s", buf);
         }
         fclose(fp);
+        status = 0;
     } else {
         pc.printf("%s: No such file\n", path);
+        status = 1;
     }
+
+    return status;
 }
 
 /** send
@@ -314,7 +366,7 @@ void cat(char *path) {
  * Initiates escape sequence: ^A^B, sends filename, ^C, and then file
  * contents followed by ^D
  */
-void send(char *path) {
+int dosend(const char *path) {
     FILE *fp;
     char dirname[32], basename[16];
 
@@ -327,7 +379,89 @@ void send(char *path) {
         }
         fclose(fp);
         pc.printf("%c", 4);
+        status = 0;
     } else {
         pc.printf("%s: No such file\n", path);
+        status = 1;
     }
+
+    return status;
+}
+
+/** doexit
+ * set a flag to exit the shell
+ */
+int doexit(const char *s) {
+	done = true;
+
+	return 0;
+}
+
+/** dodebug
+ * toggle the debug state variable
+ */
+int dodebug(const char *s) {
+	debug = !debug;
+
+	return 0;
+}
+
+/** dohelp
+ * print the list of commands and descriptions
+ */
+int dohelp(const char *s) {
+	for (int i=0; command[i].cmd; i++) {
+		pc.printf("%10s %s\n", command[i].cmd, command[i].desc);
+	}
+
+	return 0;
+}
+
+/** doinstrchk
+ * call external instrument check routine
+ */
+int doinstrchk(const char *s) {
+	extern void displayData(int mode);
+	displayData(0);
+
+	return 0;
+}
+
+/** docompswing
+ * perform compass swing, call external function
+ */
+int docompswing(const char *s) {
+	extern int compassSwing();
+	compassSwing();
+
+	return 0;
+}
+
+/** dogyroswing
+ * perform gyro swing, call external function
+ */
+int dogyroswing(const char *s) {
+	extern int gyroSwing();
+	gyroSwing();
+
+	return 0;
+}
+
+/** doreset
+ * reset the processor
+ */
+int doreset(const char *s) {
+	extern int resetMe();
+	resetMe();
+	return 0; // won't ever reach this line...
+}
+
+/** doautonomous
+ * call external doAutonomous mode to perform an autonomous run
+ */
+int doautonomous(const char *s) {
+	extern int autonomousMode();
+	autonomousMode();
+
+	return 0;
 }

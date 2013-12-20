@@ -840,7 +840,7 @@ void serialBridge(Serial &serial)
     wait(2.0);
     //dev = &gps;
     sensors.gps.disable();
-    serial.baud(4800);
+    serial.baud(38400);
     while (!done) {
         if (pc.readable()) {
             x = pc.getc();
@@ -912,10 +912,9 @@ void displayData(int mode)
 
             fprintf(stdout, "!ANG:%.1f,%.1f,%.1f\r\n", ToDeg(ahrs.roll), ToDeg(ahrs.pitch), ToDeg(ahrs.yaw));
 
-        } else */      
+        } else if (mode == INSTRUMENT_CHECK) {
+ */
         
-        if (mode == INSTRUMENT_CHECK) {
-
             if ((millis % 1000) == 0) {
 
                 fprintf(stdout, "update() time = %.3f msec\n", getUpdateTime() / 1000.0);
@@ -965,7 +964,7 @@ void displayData(int mode)
                 lcd.printf("V=%5.2f A=%5.3f  ", sensors.voltage, sensors.current);
                 
             }
-        }
+        //}
     
     } // while !done
     // clear input buffer
