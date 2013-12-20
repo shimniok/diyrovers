@@ -47,6 +47,7 @@ int doreset(const char *s);
 int doautonomous(const char *s);
 
 cmd command[MAXCMDARR] = {
+    	{ "help", dohelp, "print this help" },
 		{ "ls", dols, "list files" },
     	{ "cd", docd, "change directory" },
     	{ "pwd", dopwd, "print working directory" },
@@ -57,19 +58,18 @@ cmd command[MAXCMDARR] = {
     	{ "send", dosend, "send file to terminal" },
     	{ "rm", remove, "remove file" },
     	{ "debug", dodebug, "toggle debug mode" },
-    	{ "exit", doexit, "exit shell" },
-    	{ "help", dohelp, "print this help" },
     	{ "stat", doinstrchk, "instrument check" },
     	{ "comp", docompswing, "compass swing" },
     	{ "gyro", dogyroswing, "gyro swing" },
-    	{ "reset", doreset, "reset the MCU" },
     	{ "auto", doautonomous, "run autonomous mode" },
+    	{ "reset", doreset, "reset the MCU" },
+    	{ "exit", doexit, "exit shell" },
     	{ 0, 0, 0 }
 };
 
 
 void shell() {
-    FILE *fp;
+    //FILE *fp;
     char cmdline[64];
     /*
     if ((fp = fopen("/log/message.txt", "w")) != NULL) {
