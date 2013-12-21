@@ -24,7 +24,6 @@ typedef struct {
 } cmd;
 
 void shell(void);
-//void addcmd(const char *cmd, int (*f)(const char *arg0), const char *desc);
 void docmd(char *cmdline);
 void termInput(char *cmd);
 void resolveDirectory(char *newpath, char *path);
@@ -67,20 +66,8 @@ cmd command[MAXCMDARR] = {
     	{ 0, 0, 0 }
 };
 
-
-void shell() {
-    //FILE *fp;
+void shell(void const *args) {
     char cmdline[64];
-    /*
-    if ((fp = fopen("/log/message.txt", "w")) != NULL) {
-        for (int i=0; i < 20; i++)
-            fprintf(fp, "Hello, World!\n");
-        fclose(fp);
-    } else {
-        pc.printf("Error creating file\n");
-    }
-    pc.printf("\n");
-    */
 
     pc.printf("Type help for assistance\n");
     
@@ -151,7 +138,7 @@ void termInput(char *cmd) {
     
     memset(cmd, 0, 64);
     
-    pc.printf("# ", cwd);
+    pc.printf("(%s)# ", cwd);
     do {
         cmd[i] = 0;
         c = pc.getc();
@@ -261,7 +248,7 @@ int dols(const char *path) {
     int count=0;
     if ((d = opendir(path)) != NULL) {
         while ((p = readdir(d)) != NULL) {
-            pc.printf("%12s", p->d_name);
+            pc.printf("%14s", p->d_name);
             if (count++ >= 3) {
                 count = 0;
                 pc.printf("\n");

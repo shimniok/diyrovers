@@ -10,6 +10,7 @@
 #include <math.h>
 #include "mbed.h"
 #include "globals.h"
+#include "Filesystem.h"
 #include "Config.h"
 #include "Buttons.h"
 #include "Display.h"
@@ -98,6 +99,7 @@ Serial *dev;                            // For use with bridge
 FILE *camlog;                           // Camera log
 
 // Configuration
+Filesystem fs;							// set up filesystems
 Config config;                          // Persistent configuration
                                         // Course Waypoints
                                         // Sensor Calibration
@@ -361,7 +363,7 @@ int main()
             fprintf(stdout, "%d) Shell\n", i++);
             fprintf(stdout, "R) Reset\n");
             fprintf(stdout, "\nSelect from the above: ");
-            //fflush(stdout);
+            fflush(stdout);
             printMenu = false;
         }
 
@@ -436,14 +438,15 @@ int main()
                 case '8' :
                     display.select("Shell");
                     display.status("Standby.");
-                    shell();
+                    shell(0);
                     break;
                 case '9' :
                     display.select("Serial bridge 2");
                     display.status("Standby.");
                     //gps2.enableVerbose();
                     //serialBridge( *(gps2.getSerial()) );
-                    //gps2.disableVerbose();                   
+                    //gps2.disableVerbose();
+                    break;
                 default :
                     break;
             } // switch        

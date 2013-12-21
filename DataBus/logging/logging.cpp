@@ -5,7 +5,9 @@
 extern Serial pc;
 extern SerialGraphicLCD lcd;
 
-SDFileSystem sd(p5, p6, p7, p8, "log"); // mosi, miso, sclk, cs
+#define LOGDIR "/log"
+
+//SDFileSystem sd(p5, p6, p7, p8, "log"); // mosi, miso, sclk, cs
 static FILE *logp;
 
 void clearState( SystemState *s )
@@ -228,7 +230,8 @@ FILE *openlog(const char *prefix)
     pc.printf("Opening file...\n");
 
     while (fp == 0) {
-        if ((fp = fopen("/log/test.txt", "w")) == 0) {
+    	sprintf(myname, "%s/test.txt", LOGDIR);
+        if ((fp = fopen(myname, "w")) == 0) {
             pc.printf("Waiting for filesystem to come online...");
             wait(0.200);
             lcd.pos(0,1);
@@ -238,7 +241,7 @@ FILE *openlog(const char *prefix)
     fclose(fp);
 
     for (int i = 0; i < 1000; i++) {
-        sprintf(myname, "/log/%s%03d.csv", prefix, i);
+        sprintf(myname, "%s/%s%03d.csv", LOGDIR, prefix, i);
         if ((fp = fopen(myname, "r")) == 0) {
             break;
         } else {

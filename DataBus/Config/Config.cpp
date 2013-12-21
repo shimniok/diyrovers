@@ -6,6 +6,8 @@
 #include "globals.h"
 #include "util.h"
 
+#define CONFIGFILE	"/etc/config.txt"
+
 extern Serial pc;
 
 // TODO: 3: mod waypoints to include speed after waypoint
@@ -19,7 +21,6 @@ Config::Config():
 // load configuration from filesystem
 bool Config::load()
 {
-    LocalFileSystem local("etc");         // Create the local filesystem under the name "local"
     FILE *fp;
     char buf[MAXBUF];   // buffer to read in data
     char tmp[MAXBUF];   // temp buffer
@@ -33,9 +34,9 @@ bool Config::load()
 
     pc.printf("opening config file...\n");
     
-    fp = fopen("/etc/config.txt", "r");
+    fp = fopen(CONFIGFILE, "r");
     if (fp == 0) {
-        pc.printf("Could not open config.txt\n");
+        pc.printf("Could not open %s\n", CONFIGFILE);
     } else {
         wptCount = 0;
         declination = 0.0;
@@ -94,7 +95,8 @@ bool Config::load()
                         p = split(tmp, p, MAXBUF, ',');
                         magScale[i] = (float) cvstof(tmp);
                         pc.printf("magScale[%d]: %.2f\n", i, magScale[i]);
-                    }                    
+                    }
+                    break;
                 case 'R' : // Steering configuration
                     p = split(tmp, p, MAXBUF, ',');
                     steerZero = cvstof(tmp);            // servo center setting
@@ -129,6 +131,7 @@ bool Config::load()
                     compassGain = (float) cvstof(tmp);  // not used (DCM)
                     p = split(tmp, p, MAXBUF, ',');    
                     yawGain = (float) cvstof(tmp);      // not used (DCM)
+                    break;
                 default :
                     break;
             } // switch
