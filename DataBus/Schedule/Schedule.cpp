@@ -1,6 +1,10 @@
 #include "Schedule.h"
 
-Schedule::Schedule(): _scale(0), _max(0), _clock(0) 
+Schedule::Schedule():
+	_scale(0)
+,	_max(0)
+,	_clock(0)
+,	_mode(0)
 {
     for (int i=0; i < 64; i++) {
         _schedule[i] = 0;

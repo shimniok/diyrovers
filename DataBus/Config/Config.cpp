@@ -14,6 +14,31 @@ extern Serial pc;
 
 Config::Config():
     loaded(false)
+,	interceptDist(0.0)
+,	waypointDist(0.0)
+,	brakeDist(0.0)
+,	declination(0.0)
+,	compassGain(0.0)
+,	yawGain(0.0)
+,	wptCount(0)
+,	escMin(0)
+,	escZero(0)
+,	escMax(0)
+,	topSpeed(0.0)
+,	turnSpeed(0.0)
+,	startSpeed(0.0)
+,	minRadius(0.0)
+,	speedKp(0.0)
+,	speedKi(0.0)
+,	speedKd(0.0)
+,	steerZero(0.0)
+,	steerGain(0.0)
+,	steerGainAngle(0.0)
+,	curbThreshold(0.0)
+,	curbGain(0.0)
+,	gyroBias(0.0)
+,	gpsType(0)
+,	gpsBaud(9600)
 {
     // not much to do here, yet.
 }

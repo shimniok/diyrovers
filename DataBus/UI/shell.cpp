@@ -23,7 +23,7 @@ typedef struct {
 	const char *desc;
 } cmd;
 
-void shell(void);
+void shell(const void *args);
 void docmd(char *cmdline);
 void termInput(char *cmd);
 void resolveDirectory(char *newpath, char *path);
@@ -66,7 +66,7 @@ cmd command[MAXCMDARR] = {
     	{ 0, 0, 0 }
 };
 
-void shell(void const *args) {
+void shell(const void *args) {
     char cmdline[64];
 
     pc.printf("Type help for assistance\n");

@@ -33,7 +33,7 @@ void clearState( SystemState *s )
 }
 
 Timer logtimer;
-extern int bufCount;
+//extern int bufCount;
 
 /*
 void logData( const SystemState s ) {
