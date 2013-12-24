@@ -1,6 +1,33 @@
 
 #include "GPIO.h"
 
+/**
+ *  On RoverBaseboard Rev 0.5 the following is the GPIO pin mapping.
+ *  Don't ask why I did it this way. Cuz I don't know. :)
+ *
+ *  D0 - P0.18
+ *  D1 - P0.17
+ *  D2 - P0.21
+ *  D7 - P2.12
+ *  D8 - P2.11
+ *
+ *  It might be just as easy to use the CMSIS stuff here until we edit mbed PinNames.h for the LPCXpresso.
+ *
+ * Example:
+ *  // Set P0_22 to 00 - GPIO
+ *  LPC_PINCON->PINSEL1 &= (~(3 << 12));
+ *  // Set GPIO - P0_22 - to be output
+ *  LPC_GPIO0->FIODIR |= (1 << 22);
+ *
+ *  volatile static uint32_t i;
+ *  while (1) {
+ *      LPC_GPIO0->FIOSET = (1 << 22); // Turn LED2 on
+ *      for (i = 0; i < 1000000; i++);
+ *      LPC_GPIO0->FIOCLR = (1 << 22); // Turn LED2 off
+ *      for (i = 0; i < 1000000; i++);
+ *  }
+ */
+
 using namespace RoverBaseboard;
 
 RoverBaseboardGPIO::RoverBaseboardGPIO()

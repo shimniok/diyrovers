@@ -2,21 +2,35 @@
 #
 # Build APMrover2 for RoverBaseboard
 
+# TODO should probably change this to LPCXPRESSO
 TOOLCHAIN = ARM
 
 include $(MK_DIR)/find_arduino.mk
 include $(MK_DIR)/find_tools.mk
 
+# TODO incorporate the following into find_tools.mk
+ARMBIN := /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/bin
+ARM_CXX     :=  $(ARMBIN)/arm-none-eabi-g++
+ARM_CC      :=  $(ARMBIN)/arm-none-eabi-gcc
+ARM_AS      :=  $(ARMBIN)/arm-none-eabi-gcc
+ARM_AR      :=  $(ARMBIN)/arm-none-eabi-ar
+ARM_LD      :=  $(ARMBIN)/arm-none-eabi-g++
+ARM_GDB     :=  $(ARMBIN)/arm-none-eabi-gdb
+ARM_OBJCOPY :=  $(ARMBIN)/arm-none-eabi-objcopy
+## end
+
 #HARDWARE := leaflabs
 MCU := LPC1769
 FAMILY := cortex-m3
-F_CPU := 120000000L
+F_CPU := 96000000L
 #LINKER := maple_RET6/flash.ld
 #HARDWARE_CORE := maple
 #UPLOADER := dfu-util
 #USBID := 1EAF:0003
 #PRODUCT_ID := 0003
 #LD_MEM_DIR := sram_64k_flash_512k
+
+MBEDLIBDIR		= ../../mbed/TARGET_LPC1768/TOOLCHAIN_GCC_CR
 
 #
 # Tool options
@@ -40,7 +54,7 @@ NATIVE_CPUFLAGS     = -D_GNU_SOURCE
 NATIVE_CPULDFLAGS   = -g
 NATIVE_OPTFLAGS     = -O0 -g
 
-ARM_CPUFLAGS        = -mcpu=$(FAMILY) -mthumb
+ARM_CPUFLAGS        = -mcpu=$(FAMILY) -mthumb -D__NEWLIB__
 #ARM_CPULDFLAGS      = -Wl,-m,avr6
 ARM_OPTFLAGS        = -Os
 
@@ -49,8 +63,8 @@ CPULDFLAGS= $($(TOOLCHAIN)_CPULDFLAGS)
 OPTFLAGS= $($(TOOLCHAIN)_OPTFLAGS)
 
 # This is kind of kludgey...
-#HELPERLIBS		= /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/lib/gcc/arm-none-eabi/4.6.2/thumb/
-#-L"$(HELPERLIBS)" # ugh, just trying to include this stupid ARM library
+LPCXPRESSOLIBS	= /usr/local/lpcxpresso_6.1.0_164/lpcxpresso/tools/lib/gcc/arm-none-eabi/4.6.2/thumb/
+
 
 # This is kind of kludgey...
 ARMOPTS			= -nostdlib -Wl,--gc-sections -Wl,-Map 
@@ -63,7 +77,7 @@ CFLAGS         +=   $(WARNFLAGS) $(DEPFLAGS) $(COPTS) $(ARMOPTS)
 ASFLAGS         =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(DEPFLAGS)
 ASFLAGS        +=   $(ASOPTS)
 LDFLAGS         =   -g $(CPUFLAGS) $(OPTFLAGS) $(WARNFLAGS) -Xlinker
-LDFLAGS        +=   --gc-sections -Wl,-Map -Wl,$(SKETCHMAP)
+LDFLAGS        +=   --gc-sections -Wl,-Map -Wl,$(SKETCHMAP) -L$(MBEDLIBDIR) -L$(LPCXPRESSOLIBS) 
 
 ifneq ($(BOARD),mega)
   LDFLAGS      +=   $(CPULDFLAGS)
@@ -77,7 +91,7 @@ EXCLUDE_RELAX := $(wildcard $(SRCROOT)/norelax.inoflag)
   #LDFLAGS      +=   -Wl,--relax
 #endif
 
-LIBS = -lm
+LIBS = -lm -lmbed -lgcov -lgcc
 
 ifeq ($(VERBOSE),)
 v = @
@@ -86,7 +100,7 @@ v =
 endif
 
 # Library object files
-LIBOBJS			:=	$(SKETCHLIBOBJS)
+LIBOBJS			:=	$(SKETCHLIBOBJS) $(MBEDLIBDIR)/cmsis_nvic.o $(MBEDLIBDIR)/retarget.o $(MBEDLIBDIR)/startup_LPC17xx.o $(MBEDLIBDIR)/system_LPC17xx.o
 
 # Find the hardware directory to use
 HARDWARE_DIR		:=	$(firstword $(wildcard $(SKETCHBOOK)/hardware/$(HARDWARE) \

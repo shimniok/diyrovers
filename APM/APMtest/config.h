@@ -82,6 +82,11 @@
 # define CONFIG_COMPASS  AP_COMPASS_HMC5843
 # define BATTERY_PIN_1     20
 # define CURRENT_PIN_1	   19
+#elif CONFIG_HAL_BOARD == HAL_BOARD_ROVERBASEBOARD
+# define CONFIG_INS_TYPE   CONFIG_INS_MPU6000
+# define CONFIG_COMPASS  AP_COMPASS_HMC5843 //TODO: this will need to be fixed
+# define BATTERY_PIN_1     20 //TODO: this will need to be fixed
+# define CURRENT_PIN_1	   19 //TODO: this will need to be fixed
 #elif CONFIG_HAL_BOARD == HAL_BOARD_LINUX
 # define CONFIG_INS_TYPE   CONFIG_INS_L3G4200D
 # define CONFIG_COMPASS  AP_COMPASS_HMC5843
