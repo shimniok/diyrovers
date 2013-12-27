@@ -10,17 +10,17 @@ Serial pc(USBTX, USBRX);
 
 void thread1(void *args) {
 	while (1) {
-		//fprintf(stdout, "Hello 1\n");
+		fprintf(stdout, "Hello ---\n");
 		led1 = !led1;
-		vTaskDelay(500);
+		vTaskDelay(300);
 	}
 }
 
 void thread2(void *args) {
 	while (1) {
-        //fprintf(stdout, "Hello main\n");
+        fprintf(stdout, "Hello -\n");
         led2 = !led2;
-		vTaskDelay(1500);
+		vTaskDelay(1000);
 	}
 }
 
