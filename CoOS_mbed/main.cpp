@@ -33,32 +33,14 @@ void taskB(void *args) {
 	}
 }
 
-
-/**
- *******************************************************************************
- * @brief		"init_task" task code
- * @param[in] 	pdata	A pointer to parameter passed to task.
- * @param[out]	None
- * @retval		None
- * @par Description
- * @details		This task use to create other tasks, all mutexs and flags,and so on.
- *******************************************************************************
- */
-void init_task (void *pdata)
-{
-	CoCreateTask(taskA, 0, A_TASK_PRIO, &a_task_stk[STK_SIZE-1], STK_SIZE);
-	CoCreateTask(taskB, 0, B_TASK_PRIO, &b_task_stk[STK_SIZE-1], STK_SIZE);
-
-	CoExitTask();								/*!< Delete "init_task" task. */
-}
-
 int main() {
 	pc.baud(115200);
 
 	led3 = 1;
 
-	CoInitOS();  							/*!< Initial CooCox RTOS.       */
-	CoCreateTask(init_task, 0, INIT_TASK_PRIO, &init_task_stk[STK_SIZE-1], STK_SIZE);
+	CoInitOS();
+	CoCreateTask(taskA, 0, A_TASK_PRIO, &a_task_stk[STK_SIZE-1], STK_SIZE);
+	CoCreateTask(taskB, 0, B_TASK_PRIO, &b_task_stk[STK_SIZE-1], STK_SIZE);
 	CoStartOS();
 
 	led4 = 1;
