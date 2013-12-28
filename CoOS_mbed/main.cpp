@@ -9,11 +9,9 @@ Serial pc(USBTX, USBRX);
 
 #define STK_SIZE 128
 
-OS_STK  init_task_stk[STK_SIZE];
 OS_STK	a_task_stk[STK_SIZE];
 OS_STK	b_task_stk[STK_SIZE];
 
-#define INIT_TASK_PRIO 10
 #define A_TASK_PRIO 10
 #define B_TASK_PRIO 10
 
