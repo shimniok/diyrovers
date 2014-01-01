@@ -24,17 +24,6 @@ void thread2(void *args) {
 	}
 }
 
-/* Constants required to manipulate the NVIC. */
-#define portNVIC_SYSTICK_CTRL		( ( volatile unsigned long *) 0xe000e010 )
-#define portNVIC_SYSTICK_LOAD		( ( volatile unsigned long *) 0xe000e014 )
-#define portNVIC_INT_CTRL			( ( volatile unsigned long *) 0xe000ed04 )
-#define portNVIC_SYSPRI2			( ( volatile unsigned long *) 0xe000ed20 )
-#define portNVIC_SYSTICK_CLK		0x00000004
-#define portNVIC_SYSTICK_INT		0x00000002
-#define portNVIC_SYSTICK_ENABLE		0x00000001
-#define portNVIC_PENDSVSET			0x10000000
-#define portNVIC_PENDSV_PRI			( ( ( unsigned long ) configKERNEL_INTERRUPT_PRIORITY ) << 16 )
-#define portNVIC_SYSTICK_PRI		( ( ( unsigned long ) configKERNEL_INTERRUPT_PRIORITY ) << 24 )
 
 int main() {
 	pc.baud(115200);
@@ -43,12 +32,12 @@ int main() {
 	xTaskCreate( thread1, ( signed char * ) "Thread1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, NULL );
 	xTaskCreate( thread2, ( signed char * ) "Thread2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, NULL );
 
-	/* Configure SysTick to interrupt at the requested rate. */
-	*(portNVIC_SYSTICK_LOAD) = ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
-	*(portNVIC_SYSTICK_CTRL) = portNVIC_SYSTICK_CLK | portNVIC_SYSTICK_INT | portNVIC_SYSTICK_ENABLE;
+	led3 = 1;
 
 	/* Start the tasks running. */
 	vTaskStartScheduler();
+
+	led4 = 1;
 
 	while (1);
 }

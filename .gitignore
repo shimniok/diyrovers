@@ -1,11 +1,11 @@
 *.o
 *.elf
 *.hex
-*.bin
 *~
 *.bin
 *.d
 *.dll
+*.lib
 *.exe
 *.lst
 *.o
