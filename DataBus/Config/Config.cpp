@@ -8,6 +8,18 @@
 
 #define CONFIGFILE	"/etc/config.txt"
 
+// Identifiers for each of the parameters
+#define CURB 			"curb"
+#define WAYPOINT		"wpt"
+#define GPS				"gps"
+#define GYRO			"gyro"
+#define MAGNETOMETER	"mag"
+#define ACCELEROMETER	"accel"
+#define DECLINATION		"decl"
+#define NAVIGATION		"nav"
+#define STEER			"steer"
+#define SPEED			"speed"
+
 extern Serial pc;
 
 // TODO: 3: mod waypoints to include speed after waypoint
@@ -68,98 +80,81 @@ bool Config::load()
         while (!feof(fp)) {
             fgets(buf, MAXBUF-1, fp);
             p = split(tmp, buf, MAXBUF, ',');           // split off the first field
-            switch (tmp[0]) {
-                case 'B' :
-                    p = split(tmp, p, MAXBUF, ',');     // threshold distance for curb avoid
-                    curbThreshold = cvstof(tmp);
-                    p = split(tmp, p, MAXBUF, ',');     // steering gain for curb avoid
-                    curbGain = cvstof(tmp);
-                    break;
-                case 'W' :                              // Waypoint
-                    p = split(tmp, p, MAXBUF, ',');     // split off the latitude to tmp
-                    lat = cvstof(tmp);
-                    p = split(tmp, p, MAXBUF, ',');     // split off the longitude to tmp
-                    lon = cvstof(tmp);
-                    if (wptCount < MAXWPT) {
-                        wpt[wptCount].set(lat, lon);
-                        wptCount++;
-                    }
-                    break;
-                case 'G' :                              // GPS
-                    p = split(tmp, p, MAXBUF, ',');
-                    gpsBaud = atoi(tmp);                // baud rate for gps
-                    p = split(tmp, p, MAXBUF, ',');
-                    gpsType = atoi(tmp);
-                    break;
-                case 'Y' :                              // Gyro Bias
-                    p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
-                    gyroBias = (float) cvstof(tmp);
-                    break;
-                case 'D' :                              // Compass Declination
-                    p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
-                    declination = (float) cvstof(tmp);
-                    declFound = true;
-                    break;
-                case 'N' :                                  // Navigation and Turning    
-                    p = split(tmp, p, MAXBUF, ',');
-                    interceptDist = (float) cvstof(tmp);    // intercept distance for steering algorithm
-                    p = split(tmp, p, MAXBUF, ',');
-                    waypointDist = (float) cvstof(tmp);     // distance before waypoint switch
-                    p = split(tmp, p, MAXBUF, ',');
-                    brakeDist = (float) cvstof(tmp);        // distance at which braking starts
-                    p = split(tmp, p, MAXBUF, ',');
-                    minRadius = (float) cvstof(tmp);        // minimum turning radius
-                    break;
-                case 'M' :                              // Magnetometer
-                    for (int i=0; i < 3; i++) {
-                        p = split(tmp, p, MAXBUF, ',');
-                        magOffset[i] = (float) cvstof(tmp);
-                        pc.printf("magOffset[%d]: %.2f\n", i, magOffset[i]);
-                    }
-                    for (int i=0; i < 3; i++) {
-                        p = split(tmp, p, MAXBUF, ',');
-                        magScale[i] = (float) cvstof(tmp);
-                        pc.printf("magScale[%d]: %.2f\n", i, magScale[i]);
-                    }
-                    break;
-                case 'R' : // Steering configuration
-                    p = split(tmp, p, MAXBUF, ',');
-                    steerZero = cvstof(tmp);            // servo center setting
-                    p = split(tmp, p, MAXBUF, ',');
-                    steerGain = cvstof(tmp);            // steering angle multiplier
-                    p = split(tmp, p, MAXBUF, ',');
-                    steerGainAngle = cvstof(tmp);       // angle below which steering gain takes effect
-                    break;
-                case 'S' :                              // Throttle configuration
-                    p = split(tmp, p, MAXBUF, ',');
-                    escMin = atoi(tmp);                 // minimum esc (brake) setting
-                    p = split(tmp, p, MAXBUF, ',');     
-                    escZero = atoi(tmp);                // esc center/zero setting
-                    p = split(tmp, p, MAXBUF, ',');     
-                    escMax = atoi(tmp);                 // maximum esc setting
-                    p = split(tmp, p, MAXBUF, ',');   
-                    topSpeed = cvstof(tmp);             // desired top speed
-                    p = split(tmp, p, MAXBUF, ',');   
-                    turnSpeed = cvstof(tmp);            // speed to use within brake distance of waypoint
-                    p = split(tmp, p, MAXBUF, ',');
-                    startSpeed = cvstof(tmp);            // speed to use at start
-                    p = split(tmp, p, MAXBUF, ',');
-                    speedKp = cvstof(tmp);              // speed PID: proportional gain
-                    p = split(tmp, p, MAXBUF, ',');     
-                    speedKi = cvstof(tmp);              // speed PID: integral gain
-                    p = split(tmp, p, MAXBUF, ',');     
-                    speedKd = cvstof(tmp);              // speed PID: derivative gain
-    
-                    break;
-                case 'E' :
-                    p = split(tmp, p, MAXBUF, ',');     
-                    compassGain = (float) cvstof(tmp);  // not used (DCM)
-                    p = split(tmp, p, MAXBUF, ',');    
-                    yawGain = (float) cvstof(tmp);      // not used (DCM)
-                    break;
-                default :
-                    break;
-            } // switch
+
+            if (!strcmp(tmp, CURB)) {
+				p = split(tmp, p, MAXBUF, ',');     // threshold distance for curb avoid
+				curbThreshold = cvstof(tmp);
+				p = split(tmp, p, MAXBUF, ',');     // steering gain for curb avoid
+				curbGain = cvstof(tmp);
+            } else if (!strcmp(tmp, WAYPOINT)) {
+				p = split(tmp, p, MAXBUF, ',');     // split off the latitude to tmp
+				lat = cvstof(tmp);
+				p = split(tmp, p, MAXBUF, ',');     // split off the longitude to tmp
+				lon = cvstof(tmp);
+				if (wptCount < MAXWPT) {
+					wpt[wptCount].set(lat, lon);
+					wptCount++;
+				}
+            } else if (!strcmp(tmp, GPS)) {
+				p = split(tmp, p, MAXBUF, ',');
+				gpsBaud = atoi(tmp);                // baud rate for gps
+				p = split(tmp, p, MAXBUF, ',');
+				gpsType = atoi(tmp);
+            } else if (!strcmp(tmp, GYRO)) {
+				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
+				gyroBias = (float) cvstof(tmp);
+				break;
+            } else if (!strcmp(tmp, DECLINATION)) {
+				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
+				declination = (float) cvstof(tmp);
+				declFound = true;
+            } else if (!strcmp(tmp, NAVIGATION)) {
+				p = split(tmp, p, MAXBUF, ',');
+				interceptDist = (float) cvstof(tmp);    // intercept distance for steering algorithm
+				p = split(tmp, p, MAXBUF, ',');
+				waypointDist = (float) cvstof(tmp);     // distance before waypoint switch
+				p = split(tmp, p, MAXBUF, ',');
+				brakeDist = (float) cvstof(tmp);        // distance at which braking starts
+				p = split(tmp, p, MAXBUF, ',');
+				minRadius = (float) cvstof(tmp);        // minimum turning radius
+            } else if (!strcmp(tmp, MAGNETOMETER)) {
+				for (int i=0; i < 3; i++) {
+					p = split(tmp, p, MAXBUF, ',');
+					magOffset[i] = (float) cvstof(tmp);
+					pc.printf("magOffset[%d]: %.2f\n", i, magOffset[i]);
+				}
+				for (int i=0; i < 3; i++) {
+					p = split(tmp, p, MAXBUF, ',');
+					magScale[i] = (float) cvstof(tmp);
+					pc.printf("magScale[%d]: %.2f\n", i, magScale[i]);
+				}
+            } else if (!strcmp(tmp, STEER)) {
+				p = split(tmp, p, MAXBUF, ',');
+				steerZero = cvstof(tmp);            // servo center setting
+				p = split(tmp, p, MAXBUF, ',');
+				steerGain = cvstof(tmp);            // steering angle multiplier
+				p = split(tmp, p, MAXBUF, ',');
+				steerGainAngle = cvstof(tmp);       // angle below which steering gain takes effect
+            } else if (!strcmp(tmp, SPEED)) {
+				p = split(tmp, p, MAXBUF, ',');
+				escMin = atoi(tmp);                 // minimum esc (brake) setting
+				p = split(tmp, p, MAXBUF, ',');
+				escZero = atoi(tmp);                // esc center/zero setting
+				p = split(tmp, p, MAXBUF, ',');
+				escMax = atoi(tmp);                 // maximum esc setting
+				p = split(tmp, p, MAXBUF, ',');
+				topSpeed = cvstof(tmp);             // desired top speed
+				p = split(tmp, p, MAXBUF, ',');
+				turnSpeed = cvstof(tmp);            // speed to use within brake distance of waypoint
+				p = split(tmp, p, MAXBUF, ',');
+				startSpeed = cvstof(tmp);            // speed to use at start
+				p = split(tmp, p, MAXBUF, ',');
+				speedKp = cvstof(tmp);              // speed PID: proportional gain
+				p = split(tmp, p, MAXBUF, ',');
+				speedKi = cvstof(tmp);              // speed PID: integral gain
+				p = split(tmp, p, MAXBUF, ',');
+				speedKd = cvstof(tmp);              // speed PID: derivative gain
+            }//if-else
         } // while
 
         // Did we get the values we were looking for?

@@ -76,7 +76,7 @@ DigitalOut gpsStatus(LED3);             // GPS fix status LED
 DigitalOut ahrsStatus(LED4);            // AHRS status LED
 //DigitalOut sonarStart(p18);             // Sends signal to start sonar array pings
 Display display;                        // UI display
-Beep speaker(p24);                      // Piezo speaker
+//Beep speaker(p24);                      // Piezo speaker
 
 // INPUT
 Menu menu;
@@ -141,9 +141,8 @@ int compassSwing(void);
 int gyroSwing(void);
 int setBacklight(void);
 int reverseScreen(void);
-float irDistance(unsigned int adc);
+float irDistance(const unsigned int adc);
 extern "C" void mbed_reset();
-
 //extern unsigned int matrix_error;
 
 // If we don't close the log file, when we restart, all the written data
@@ -159,7 +158,7 @@ int dummy(void)
 
 int resetMe()
 {
-    mbed_reset();
+	mbed_reset();
     
     return 0;
 }
@@ -230,7 +229,7 @@ int main()
 
     // Convert lat/lon waypoints to cartesian
     mapper.init(config.wptCount, config.wpt);
-    for (int w = 0; w < MAXWPT && w < config.wptCount; w++) {
+    for (unsigned int w = 0; w < MAXWPT && w < config.wptCount; w++) {
         mapper.geoToCart(config.wpt[w], &(config.cwpt[w]));
         pc.printf("Waypoint #%d (%.4f, %.4f) lat: %.6f lon: %.6f\n", 
                     w, config.cwpt[w]._x, config.cwpt[w]._y, config.wpt[w].latitude(), config.wpt[w].longitude());
@@ -462,7 +461,6 @@ int main()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // INITIALIZATION ROUTINES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
     
 void initFlasher()
 { 
@@ -874,7 +872,7 @@ int instrumentCheck(void) {
  * AHRS_VISUALIZATION : display data for use by AHRS python visualization script
  */
  
-void displayData(int mode)
+void displayData(const int mode)
 {
     bool done = false;
 
@@ -1189,7 +1187,7 @@ int reverseScreen(void) {
 // to get m and b, I wrote down volt vs. dist by eyeballin the
 // datasheet chart plot. Then used Excel to do linear regression
 //
-float irDistance(unsigned int adc)
+float irDistance(const unsigned int adc)
 {
     float b = 1.0934; // Intercept from Excel
     float m = 1.4088; // Slope from Excel
