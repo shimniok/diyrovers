@@ -38,10 +38,15 @@ public:
 	// TODO 2 convert this to time units
     static const int lag=40;		// number of updater steps by which gps output lags reality
 
-	/**
+    /**
      * create a new interface for Ublox6
      */
     Ublox6(PinName rx, PinName tx);
+
+    /**
+     * delete interface to Ublox6
+     */
+    ~Ublox6(void) {}
 
     /**
      * Initalize everything necessary for the GPS to collect the required data

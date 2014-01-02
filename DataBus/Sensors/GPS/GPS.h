@@ -14,7 +14,13 @@ public:
     /**
      * create a new instance of GPS
      */
-    //GPS(PinName tx, PinName rx); // serial only
+	GPS(void) {}
+    GPS(PinName tx, PinName rx) {}
+
+    /**
+     * delete instance of GPS
+     */
+	virtual ~GPS(void) {}
 
     /**
      * Initalize everything necessary for the GPS to collect the required data
