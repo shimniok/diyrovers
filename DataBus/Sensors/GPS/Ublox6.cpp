@@ -6,7 +6,7 @@
 #define SOL_BIT     0x04
 #define VELNED_BIT  0x08
 
-// TODO 2: parameterize LED/status
+// TODO 2: abstract LED/status to some kind of pub/sub thing
 
 Ublox6::Ublox6(PinName tx, PinName rx):
     serial(tx, rx),

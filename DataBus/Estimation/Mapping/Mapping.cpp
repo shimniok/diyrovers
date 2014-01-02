@@ -73,7 +73,7 @@ void Mapping::cartToGeo(float x, float y, GeoPosition *pos)
 
 void Mapping::cartToGeo(CartPosition cart, GeoPosition *pos)
 {
-    cartToGeo(cart._x, cart._y, pos);
+    cartToGeo(cart.x, cart.y, pos);
     
     return;
 }

@@ -165,8 +165,6 @@ void update()
     tReal = timer.read_us();
     bool useGps=false;
 
-    // TODO 1 do we need to set up the dt stuff after initialization?
-
     ahrsStatus = 0;
     thisTime = timer.read_ms();
     dt = (lastTime < 0) ? 0 : ((float) thisTime - (float) lastTime) / 1000.0; // first pass let dt=0
@@ -200,8 +198,8 @@ void update()
         history[now].dt = 0;
         history[now].dist = 0;
         // initial position is waypoint 0
-        history[now].x = config.cwpt[0]._x;
-        history[now].y = config.cwpt[0]._y;
+        history[now].x = config.cwpt[0].x;
+        history[now].y = config.cwpt[0].y;
         cartHere.set(history[now].x, history[now].y);
         // initialize heading to bearing between waypoint 0 and 1
         //history[now].hdg = here.bearingTo(config.wpt[nextWaypoint]);
@@ -276,7 +274,7 @@ void update()
     // HEADING AND POSITION UPDATE
     //////////////////////////////////////////////////////////////////////////////
 
-    // TODO: 2 Position filtering
+    // TODO: 3 Position filtering
     //    position will be updated based on heading error from heading estimate
     // TODO: 2 Distance/speed filtering
     //    this might be useful, but not sure it's worth the effort
@@ -369,7 +367,7 @@ void update()
         float sinA = sin(errHeading * PI / 180.0);
         // Update position & heading from history[lag] through history[now]
         int i = lag;
-        // TODO 2 parameterize heading lag -- for uBlox it seems to be ~ 600ms, for Venus, about 1000ms
+        // TODO 2 parameterize heading lag? uBlox is ~ 600ms, Venus is ~1000ms
         for (int j=0; j < HDG_LAG; j++) {
             //fprintf(stdout, "i=%d n=%d l=%d\n", i, now, lag);
             // Correct gyro-calculated headings from past to present including history[lag].hdg
@@ -445,8 +443,8 @@ void update()
     if (--control_count == 0) {
   
         steerAngle = steerCalc.pathPursuitSA(history[now].hdg, history[now].x, history[now].y,
-                                             config.cwpt[lastWaypoint]._x, config.cwpt[lastWaypoint]._y,
-                                             config.cwpt[nextWaypoint]._x, config.cwpt[nextWaypoint]._y);
+                                             config.cwpt[lastWaypoint].x, config.cwpt[lastWaypoint].y,
+                                             config.cwpt[nextWaypoint].x, config.cwpt[nextWaypoint].y);
         
         // Apply gain factor for near straight line
         // TODO 3 figure out a better, continuous way to deal with steering gain

@@ -17,14 +17,14 @@ CartPosition::CartPosition(float x, float y)
 
 void CartPosition::set(CartPosition p)
 {
-    _x = p._x;
-    _y = p._y;
+    x = p.x;
+    y = p.y;
 }
 
-void CartPosition::set(float x, float y)
+void CartPosition::set(float newx, float newy)
 {
-    _x = x;
-    _y = y;
+    x = newx;
+    y = newy;
 }
 
 
@@ -33,14 +33,14 @@ float CartPosition::bearingTo(CartPosition to)
     // x and y aren't backwards; it's to correct for the differences between
     // geometry and navigation. In the former, angles are measured from the x axis,
     // in the latter, from the y axis.
-    return 180/PI * atan2(to._x-_x, to._y-_y); 
+    return 180/PI * atan2(to.x-x, to.y-y); 
 }
 
 
 float CartPosition::distanceTo(CartPosition to)
 {
-    float dx = to._x-_x;
-    float dy = to._y-_y;
+    float dx = to.x-x;
+    float dy = to.y-y;
     
     return sqrt( dx*dx + dy*dy );
 }
@@ -51,8 +51,8 @@ void CartPosition::move(float bearing, float distance)
     // geometry and navigation. In the former, angles are measured from the x axis,
     // in the latter, from the y axis.
     float r = bearing * PI / 180;
-    _x += distance * sin( r );
-    _y += distance * cos( r );
+    x += distance * sin( r );
+    y += distance * cos( r );
     
     return;
 }

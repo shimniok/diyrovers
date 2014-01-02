@@ -54,7 +54,7 @@ L3G4200D::L3G4200D(PinName sda, PinName scl):
 }
 
 // Writes a gyro register
-void L3G4200D::writeReg(byte reg, byte value)
+void L3G4200D::writeReg(const byte reg, const byte value)
 {
     data[0] = reg;
     data[1] = value;
@@ -63,9 +63,9 @@ void L3G4200D::writeReg(byte reg, byte value)
 }
 
 // Reads a gyro register
-byte L3G4200D::readReg(byte reg)
+byte L3G4200D::readReg(const byte reg)
 {
-    byte value = 0;
+	byte value = 0;
     
     _device.write(GYR_ADDRESS, &reg, 1);
     _device.read(GYR_ADDRESS, &value, 1);
@@ -79,7 +79,7 @@ void L3G4200D::read(int g[3])
     // assert the MSB of the address to get the gyro 
     // to do slave-transmit subaddress updating.
     data[0] = L3G4200D_OUT_X_L | (1 << 7);
-    _device.write(GYR_ADDRESS, data, 1); 
+    _device.write(GYR_ADDRESS, data, 1);
 
 //    Wire.requestFrom(GYR_ADDRESS, 6);
 //    while (Wire.available() < 6);
@@ -98,6 +98,6 @@ void L3G4200D::read(int g[3])
     g[2] = (short) (zha << 8 | zla);
 }
 
-byte L3G4200D::readTemp(void) {
+uint8_t L3G4200D::readTemp(void) {
     return readReg(L3G4200D_OUT_TEMP);
 }

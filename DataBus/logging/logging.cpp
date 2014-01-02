@@ -135,10 +135,10 @@ size_t printFloat(FILE *f, double number, uint8_t digits)
 void logData( const SystemState s )
 {
     //char buf[256];
-    unsigned int t1, t2;
-    logtimer.start();
-    logtimer.reset();
-    t1 = logtimer.read_us();
+    //unsigned int t1, t2;
+	//logtimer.start();
+	//logtimer.reset();
+	//t1 = logtimer.read_us();
     printInt(logp, s.millis);
     fputc(',',logp);
     printFloat(logp, s.current, 2);
@@ -215,7 +215,7 @@ void logData( const SystemState s )
     fputc(',',logp);
     fputc('\n',logp);
 
-    t2 = logtimer.read_us();
+    //t2 = logtimer.read_us();
     //fprintf(stdout, "%d\n", t2-t1);
 
     return;

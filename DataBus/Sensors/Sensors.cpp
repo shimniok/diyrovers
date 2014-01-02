@@ -39,6 +39,22 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////// MAGNETOMETER CALIBRATION
 
 Sensors::Sensors():
+	gTemp(0),
+	leftRanger(0),
+	rightRanger(0),
+	centerRanger(0),
+	voltage(0),
+	current(0),
+	leftTotal(0),
+	rightTotal(0),
+	leftCount(0),
+	rightCount(0),
+	lrEncDistance(0.0),
+	rrEncDistance(0.0),
+	lrEncSpeed(0.0),
+	rrEncSpeed(0.0),
+	encDistance(0.0),
+	encSpeed(0.0),
     gps(p26, p25),
     _voltage(p19),               // Voltage from sensor board
     _current(p20),               // Current from sensor board
@@ -54,7 +70,7 @@ Sensors::Sensors():
         m_scale[i] = 1;
     }
 
-    // TODO 2 parameterize
+    // TODO 2 parameterize scale and sign for mag, accel, gyro
     g_scale[0] = 1;
     g_scale[1] = 1;
     g_scale[2] = GYRO_SCALE;
@@ -101,10 +117,10 @@ void Sensors::Read_Encoders()
     rightTotal += rightCount;
             
     // TODO 2 sanity check on encoders; if difference between them
-    //  is huge, what do we do?  Slipping wheel?  Skidding wheel?
+    //  is huge, what do we do?  Slipping wheel?  Skidding wheel?  Broken encoder?
     //  front encoders would be ideal as additional sanity check
     
-    // TODO 2 move this into scheduler??
+    // TODO 2 move Read_Encoders() into scheduler??
     
     // TODO 2 how do we track distance, should we only check distance everytime we do a nav/pos update?
     // TODO 3 get rid of state variable
@@ -168,8 +184,7 @@ void Sensors::Read_Accel()
 void Sensors::Read_Compass()
 {
     _compass.readMag(m);
-    // TODO 2 parameterize sign
-    // adjust for compass axis offsets and scale
+    // adjust for compass axis offsets, scale, and orientation (sign)
     for (int i=0; i < 3; i++) {
         mag[i] = ((float) m[i] - m_offset[i]) * m_scale[i] * m_sign[i];
     }

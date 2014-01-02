@@ -42,7 +42,7 @@ void Schedule::set(unsigned int scale, tick max, value start, value stop, flag m
         _max = max;
         _mode = m;
         float slope = ((float) stop - (float) start) / (float) max;
-        for (int i=0; i <= max; i++) {
+        for (unsigned int i=0; i <= max; i++) {
             _schedule[i] = ((int) (slope*(float)i)) + start;
         }
     }

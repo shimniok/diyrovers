@@ -232,7 +232,7 @@ int main()
     for (unsigned int w = 0; w < MAXWPT && w < config.wptCount; w++) {
         mapper.geoToCart(config.wpt[w], &(config.cwpt[w]));
         pc.printf("Waypoint #%d (%.4f, %.4f) lat: %.6f lon: %.6f\n", 
-                    w, config.cwpt[w]._x, config.cwpt[w]._y, config.wpt[w].latitude(), config.wpt[w].longitude());
+                    w, config.cwpt[w].x, config.cwpt[w].y, config.wpt[w].latitude(), config.wpt[w].longitude());
     }
 
     // TODO 3 print mag and gyro calibrations

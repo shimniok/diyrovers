@@ -29,6 +29,7 @@
 #define __L3G4200D_H
 
 #include "mbed.h"
+#include "types.h"
 
 // register addresses
 
@@ -63,8 +64,6 @@
 #define L3G4200D_INT1_THS_ZL   0x37
 #define L3G4200D_INT1_DURATION 0x38
 
-typedef char byte;
-
 /** Interface library for the ST L3G4200D 3-axis gyro
  *
  * Ported from Pololu L3G4200D library for Arduino by
@@ -97,14 +96,14 @@ class L3G4200D
         /** Read raw temperature value
          * @return temperature value in raw byte form
          */
-        byte readTemp(void);
+        uint8_t readTemp(void);
 
     private:
-        byte data[6];
+        char data[6];
         int _rates[3];
         I2C _device;
-        void writeReg(byte reg, byte value);
-        byte readReg(byte reg);
+        void writeReg(const byte reg, const byte value);
+        byte readReg(const byte reg);
         void enableDefault(void);
 };
 
