@@ -123,7 +123,7 @@
  
 #include "SDHCFileSystem.h"
 
-#define DEBUG
+//#define DEBUG
 #define SD_COMMAND_TIMEOUT 5000
 
 
@@ -215,10 +215,13 @@ int SDFileSystem::initialise_card_v2() {
 
 int SDFileSystem::disk_initialize() {
 
-    int i = initialise_card();
-    #ifdef DEBUG 
+#ifdef DEBUG
+    int i =
+#endif
+	initialise_card();
+#ifdef DEBUG
     printf("init card = %d\n", i);
-    #endif
+#endif
     _sectors = _sd_sectors();
 
     // Set block length to 512 (CMD16)
@@ -433,8 +436,10 @@ unsigned long SDFileSystem::_sd_sectors() {
     int c_size, c_size_mult, read_bl_len;
     int block_len, mult, blocknr, capacity;       
     int blocks, hc_c_size;
+#ifdef DEBUG
     uint64_t hc_capacity;
-     
+#endif
+
     // CMD9, Response R2 (R1 byte + 16-byte block read)
     if(_cmdx(9, 0) != 0) {
         fprintf(stderr, "Didn't get a response from the disk\n");
@@ -480,9 +485,9 @@ unsigned long SDFileSystem::_sd_sectors() {
       cdv = 1;
       hc_c_size = ext_bits(csd, 63, 48);
       //hc_read_bl_len = ext_bits(csd, 83, 80);
-      hc_capacity = hc_c_size+1;   
       blocks = (hc_c_size+1)*1024;
       #ifdef DEBUG 
+      hc_capacity = hc_c_size+1;
       printf("\n\rSDHC Card \n\rhc_c_size: %.4X \n\rcapacity: %.lld \n\rsectors: %d\n\r", hc_c_size, hc_capacity*512*1024, blocks);
       #endif
       break;

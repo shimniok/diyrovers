@@ -109,9 +109,9 @@ Config config;                          // Persistent configuration
 Timer timer;                            // For main loop scheduling
 
 // Overall system state (used for logging but also convenient for general use
-SystemState *state;       		        // system state for logging, FIFO buffer
-unsigned char inState;                  // FIFO items enter in here
-unsigned char outState;                 // FIFO items leave out here
+SystemState *state;       				// system state for logging, FIFO buffer
+volatile unsigned char inState;         // FIFO items enter in here
+volatile unsigned char outState;        // FIFO items leave out here
 bool ssBufOverrun = false;
 
 // GPS Variables
@@ -213,9 +213,9 @@ int main()
 
     // Allocate memory for system state buffer
     // We're doing this to (hopefully) save some flash size
-    state = (SystemState *) malloc(SSBUF*sizeof(SystemState));
+    state = (SystemState *) malloc(SSBUF*sizeof(SystemState)); // is +1 needed?
     if (state == NULL) {
-    	fprintf(stdout, "Error allocating SystemState array\n");
+    	error("\n\n%% Error allocating SystemState array %%\n");
     }
 
     fprintf(stdout, "Loading configuration...\n");
@@ -279,8 +279,12 @@ int main()
     cam.start();
 */
 
+    fprintf(stdout, "Starting keypad...\n");
+
     keypad.init();
     
+    fprintf(stdout, "Adding menu items...\n");
+
     // Setup LCD Input Menu
     menu.add("Auto mode", &autonomousMode);
     menu.add("Instruments", &instrumentCheck);
@@ -291,13 +295,17 @@ int main()
     menu.add("Backlight", &setBacklight);
     menu.add("Reverse", &reverseScreen);
     menu.add("Reset", &resetMe);
-   
+
     char cmd;
     bool printMenu = true;
     bool printLCDMenu = true;
     
+    fprintf(stdout, "Starting main timer...\n");
+
     timer.start();
     timer.reset();
+
+    fprintf(stdout, "Timer done, enter loop...\n");
 
     int thisUpdate = timer.read_ms();    
     int nextUpdate = thisUpdate;
@@ -458,6 +466,8 @@ int main()
 
         } // if (pc.readable())
 
+        wait(0.1);
+
     } // while
 
 }
@@ -506,6 +516,7 @@ int autonomousMode()
     sensors.gps.enable();
     //gps2.enable();
 
+    fprintf(stdout, "Press select button to start.\n");
     display.status("Select starts.");
     wait(1.0);
     
@@ -516,7 +527,7 @@ int autonomousMode()
     // Tell the navigation / position estimation stuff to reset to starting waypoint
     // Disable 05/27/2013 to try and fix initial heading estimate
     //restartNav();
-                
+
     // Main loop
     //
     while(navDone == false) {
@@ -582,7 +593,8 @@ int autonomousMode()
             // condition with schedHandler() ?
             int out=outState;               // in case we're interrupted this 'should' be atomic
             outState++;                     // increment
-            outState &= SSBUF;              // wrap
+            outState &= (SSBUF-1);              // wrap
+            //fprintf(stdout, "out: %d\n", out);
             logData( state[out] );          // log state data to file
             logStatus = !logStatus;         // log indicator LED
             

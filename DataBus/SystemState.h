@@ -1,7 +1,7 @@
 #ifndef _SYSTEMSTATE_H
 #define _SYSTEMSTATE_H
 
-#define SSBUF 0x3F   // 0b0000 0011 1111 1111
+#define SSBUF 64
 
 /** System State is the main mechanism for communicating current realtime system state to
  * the rest of the system for logging, data display, etc.

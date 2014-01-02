@@ -33,7 +33,7 @@ DigitalOut useGpsStat(LED1);
 // The following is for main loop at 10ms = 100hz
 #define CTRL_SKIP 5     // 50ms control update
 #define MAG_SKIP 2      // 20ms magnetometer update
-#define LOG_SKIP 2      // 20ms log entry entered into fifo
+#define LOG_SKIP 2
 #define PWR_SKIP 10		// 100ms log entry entered into fifo
 
 Ticker sched;                           // scheduler for interrupt driven routines
@@ -41,7 +41,7 @@ Ticker sched;                           // scheduler for interrupt driven routin
 int control_count=CTRL_SKIP;			// update control outputs every so often
 int update_count=MAG_SKIP;              // call Update_mag() every update_count calls to schedHandler()
 int power_count=PWR_SKIP;				// read power sensors every so often
-int log_count=0;                        // buffer a new status entry for logging every log_count calls to schedHandler
+int log_count=LOG_SKIP;                 // buffer a new status entry for logging every log_count calls to schedHandler
 int tReal;                              // calculate real elapsed time
 int bufCount=0;
 
@@ -50,8 +50,8 @@ extern DigitalOut gpsStatus;
 // TODO: 3 better encapsulation, please
 extern Sensors sensors;
 extern SystemState *state;
-extern unsigned char inState;
-extern unsigned char outState;
+extern volatile unsigned char inState;
+extern volatile unsigned char outState;
 extern bool ssBufOverrun;
 extern Mapping mapper;
 extern Steering steerCalc;              // steering calculator
@@ -501,7 +501,8 @@ void update()
     if (log_count <= 0) {
         // Copy data into system state for logging
         inState++;                      // Get next state struct in the buffer
-        inState &= SSBUF;               // Wrap around
+        inState &= (SSBUF-1);           // Wrap around
+        //fprintf(stdout, "update(): inState:%d outState:%d\n", inState, outState);
         ssBufOverrun = (inState == outState);
         // TODO 3 can we call clear_state() ? I think so...
         // Clear out encoder distance counters; they are incremented each time this routine is called.
