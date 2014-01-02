@@ -408,8 +408,10 @@ void update()
             setSpeed( config.startSpeed );
         } else if (distance < config.brakeDist || prevDistance < config.brakeDist) {
             setSpeed( config.turnSpeed );
+            // TODO 3 setSpeed( config.wptTurnSpeed[nextWaypoint] );
         } else {
             setSpeed( config.topSpeed );
+            // TODO 3 setSpeed( config.wptTopSpeed[nextWaypoint] );
         }
 
         if (distance < config.waypointDist) {

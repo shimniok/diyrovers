@@ -1,4 +1,4 @@
-# Example Data Bus Config File
+# Data Bus Config File
 #
 # Gyro settings
 #	gyro,x,y,z,x,y,z -- gyro offsets (float ok) and scaling factors
@@ -9,18 +9,18 @@
 # Magnetometer settings (deprecated)
 #	mag,x,y,z,x,y,z -- magnetometer offsets and scales in raw values
 #
-
-#########################################################################################################
-# GPS settings
+# GPS settings (removed)
 #	gps,baud,type -- set GPS baud and type (1=SIRF, 2=MTK, 3=VENUS)
 #
-gps,38400,3
 
 #########################################################################################################
 # Navigation config
 #	nav,intercept,waypoint distance, brake distance, min radius 	
 #	intercept distance, waypoint distance, brake distance, minimum turn radius
 #
+#nav,2.5,5.0,6.0,3.5
+#nav,5.0,5.0,6.0,5.0
+#nav,4.0,4.0,4.0,3.0
 nav,3.0,3.0,3.0,2.5
 
 ########################################################################################################## 
@@ -28,6 +28,7 @@ nav,3.0,3.0,3.0,2.5
 #	steer,center,gain,gain angle,cte Ki,alg 
 #	center servo setting, steering gain (overcomes steering slop, hills, etc), 
 #		angle below which gain takes effect
+#steer,0.5,2.0,5.0
 steer,0.5,0.05,1.0
 
 ########################################################################################################## 
@@ -45,18 +46,24 @@ curb,110.0,0.0
 #	speed,min,off,max,top,turn,Kp,Ki,Kd	
 #	brake setting, off setting, max throttle, 
 #		top speed, turn speed, start speed, PID values: P, I, and D
-#
+# ~4m/s (9mph) 515
+# ~5m/s (11mph) 530
+# ~6m/s (13mph) 550
+# 6/16/2012
+#speed,398,400,830,9.0,7.5,3.5,60.0,30.0,0.0
+# 5/8/2013
 speed,410,410,600,5.0,4.8,3.5,60.0,20.0,0.0
 
 # Waypoint
-# 	W,lat,lon -- waypoint 0, latitude, longitude
-#	W,lat,lon -- waypoint 1, latitude, longitude
-#	...       -- and so on up to max ### Home
+# 	W,lat,lon,speedadj,turnspeedadj -- waypoint 0, latitude, longitude, top speed adj, turn speed adj
+#	W,lat,lon,speedadj,turnspeedadj -- waypoint 1, latitude, longitude, top speed adj, turn speed adj
+#	...                             -- and so on up to max ### Home
 #
+
 ## Lois Lenski Site A
 #
-wpt,39.60212530,-104.92975933, Lenski0
-wpt,39.60203564,-104.93008435, Lenski1
-wpt,39.60191143,-104.93002912, Lenski2
-wpt,39.60199645,-104.92969969, Lenski3
-wpt,39.60212530,-104.92975933, Lenski0
+wpt,39.60212530,-104.92975933,0,0, Lenski0
+wpt,39.60203564,-104.93008435,1,0.5, Lenski1
+wpt,39.60191143,-104.93002912,,, Lenski2
+wpt,39.60199645,-104.92969969,2,1, Lenski3
+wpt,39.60212530,-104.92975933,0,0, Lenski0

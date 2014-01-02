@@ -29,9 +29,6 @@ Config::Config():
 ,	interceptDist(0.0)
 ,	waypointDist(0.0)
 ,	brakeDist(0.0)
-,	declination(0.0)
-,	compassGain(0.0)
-,	yawGain(0.0)
 ,	wptCount(0)
 ,	escMin(0)
 ,	escZero(0)
@@ -61,6 +58,7 @@ bool Config::load()
     char tmp[MAXBUF];   // temp buffer
     char *p;
     double lat, lon;
+    float wTopSpeed, wTurnSpeed;
     bool declFound = false;
     bool confStatus = false;
     
@@ -74,7 +72,6 @@ bool Config::load()
         pc.printf("Could not open %s\n", CONFIGFILE);
     } else {
         wptCount = 0;
-        declination = 0.0;
         while (!feof(fp)) {
             fgets(buf, MAXBUF-1, fp);
             p = split(tmp, buf, MAXBUF, ',');           // split off the first field
@@ -89,18 +86,16 @@ bool Config::load()
 				lat = cvstof(tmp);
 				p = split(tmp, p, MAXBUF, ',');     // split off the longitude to tmp
 				lon = cvstof(tmp);
+				p = split(tmp, p, MAXBUF, ',');		// split off the waypoint top speed
+				wTopSpeed = cvstof(tmp);
+				p = split(tmp, p, MAXBUF, ',');		// split off the waypoint turn speed
+				wTurnSpeed = cvstof(tmp);
 				if (wptCount < MAXWPT) {
-					wpt[wptCount].set(lat, lon);
+					wpt[wptCount].set(lat, lon);	// set position
+					wptTopSpeedAdj[wptCount] = cvstof(tmp);	// set top speed adjust
+					wptTurnSpeedAdj[wptCount] = cvstof(tmp);
 					wptCount++;
 				}
-            } else if (!strcmp(tmp, GYRO)) {
-				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
-				gyroBias = (float) cvstof(tmp);
-				break;
-            } else if (!strcmp(tmp, DECLINATION)) {
-				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
-				declination = (float) cvstof(tmp);
-				declFound = true;
             } else if (!strcmp(tmp, NAVIGATION)) {
 				p = split(tmp, p, MAXBUF, ',');
 				interceptDist = (float) cvstof(tmp);    // intercept distance for steering algorithm
@@ -110,17 +105,6 @@ bool Config::load()
 				brakeDist = (float) cvstof(tmp);        // distance at which braking starts
 				p = split(tmp, p, MAXBUF, ',');
 				minRadius = (float) cvstof(tmp);        // minimum turning radius
-            } else if (!strcmp(tmp, MAGNETOMETER)) {
-				for (int i=0; i < 3; i++) {
-					p = split(tmp, p, MAXBUF, ',');
-					magOffset[i] = (float) cvstof(tmp);
-					pc.printf("magOffset[%d]: %.2f\n", i, magOffset[i]);
-				}
-				for (int i=0; i < 3; i++) {
-					p = split(tmp, p, MAXBUF, ',');
-					magScale[i] = (float) cvstof(tmp);
-					pc.printf("magScale[%d]: %.2f\n", i, magScale[i]);
-				}
             } else if (!strcmp(tmp, STEER)) {
 				p = split(tmp, p, MAXBUF, ',');
 				steerZero = cvstof(tmp);            // servo center setting
@@ -138,9 +122,9 @@ bool Config::load()
 				p = split(tmp, p, MAXBUF, ',');
 				topSpeed = cvstof(tmp);             // desired top speed
 				p = split(tmp, p, MAXBUF, ',');
-				turnSpeed = cvstof(tmp);            // speed to use within brake distance of waypoint
+				turnSpeed = cvstof(tmp);            // speed to use when turning
 				p = split(tmp, p, MAXBUF, ',');
-				startSpeed = cvstof(tmp);            // speed to use at start
+				startSpeed = cvstof(tmp);           // speed to use at start
 				p = split(tmp, p, MAXBUF, ',');
 				speedKp = cvstof(tmp);              // speed PID: proportional gain
 				p = split(tmp, p, MAXBUF, ',');
@@ -148,6 +132,27 @@ bool Config::load()
 				p = split(tmp, p, MAXBUF, ',');
 				speedKd = cvstof(tmp);              // speed PID: derivative gain
             }//if-else
+            /*
+			} else if (!strcmp(tmp, GYRO)) {
+				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
+				gyroBias = (float) cvstof(tmp);
+			} else if (!strcmp(tmp, DECLINATION)) {
+				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
+				declination = (float) cvstof(tmp);
+				declFound = true;
+			} else if (!strcmp(tmp, MAGNETOMETER)) {
+				for (int i=0; i < 3; i++) {
+					p = split(tmp, p, MAXBUF, ',');
+					magOffset[i] = (float) cvstof(tmp);
+					pc.printf("magOffset[%d]: %.2f\n", i, magOffset[i]);
+				}
+				for (int i=0; i < 3; i++) {
+					p = split(tmp, p, MAXBUF, ',');
+					magScale[i] = (float) cvstof(tmp);
+					pc.printf("magScale[%d]: %.2f\n", i, magScale[i]);
+				}
+			}
+            */
         } // while
 
         // Did we get the values we were looking for?
