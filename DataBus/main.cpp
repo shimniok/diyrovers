@@ -109,7 +109,7 @@ Config config;                          // Persistent configuration
 Timer timer;                            // For main loop scheduling
 
 // Overall system state (used for logging but also convenient for general use
-SystemState state[SSBUF];               // system state for logging, FIFO buffer
+SystemState *state;       		        // system state for logging, FIFO buffer
 unsigned char inState;                  // FIFO items enter in here
 unsigned char outState;                 // FIFO items leave out here
 bool ssBufOverrun = false;
@@ -211,7 +211,12 @@ int main()
     logStatus = 0;
     confStatus = 0;
 
-    //ahrs.G_Dt = UPDATE_PERIOD; 
+    // Allocate memory for system state buffer
+    // We're doing this to (hopefully) save some flash size
+    state = (SystemState *) malloc(SSBUF*sizeof(SystemState));
+    if (state == NULL) {
+    	fprintf(stdout, "Error allocating SystemState array\n");
+    }
 
     fprintf(stdout, "Loading configuration...\n");
     display.status("Load config");
