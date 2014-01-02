@@ -203,9 +203,10 @@ bool TinyGPS::term_complete()
                 _time      = _new_time;
                 _latitude  = _new_latitude;
                 _longitude = _new_longitude;
-                _gga_ready = true;
                 _hdop      = _new_hdop;
                 _sat_count = _new_sat_count;
+                _gga_ready = true;
+                break;
             case _GPS_SENTENCE_GPGSV:
                 _gsv_ready = true;
                 break;

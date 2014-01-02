@@ -5,7 +5,9 @@
 extern Serial pc;
 extern SerialGraphicLCD lcd;
 
-#define LOGDIR "/log"
+// TODO 2 set up logging out of low priority interrupt handler
+
+#define LOGDIR "/log" // TODO 2 parameterize log directory
 
 //SDFileSystem sd(p5, p6, p7, p8, "log"); // mosi, miso, sclk, cs
 static FILE *logp;
