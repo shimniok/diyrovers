@@ -45,7 +45,7 @@ int dogyroswing(const char *s);
 int doreset(const char *s);
 int doautonomous(const char *s);
 
-cmd command[MAXCMDARR] = {
+const cmd command[MAXCMDARR] = {
     	{ "help", dohelp, "print this help" },
 		{ "ls", dols, "list files" },
     	{ "cd", docd, "change directory" },

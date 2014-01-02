@@ -192,8 +192,6 @@ void update()
         nextWaypoint = 1; // Point to the next waypoint; 0th wpt is the starting point
         lastWaypoint = 0;
         
-        // TODO 1 need to start off, briefly, at a slow speed
-        
         // Initialize lag estimates
         //lagHere.set( here );
         hCount = 2; // lag entry and first now entry are two entries

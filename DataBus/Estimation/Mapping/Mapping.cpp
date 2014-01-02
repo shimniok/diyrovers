@@ -50,7 +50,7 @@ void Mapping::init(int count, GeoPosition *p)
     lonToX = sw.distanceTo(se) / dlon;
     latToY = sw.distanceTo(nw) / dlat;
 
-    fprintf(stdout, "lonToX=%.10f\nlatToY=%.10f\n", lonToX, latToY);
+    //fprintf(stdout, "lonToX=%.10f\nlatToY=%.10f\n", lonToX, latToY);
 
     return;    
 }
