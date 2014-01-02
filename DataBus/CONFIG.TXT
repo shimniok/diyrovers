@@ -1,0 +1,62 @@
+# Example Data Bus Config File
+#
+# Gyro settings
+#	gyro,x,y,z,x,y,z -- gyro offsets (float ok) and scaling factors
+#
+# Declination (deprecated
+#	decl,decl    -- magnetic compass declination (e.g., +9 enter 9)
+#
+# Magnetometer settings (deprecated)
+#	mag,x,y,z,x,y,z -- magnetometer offsets and scales in raw values
+#
+
+#########################################################################################################
+# GPS settings
+#	gps,baud,type -- set GPS baud and type (1=SIRF, 2=MTK, 3=VENUS)
+#
+gps,38400,3
+
+#########################################################################################################
+# Navigation config
+#	nav,intercept,waypoint distance, brake distance, min radius 	
+#	intercept distance, waypoint distance, brake distance, minimum turn radius
+#
+nav,3.0,3.0,3.0,2.5
+
+########################################################################################################## 
+# Steering config
+#	steer,center,gain,gain angle,cte Ki,alg 
+#	center servo setting, steering gain (overcomes steering slop, hills, etc), 
+#		angle below which gain takes effect
+steer,0.5,0.05,1.0
+
+########################################################################################################## 
+# Curb avoid settings
+# Specify threshold distance and steering gain
+#	curb,distance,gain
+#	threshold distance below which steering correction is made
+#	steering gain multiplies difference between threshold distance and actual distance
+#	set gain to 0 to disable
+#
+curb,110.0,0.0
+
+########################################################################################################## 
+# Throttle (Speed) config
+#	speed,min,off,max,top,turn,Kp,Ki,Kd	
+#	brake setting, off setting, max throttle, 
+#		top speed, turn speed, start speed, PID values: P, I, and D
+#
+speed,410,410,600,5.0,4.8,3.5,60.0,20.0,0.0
+
+# Waypoint
+# 	W,lat,lon -- waypoint 0, latitude, longitude
+#	W,lat,lon -- waypoint 1, latitude, longitude
+#	...       -- and so on up to max ### Home
+#
+## Lois Lenski Site A
+#
+wpt,39.60212530,-104.92975933, Lenski0
+wpt,39.60203564,-104.93008435, Lenski1
+wpt,39.60191143,-104.93002912, Lenski2
+wpt,39.60199645,-104.92969969, Lenski3
+wpt,39.60212530,-104.92975933, Lenski0
