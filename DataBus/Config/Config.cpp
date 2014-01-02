@@ -49,8 +49,6 @@ Config::Config():
 ,	curbThreshold(0.0)
 ,	curbGain(0.0)
 ,	gyroBias(0.0)
-,	gpsType(0)
-,	gpsBaud(9600)
 {
     // not much to do here, yet.
 }
@@ -95,11 +93,6 @@ bool Config::load()
 					wpt[wptCount].set(lat, lon);
 					wptCount++;
 				}
-            } else if (!strcmp(tmp, GPS)) {
-				p = split(tmp, p, MAXBUF, ',');
-				gpsBaud = atoi(tmp);                // baud rate for gps
-				p = split(tmp, p, MAXBUF, ',');
-				gpsType = atoi(tmp);
             } else if (!strcmp(tmp, GYRO)) {
 				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
 				gyroBias = (float) cvstof(tmp);

@@ -17,9 +17,13 @@
 
 #define UPDATE_PERIOD 0.010             // update period in s
 
+// TODO 3 put x,y,z defines somewhere else
 #define _x_ 0
 #define _y_ 1
 #define _z_ 2
+
+// TODO 3 parameterize LED update and feed through event queue (or something)
+DigitalOut useGpsStat(LED1);
 
 // The below is for main loop at 50ms = 20hz operation
 //#define CTRL_SKIP 2 // 100ms, 10hz, control update
@@ -27,16 +31,16 @@
 //#define LOG_SKIP 1  // 50ms, 20hz, log entry entered into fifo
 
 // The following is for main loop at 10ms = 100hz
-#define HDG_LAG 40      // Number of update steps that the GPS report is behind realtime
-#define CTRL_SKIP 5     // 50ms (20hz), control update
-#define MAG_SKIP 2      // 20ms (50hz), magnetometer update
-#define LOG_SKIP 2      // 20ms (50hz), log entry entered into fifo
-//#define LOG_SKIP 5    // 50ms (20hz), log entry entered into fifo
+#define CTRL_SKIP 5     // 50ms control update
+#define MAG_SKIP 2      // 20ms magnetometer update
+#define LOG_SKIP 2      // 20ms log entry entered into fifo
+#define PWR_SKIP 10		// 100ms log entry entered into fifo
 
 Ticker sched;                           // scheduler for interrupt driven routines
 
-int control_count=CTRL_SKIP;
+int control_count=CTRL_SKIP;			// update control outputs every so often
 int update_count=MAG_SKIP;              // call Update_mag() every update_count calls to schedHandler()
+int power_count=PWR_SKIP;				// read power sensors every so often
 int log_count=0;                        // buffer a new status entry for logging every log_count calls to schedHandler
 int tReal;                              // calculate real elapsed time
 int bufCount=0;
@@ -45,7 +49,7 @@ extern DigitalOut gpsStatus;
 
 // TODO: 3 better encapsulation, please
 extern Sensors sensors;
-extern SystemState state[SSBUF];
+extern SystemState *state;
 extern unsigned char inState;
 extern unsigned char outState;
 extern bool ssBufOverrun;
@@ -80,9 +84,8 @@ int timeZero=0;
 int lastTime=-1;                        // used to calculate dt for KF
 int thisTime;                           // used to calculate dt for KF
 float dt;                               // dt for the KF
-float estLagHeading = 0;                   // lagged heading estimate
-//GeoPosition lagHere;                  // lagged position estimate; use here as the current position estimate
-float errHeading;                         // error between gyro hdg estimate and gps hdg estimate
+float estLagHeading = 0;                // lagged heading estimate
+float errHeading;                       // error between gyro hdg estimate and gps hdg estimate
 float gyroBias=0;                       // exponentially weighted moving average of gyro error
 float Ag = (2.0/(1000.0+1.0));          // Gyro bias filter alpha, gyro; # of 10ms steps
 float Kbias = 0.995;            
@@ -101,10 +104,10 @@ struct history_rec {
     float dt;       // delta time
 } history[MAXHIST]; // fifo for sensor data, position, heading, dt
 
-int hCount;         // history counter; one > HDG_LAG, we can go back in time to reference gyro history
+int hCount;         // history counter; we can go back in time to reference gyro history
 int now = 0;        // fifo input index, latest entry
 int prev = 0;       // previous fifo iput index, next to latest entry
-int lag = 0;        // fifo output index, entry from 1 second ago (HDG_LAG entries prior)
+int lag = 0;        // fifo output index, entry from 1 second ago (sensors.gps.lag entries prior)
 int lagPrev = 0;    // previous fifo output index, 101 entries prior
 
 /** attach update to Ticker */
@@ -150,7 +153,7 @@ int getUpdateTime()
 }
 
 /** Set the desired speed for the controller to attain */
-void setSpeed(float speed) 
+void setSpeed(const float speed)
 {
     if (desiredSpeed != speed) {
         desiredSpeed = speed;
@@ -158,6 +161,8 @@ void setSpeed(float speed)
     }
     return;
 }
+
+// TODO 2 put update sections into separate modules, possibly call using timers with varying priorities?
 
 /** update() runs the data collection, estimation, steering control, and throttle control */
 void update()
@@ -193,7 +198,7 @@ void update()
         // Initialize lag estimates
         //lagHere.set( here );
         hCount = 2; // lag entry and first now entry are two entries
-        now = 0; 
+        now = 0;
         // initialize what will become lag data in 1 second from now
         history[now].dt = 0;
         history[now].dist = 0;
@@ -214,25 +219,20 @@ void update()
         now = 1;    // new input slot
     }
 
-
     //////////////////////////////////////////////////////////////////////////////
     // SENSOR UPDATES
     //////////////////////////////////////////////////////////////////////////////
-
-    // TODO 3 This really should run infrequently
-    sensors.Read_Power();
-
+    if (power_count-- <= 0) {
+    	sensors.Read_Power();
+    	power_count = PWR_SKIP;
+    }
     sensors.Read_Encoders(); 
     // really need to do some filtering on the speed
     //nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed; 
     nowSpeed = sensors.encSpeed;
-
     sensors.Read_Gyro(); 
-
     sensors.Read_Rangers();
-
     sensors.Read_Accel();
-
     //sensors.Read_Camera();
 
     //////////////////////////////////////////////////////////////////////////////
@@ -267,7 +267,6 @@ void update()
                   (thisTime-timeZero) > 3000); // gps hdg converges by 3-5 sec.                
     }
 
-    DigitalOut useGpsStat(LED1);
     useGpsStat = useGps;
     
     //////////////////////////////////////////////////////////////////////////////
@@ -305,7 +304,7 @@ void update()
     history[now].y = history[prev].y + history[now].dist * cos(r);
 
     // We can't do anything until the history buffer is full
-    if (hCount < HDG_LAG) {
+    if (hCount < sensors.gps.lag) {
         estLagHeading = history[now].hdg;
         // Until the fifo is full, only keep track of current gyro heading
         hCount++; // after n iterations the fifo will be full
@@ -353,12 +352,12 @@ void update()
         // Heading is easy. Original heading - estimated heading gives a tiny error. Add this to all the historical
         // heading data up to present.
         //
-        // For position re-calculation, we iterate HDG_LAG times up to present record. Haversine is way, way too slow,
+        // For position re-calculation, we iterate sensors.gps.lag times up to present record. Haversine is way, way too slow,
         // trig calcs is marginal. Update rate is 10ms and we can't hog more than maybe 2-3ms as the outer
         // loop has logging work to do. Rotating each point is faster; pre-calculate sin/cos, etc. for rotation
         // matrix.
 
-        // Low pass filter the error correction.  Multiplying by 0.01, it takes HDG_LAG updates to correct a 
+        // Low pass filter the error correction.  Multiplying by 0.01, it takes sensors.gps.lag updates to correct a
         // consistent error; that's 0.10s/0.01 = 1 sec.  0.005 is 2 sec, 0.0025 is 4 sec, etc.
         errHeading = clamp180(estLagHeading - history[lag].hdg) * 0.01;  // lopass filter error angle
 
@@ -367,8 +366,7 @@ void update()
         float sinA = sin(errHeading * PI / 180.0);
         // Update position & heading from history[lag] through history[now]
         int i = lag;
-        // TODO 2 parameterize heading lag? uBlox is ~ 600ms, Venus is ~1000ms
-        for (int j=0; j < HDG_LAG; j++) {
+        for (int j=0; j < sensors.gps.lag; j++) {
             //fprintf(stdout, "i=%d n=%d l=%d\n", i, now, lag);
             // Correct gyro-calculated headings from past to present including history[lag].hdg
             history[i].hdg = clamp360(history[i].hdg + errHeading);
@@ -498,18 +496,13 @@ void update()
     // log_count initialized to 0 to begin with forcing initialization below
     // but no further updates until in go mode
     if (go && (log_count > 0)) --log_count;
-    // Only enter new SystemState data when in "go" mode (armed to run, run,
-    // and end run)
-    // We should really only be adding to the state fifo if we're in 'go' mode
     if (log_count <= 0) {
         // Copy data into system state for logging
         inState++;                      // Get next state struct in the buffer
         inState &= SSBUF;               // Wrap around
         ssBufOverrun = (inState == outState);
-        // Need to clear out encoder distance counters; these are incremented
-        // each time this routine is called.
-        // TODO 1 is there anything we can't clear out?
-        // TODO 1 use clearState()
+        // TODO 3 can we call clear_state() ? I think so...
+        // Clear out encoder distance counters; they are incremented each time this routine is called.
         state[inState].lrEncDistance = 0;
         state[inState].rrEncDistance = 0;
         // initialize gps data

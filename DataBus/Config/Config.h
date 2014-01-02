@@ -44,9 +44,9 @@ class Config {
         float magScale[3];
         // float accelOffset[3];
         // float accelScale[3];
-        int gpsType;
-        int gpsBaud;
-        
+        // int gpsType;
+        // int gpsBaud;
+        // int gpsLag;
 };
 
 #endif
