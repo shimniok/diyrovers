@@ -9,7 +9,7 @@
 #define FILESYSTEM_H_
 
 #include "mbed.h"
-#include "SDHCFileSystem.h"
+#include "SDFileSystem.h"
 
 class Filesystem {
 public:

@@ -1,5 +1,6 @@
+#include "SystemState.h"
 #include "logging.h"
-#include "SDHCFileSystem.h"
+#include "SDFileSystem.h"
 #include "SerialGraphicLCD.h"
 
 extern Serial pc;
@@ -11,28 +12,6 @@ extern SerialGraphicLCD lcd;
 
 //SDFileSystem sd(p5, p6, p7, p8, "log"); // mosi, miso, sclk, cs
 static FILE *logp;
-
-void clearState( SystemState *s )
-{
-    s->millis = 0;
-    s->current = s->voltage = 0.0;
-    s->g[0] = s->g[1] = s->g[2] = 0;
-    s->gyro[0] = s->gyro[1] = s->gyro[2] = 0;
-    s->gTemp = 0;
-    s->a[0] = s->a[1] = s->a[2] = 0;
-    s->m[0] = s->m[1] = s->m[2] = 0;
-    s->gHeading = s->cHeading = 0.0;
-    //s->roll = s->pitch = s->yaw =0.0;
-    s->gpsLatitude = s->gpsLongitude = s->gpsCourse_deg = s->gpsSpeed_mps = s->gpsHDOP = 0.0;
-    //s->gpsLatitude2 = s->gpsLongitude2 = s->gpsCourse_deg2 = s->gpsSpeed_mps2 = s->gpsHDOP2 = 0.0;
-    s->lrEncDistance = s->rrEncDistance = 0.0;
-    s->lrEncSpeed = s->rrEncSpeed = s->encHeading = 0.0;
-    s->estHeading = s->estLatitude = s->estLongitude = 0.0;
-    //s->estNorthing = s->estEasting =
-    s->estX = s->estY = 0.0;
-    s->nextWaypoint = 0;
-    s->bearing = s->distance = 0.0;
-}
 
 Timer logtimer;
 //extern int bufCount;
@@ -134,91 +113,97 @@ size_t printFloat(FILE *f, double number, uint8_t digits)
 
 // If I use arduino style print routines, logging takes ~1000 / ~8000 usec
 // the big sprintf takes ~ 700-750 usec all by itself
-void logData( const SystemState s )
+void logData( SystemState *s )
 {
-    //char buf[256];
-    //unsigned int t1, t2;
+	//char buf[256];
+	//unsigned int t1, t2;
 	//logtimer.start();
 	//logtimer.reset();
 	//t1 = logtimer.read_us();
-    printInt(logp, s.millis);
-    fputc(',',logp);
-    printFloat(logp, s.current, 2);
-    fputc(',',logp);
-    printFloat(logp, s.voltage, 2);
-    fputc(',',logp);
-    for (int q=0; q < 3; q++) {
-        printFloat(logp, s.gyro[q], 6);
-        fputc(',',logp);
-    }
-    printInt(logp, s.gTemp);
-    fputc(',',logp);
-    for (int q=0; q < 3; q++) {
-        printInt(logp, s.a[q]);
-        fputc(',',logp);
-    }
-    /*
-    for (int q=0; q < 3; q++) {
-        printInt(logp, s.m[q]);
-        fputc(',',logp);
-    }
-    */
-    printFloat(logp, s.gHeading, 2);
-    fputc(',',logp);
 
-    // GPS 1
-    fprintf(logp, "%.7f,%.7f,", s.gpsLatitude, s.gpsLongitude);
-    //printFloat(logp, s.gpsLatitude, 7);
-    //fputc(',',logp);
-    //printFloat(logp, s.gpsLongitude, 7);
-    //fputc(',',logp);
-    printFloat(logp, s.gpsCourse_deg, 2);
-    fputc(',',logp);
-    printFloat(logp, s.gpsSpeed_mps, 2);
-    fputc(',',logp);
-    printFloat(logp, s.gpsHDOP, 1);
-    fputc(',',logp);
-    printInt(logp, s.gpsSats);
-    fputc(',',logp);
-    // Encoders
-    printFloat(logp, s.lrEncDistance, 7);
-    fputc(',',logp);
-    printFloat(logp, s.rrEncDistance, 7);
-    fputc(',',logp);
-    printFloat(logp, s.lrEncSpeed, 2);
-    fputc(',',logp);
-    printFloat(logp, s.rrEncSpeed, 2);
-    fputc(',',logp);
-    printFloat(logp, s.encHeading, 2);
-    fputc(',',logp);
-    // Estimates
-    printFloat(logp, s.estHeading, 2);
-    fputc(',',logp);
-    printFloat(logp, s.estLagHeading, 2);
-    fputc(',',logp);
-    printFloat(logp, s.estLatitude,  7);
-    fputc(',',logp);
-    printFloat(logp, s.estLongitude, 7);
-    fputc(',',logp);
-    printFloat(logp, s.estX, 4);
-    fputc(',',logp);
-    printFloat(logp, s.estY, 4);
-    fputc(',',logp);
-    // Nav
-    printInt(logp, s.nextWaypoint);
-    fputc(',',logp);
-    printFloat(logp, s.bearing, 2);
-    fputc(',',logp);
-    printFloat(logp, s.distance, 3);
-    fputc(',',logp);
-    printFloat(logp, s.steerAngle, 3);
-    fputc(',',logp);
-    printFloat(logp, s.errHeading, 3);
-    fputc(',',logp);
-    fputc('\n',logp);
+	if (s) {
+		printInt(logp, s->millis);
+		fputc(',',logp);
+		printFloat(logp, s->current, 2);
+		fputc(',',logp);
+		printFloat(logp, s->voltage, 2);
+		fputc(',',logp);
+		for (int q=0; q < 3; q++) {
+			printFloat(logp, s->gyro[q], 6);
+			fputc(',',logp);
+		}
+		printInt(logp, s->gTemp);
+		fputc(',',logp);
+		for (int q=0; q < 3; q++) {
+			printInt(logp, s->a[q]);
+			fputc(',',logp);
+		}
+		/*
+		for (int q=0; q < 3; q++) {
+			printInt(logp, s->m[q]);
+			fputc(',',logp);
+		}
+		*/
+		printFloat(logp, s->gHeading, 2);
+		fputc(',',logp);
 
-    //t2 = logtimer.read_us();
-    //fprintf(stdout, "%d\n", t2-t1);
+		/*
+		// GPS 1
+		fprintf(logp, "%.7f,%.7f,", s->gpsLatitude, s->gpsLongitude);
+		//printFloat(logp, s->gpsLatitude, 7);
+		//fputc(',',logp);
+		//printFloat(logp, s->gpsLongitude, 7);
+		//fputc(',',logp);
+		printFloat(logp, s->gpsCourse_deg, 2);
+		fputc(',',logp);
+		printFloat(logp, s->gpsSpeed_mps, 2);
+		fputc(',',logp);
+		printFloat(logp, s->gpsHDOP, 1);
+		fputc(',',logp);
+		printInt(logp, s->gpsSats);
+		fputc(',',logp);
+		// Encoders
+		printFloat(logp, s->lrEncDistance, 7);
+		fputc(',',logp);
+		printFloat(logp, s->rrEncDistance, 7);
+		fputc(',',logp);
+		printFloat(logp, s->lrEncSpeed, 2);
+		fputc(',',logp);
+		printFloat(logp, s->rrEncSpeed, 2);
+		fputc(',',logp);
+		printFloat(logp, s->encHeading, 2);
+		fputc(',',logp);
+		// Estimates
+		printFloat(logp, s->estHeading, 2);
+		fputc(',',logp);
+		printFloat(logp, s->estLagHeading, 2);
+		fputc(',',logp);
+		printFloat(logp, s->estLatitude,  7);
+		fputc(',',logp);
+		printFloat(logp, s->estLongitude, 7);
+		fputc(',',logp);
+		printFloat(logp, s->estX, 4);
+		fputc(',',logp);
+		printFloat(logp, s->estY, 4);
+		fputc(',',logp);
+		// Nav
+		printInt(logp, s->nextWaypoint);
+		fputc(',',logp);
+		printFloat(logp, s->bearing, 2);
+		fputc(',',logp);
+		printFloat(logp, s->distance, 3);
+		fputc(',',logp);
+		printFloat(logp, s->steerAngle, 3);
+		fputc(',',logp);
+		printFloat(logp, s->errHeading, 3);
+		fputc(',',logp);
+		*/
+		fputc('\n',logp);
+		fflush(logp);
+
+		//t2 = logtimer.read_us();
+		//fprintf(stdout, "%d\n", t2-t1);
+	}
 
     return;
 }

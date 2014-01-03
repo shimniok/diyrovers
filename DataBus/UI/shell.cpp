@@ -1,6 +1,6 @@
 #include "mbed.h"
 #include "DirHandle.h"
-#include "SDHCFileSystem.h"
+#include "SDFileSystem.h"
 #include "util.h"
 #include "Buttons.h"
 

@@ -7,7 +7,6 @@
 #include "Sensors.h"
 #include "SystemState.h"
 #include "Venus638flpx.h"
-//#include "Ublox6.h"
 #include "Steering.h"
 #include "Servo.h"
 #include "Mapping.h"
@@ -24,6 +23,8 @@
 
 // TODO 3 parameterize LED update and feed through event queue (or something)
 DigitalOut useGpsStat(LED1);
+
+SystemState nowState;
 
 // The below is for main loop at 50ms = 20hz operation
 //#define CTRL_SKIP 2 // 100ms, 10hz, control update
@@ -43,16 +44,15 @@ int update_count=MAG_SKIP;              // call Update_mag() every update_count 
 int power_count=PWR_SKIP;				// read power sensors every so often
 int log_count=LOG_SKIP;                 // buffer a new status entry for logging every log_count calls to schedHandler
 int tReal;                              // calculate real elapsed time
-int bufCount=0;
 
 extern DigitalOut gpsStatus;
 
 // TODO: 3 better encapsulation, please
 extern Sensors sensors;
-extern SystemState *state;
-extern volatile unsigned char inState;
-extern volatile unsigned char outState;
-extern bool ssBufOverrun;
+//extern SystemState *state;
+//extern volatile unsigned char inState;
+//extern volatile unsigned char outState;
+//extern bool ssBufOverrun;
 extern Mapping mapper;
 extern Steering steerCalc;              // steering calculator
 extern Timer timer;
@@ -70,7 +70,7 @@ float steerAngle;                       // steering angle
 float speedDt=0;                        // dt for the speed PID
 float integral=0;                       // error integral for speed PID
 float lastError=0;                      // previous error, used for calculating derivative
-bool go=false;                          // initiate throttle (or not)
+volatile bool go=false;                 // initiate throttle (or not)
 float desiredSpeed;                     // speed set point
 float nowSpeed;
 
@@ -109,6 +109,8 @@ int now = 0;        // fifo input index, latest entry
 int prev = 0;       // previous fifo iput index, next to latest entry
 int lag = 0;        // fifo output index, entry from 1 second ago (sensors.gps.lag entries prior)
 int lagPrev = 0;    // previous fifo output index, 101 entries prior
+int logCounter = 0;
+
 
 /** attach update to Ticker */
 void startUpdater()
@@ -122,19 +124,24 @@ void startUpdater()
 /** set flag to initialize navigation at next schedHandler() call */
 void restartNav()
 {
+	__disable_irq();
     go = false;
-    inState = outState = 0;    
+    fifo_reset();
     initNav = true;
+    __enable_irq();
+
     return;
 }
 
 /** instruct the controller to start running */
 void beginRun()
 {
+	__disable_irq();
     go = true;
-    inState = outState = 0;    
-    timeZero = thisTime; // initialize 
-    bufCount = 0;
+    fifo_reset();
+    timeZero = thisTime; // initialize
+    __enable_irq();
+
     return;
 }
 
@@ -143,6 +150,7 @@ void endRun()
 {
     go = false;
     initNav = true;
+
     return;
 }
 
@@ -179,9 +187,6 @@ void update()
     // We're adding up distance over several update() calls so have to keep track of total time
     speedDt += dt;
     
-    // Log Data Timestamp    
-    int timestamp = timer.read_ms();
-
     //////////////////////////////////////////////////////////////////////////////
     // NAVIGATION INIT
     //////////////////////////////////////////////////////////////////////////////
@@ -227,8 +232,8 @@ void update()
     	power_count = PWR_SKIP;
     }
     sensors.Read_Encoders(); 
-    // really need to do some filtering on the speed
-    //nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed; 
+    // TODO 3 really need to do some filtering on the speed
+    //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
     nowSpeed = sensors.encSpeed;
     sensors.Read_Gyro(); 
     sensors.Read_Rangers();
@@ -245,12 +250,12 @@ void update()
     if (sensors.gps.available()) {
         // update system status struct for logging
         gpsStatus = !gpsStatus;
-        state[inState].gpsLatitude = sensors.gps.latitude();
-        state[inState].gpsLongitude = sensors.gps.longitude();
-        state[inState].gpsHDOP = sensors.gps.hdop();
-        state[inState].gpsCourse_deg = sensors.gps.heading_deg();
-        state[inState].gpsSpeed_mps = sensors.gps.speed_mps(); // if need to convert from mph to mps, use *0.44704
-        state[inState].gpsSats = sensors.gps.sat_count();
+        nowState.gpsLatitude = sensors.gps.latitude();
+        nowState.gpsLongitude = sensors.gps.longitude();
+        nowState.gpsHDOP = sensors.gps.hdop();
+        nowState.gpsCourse_deg = sensors.gps.heading_deg();
+        nowState.gpsSpeed_mps = sensors.gps.speed_mps(); // if need to convert from mph to mps, use *0.44704
+        nowState.gpsSats = sensors.gps.sat_count();
         
         // May 26, 2013, moved the useGps setting in here, so that we'd only use the GPS heading in the
         // Kalman filter when it has just been received. Before this I had a bug where it was using the
@@ -261,9 +266,9 @@ void update()
         // GPS heading is unavailable from this particular GPS at speeds < 0.5 mph
         // Also, best to only use GPS if we've got at least 4 sats active -- really should be like 5 or 6
         // Finally, it takes 3-5 secs of runtime for the gps heading to converge.
-        useGps = (state[inState].gpsSats > 4 &&
-                  state[inState].lrEncSpeed > 1.0 &&
-                  state[inState].rrEncSpeed > 1.0 &&
+        useGps = (nowState.gpsSats > 4 &&
+                  nowState.lrEncSpeed > 1.0 &&
+                  nowState.rrEncSpeed > 1.0 &&
                   (thisTime-timeZero) > 3000); // gps hdg converges by 3-5 sec.                
     }
 
@@ -331,7 +336,7 @@ void update()
         //
         // TODO 1 maybe we should only call the gps version after moving
         if (go) {
-            estLagHeading = headingKalman(history[lag].dt, state[inState].gpsCourse_deg, useGps, history[lag].gyro, true);
+            estLagHeading = headingKalman(history[lag].dt, nowState.gpsCourse_deg, useGps, history[lag].gyro, true);
         } else {    
             estLagHeading = headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
         }
@@ -492,73 +497,56 @@ void update()
     // DATA FOR LOGGING
     //////////////////////////////////////////////////////////////////////////////
 
-    // Periodically, we enter a new SystemState into the FIFO buffer
-    // The main loop handles logging and will catch up to us provided 
-    // we feed in new log entries slowly enough.
-    // log_count initialized to 0 to begin with forcing initialization below
-    // but no further updates until in go mode
-    if (go && (log_count > 0)) --log_count;
-    if (log_count <= 0) {
-        // Copy data into system state for logging
-        inState++;                      // Get next state struct in the buffer
-        inState &= (SSBUF-1);           // Wrap around
-        //fprintf(stdout, "update(): inState:%d outState:%d\n", inState, outState);
-        ssBufOverrun = (inState == outState);
-        // TODO 3 can we call clear_state() ? I think so...
-        // Clear out encoder distance counters; they are incremented each time this routine is called.
-        state[inState].lrEncDistance = 0;
-        state[inState].rrEncDistance = 0;
-        // initialize gps data
-        state[inState].gpsLatitude = 0;
-        state[inState].gpsLongitude = 0;
-        state[inState].gpsHDOP = 0;
-        state[inState].gpsCourse_deg = 0;
-        state[inState].gpsSpeed_mps = 0;
-        state[inState].gpsSats = 0;
-        log_count = LOG_SKIP;       // reset counter
-        bufCount++;
-    }
-
     // Log Data Timestamp    
-    state[inState].millis = timestamp;
-
-    // TODO: 3 recursive filtering on each of the state values
-    state[inState].voltage = sensors.voltage;
-    state[inState].current = sensors.current;
+    //nowState.millis = thisTime;
+    nowState.millis = thisTime;
+    nowState.voltage = sensors.voltage;
+    nowState.current = sensors.current;
     for (int i=0; i < 3; i++) {
-        state[inState].m[i] = sensors.m[i];
-        state[inState].g[i] = sensors.g[i];
-        state[inState].gyro[i] = sensors.gyro[i];
-        state[inState].a[i] = sensors.a[i];
+        nowState.m[i] = sensors.m[i];
+        nowState.g[i] = sensors.g[i];
+        nowState.gyro[i] = sensors.gyro[i];
+        nowState.a[i] = sensors.a[i];
     }
-    state[inState].gTemp = sensors.gTemp;
-    state[inState].lrEncSpeed = sensors.lrEncSpeed;
-    state[inState].rrEncSpeed = sensors.rrEncSpeed;
-    state[inState].lrEncDistance += sensors.lrEncDistance;
-    state[inState].rrEncDistance += sensors.rrEncDistance;
-    //state[inState].encHeading += (state[inState].lrEncDistance - state[inState].rrEncDistance) / TRACK;
-    state[inState].estHeading = history[now].hdg; // gyro heading estimate, current, corrected
-    state[inState].estLagHeading = history[lag].hdg; // gyro heading, estimate, lagged
+    nowState.gTemp = sensors.gTemp;
+    nowState.lrEncSpeed = sensors.lrEncSpeed;
+    nowState.rrEncSpeed = sensors.rrEncSpeed;
+    nowState.lrEncDistance += sensors.lrEncDistance;
+    nowState.rrEncDistance += sensors.rrEncDistance;
+    //state.encHeading += (state.lrEncDistance - state.rrEncDistance) / TRACK;
+    nowState.estHeading = history[now].hdg; // gyro heading estimate, current, corrected
+    nowState.estLagHeading = history[lag].hdg; // gyro heading, estimate, lagged
     mapper.cartToGeo(cartHere, &here);
-    state[inState].estLatitude = here.latitude();
-    state[inState].estLongitude = here.longitude();
-    state[inState].estX = history[now].x;
-    state[inState].estY = history[now].y;
-    state[inState].bearing = bearing;
-    state[inState].distance = distance;
-    state[inState].nextWaypoint = nextWaypoint;
-    state[inState].gbias = gyroBias;
-    state[inState].errHeading = errHeading;
-    //state[inState].leftRanger = sensors.leftRanger;
-    //state[inState].rightRanger = sensors.rightRanger;
-    //state[inState].centerRanger = sensors.centerRanger;
-    state[inState].steerAngle = steerAngle;
+    nowState.estLatitude = here.latitude();
+    nowState.estLongitude = here.longitude();
+    nowState.estX = history[now].x;
+    nowState.estY = history[now].y;
+    nowState.bearing = bearing;
+    nowState.distance = distance;
+    nowState.nextWaypoint = nextWaypoint;
+    nowState.gbias = gyroBias;
+    nowState.errHeading = errHeading;
+    //state.leftRanger = sensors.leftRanger;
+    //state.rightRanger = sensors.rightRanger;
+    //state.centerRanger = sensors.centerRanger;
+    nowState.steerAngle = steerAngle;
     // Copy AHRS data into logging data
-    //state[inState].roll = ToDeg(ahrs.roll);
-    //state[inState].pitch = ToDeg(ahrs.pitch);
-    //state[inState].yaw = ToDeg(ahrs.yaw);
+    //state.roll = ToDeg(ahrs.roll);
+    //state.pitch = ToDeg(ahrs.pitch);
+    //state.yaw = ToDeg(ahrs.yaw);
 
-    // increment fifo pointers with wrap-around
+    // Periodically, we enter a new SystemState into the FIFO buffer
+    // The main loop handles logging and will catch up to us provided
+    // we feed in new log entries slowly enough.
+    if (go) {
+    	if (--log_count == 0) {
+			fifo_push(&nowState);
+			state_clear(&nowState);
+			log_count = LOG_SKIP;       // reset counter
+    	}
+    }
+
+    // increment history fifo pointers with wrap-around
     prev = now;
     inc(now);
 

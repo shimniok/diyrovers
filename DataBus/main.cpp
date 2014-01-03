@@ -17,10 +17,9 @@
 #include "Menu.h"
 #include "GPSStatus.h"
 #include "logging.h"
+#include "SystemState.h"
 #include "shell.h"
 #include "Sensors.h"
-//#include "DCM.h"
-//#include "dcm_matrix.h"
 #include "kalman.h"
 #include "Venus638flpx.h"
 #include "Ublox6.h"
@@ -108,12 +107,6 @@ Config config;                          // Persistent configuration
 // Timing
 Timer timer;                            // For main loop scheduling
 
-// Overall system state (used for logging but also convenient for general use
-SystemState *state;       				// system state for logging, FIFO buffer
-volatile unsigned char inState;         // FIFO items enter in here
-volatile unsigned char outState;        // FIFO items leave out here
-bool ssBufOverrun = false;
-
 // GPS Variables
 unsigned long age = 0;                  // gps fix age
 
@@ -167,13 +160,14 @@ int resetMe()
 int main()
 {
     // Let's try setting priorities...
-    NVIC_SetPriority(TIMER3_IRQn, 0);   // updater running off Ticker
-    NVIC_SetPriority(DMA_IRQn, 0);
-    NVIC_SetPriority(EINT0_IRQn, 0);    // wheel encoders
-    NVIC_SetPriority(EINT1_IRQn, 0);    // wheel encoders
-    NVIC_SetPriority(EINT2_IRQn, 0);    // wheel encoders
-    NVIC_SetPriority(EINT3_IRQn, 0);    // wheel encoders
-    NVIC_SetPriority(UART0_IRQn, 5);   // USB
+    //NVIC_SetPriority(DMA_IRQn, 0);
+    NVIC_SetPriority(EINT0_IRQn, 5);    // wheel encoders
+    NVIC_SetPriority(EINT1_IRQn, 5);    // wheel encoders
+    NVIC_SetPriority(EINT2_IRQn, 5);    // wheel encoders
+    NVIC_SetPriority(EINT3_IRQn, 5);    // wheel encoders
+    NVIC_SetPriority(SPI_IRQn, 7);    	// uSD card, logging
+    NVIC_SetPriority(TIMER3_IRQn, 8);   // updater running off Ticker
+    NVIC_SetPriority(UART0_IRQn, 10);   // USB
     NVIC_SetPriority(UART1_IRQn, 10);
     NVIC_SetPriority(UART2_IRQn, 10);
     NVIC_SetPriority(UART3_IRQn, 10);
@@ -181,10 +175,9 @@ int main()
     NVIC_SetPriority(I2C1_IRQn, 10);    // sensors?
     NVIC_SetPriority(I2C2_IRQn, 10);    // sensors?
     NVIC_SetPriority(ADC_IRQn, 10);     // Voltage/current
-    NVIC_SetPriority(TIMER0_IRQn, 10); // unused(?)
-    NVIC_SetPriority(TIMER1_IRQn, 10); // unused(?)
-    NVIC_SetPriority(TIMER2_IRQn, 10); // unused(?)
-    NVIC_SetPriority(SPI_IRQn, 10);    // uSD card, logging
+    NVIC_SetPriority(TIMER0_IRQn, 10); 	// unused(?)
+    NVIC_SetPriority(TIMER1_IRQn, 10); 	// unused(?)
+    NVIC_SetPriority(TIMER2_IRQn, 10); 	// unused(?)
 
     // Something here is jacking up the I2C stuff
     // Also when initializing with ESC powered, it causes motor to run which
@@ -199,7 +192,7 @@ int main()
     while (pc.readable()) pc.getc();        // flush buffer on reset
 
     display.init();
-    display.status("Data Bus 2013");
+    display.status("Data Bus 2014");
    
     fprintf(stdout, "Initializing...\n");
     display.status("Initializing");
@@ -211,10 +204,7 @@ int main()
     logStatus = 0;
     confStatus = 0;
 
-    // Allocate memory for system state buffer
-    // We're doing this to (hopefully) save some flash size
-    state = (SystemState *) malloc(SSBUF*sizeof(SystemState)); // is +1 needed?
-    if (state == NULL) {
+    if (!fifo_init()) {
     	error("\n\n%% Error allocating SystemState array %%\n");
     }
 
@@ -321,10 +311,10 @@ int main()
 
         if ((thisUpdate = timer.read_ms()) > nextUpdate) {
             // Pulling out current state so we get the most current
-            SystemState s = state[inState];
+            SystemState *s = fifo_first();
             // Now populate in the current GPS data
-            s.gpsHDOP = sensors.gps.hdop();
-            s.gpsSats = sensors.gps.sat_count();
+            s->gpsHDOP = sensors.gps.hdop();
+            s->gpsSats = sensors.gps.sat_count();
             display.update(s);
             nextUpdate = thisUpdate + 2000;
             // TODO 3 move this statistic into display class
@@ -509,7 +499,7 @@ int autonomousMode()
     keypad.pressed = false;
     //bool started = false;  // flag to indicate robot has exceeded min speed.
     
-    if (initLogfile()) logStatus = 1;                           // Open the log file in sprintf format string style; numbers go in %d
+    if (initLogfile()) logStatus = 1; // Open the log file in sprintf format string style; numbers go in %d
     wait(0.2);
 
     sensors.gps.disableVerbose();
@@ -531,7 +521,6 @@ int autonomousMode()
     // Main loop
     //
     while(navDone == false) {
-
         //////////////////////////////////////////////////////////////////////////////
         // USER INPUT
         //////////////////////////////////////////////////////////////////////////////
@@ -566,7 +555,7 @@ int autonomousMode()
 
         // Are we at the last waypoint?
         // 
-        if (state[inState].nextWaypoint == config.wptCount) {
+        if (fifo_first()->nextWaypoint == config.wptCount) {
             fprintf(stdout, "Arrived at final destination.\n");
             display.status("Arrived at end.");
             navDone = true;
@@ -581,25 +570,10 @@ int autonomousMode()
         // Since this could take anywhere from a few hundred usec to
         // 150ms, we run it opportunistically and use a buffer. That way
         // the sensor updates, calculation, and control can continue to happen
-        if (outState != inState) {
+        if (fifo_available()) {
             logStatus = !logStatus;         // log indicator LED
-            //fprintf(stdout, "FIFO: in=%d out=%d\n", inState, outState);
- 
-            if (ssBufOverrun) { // set in update()
-                fprintf(stdout, ">>> SystemState Buffer Overrun Condition\n");
-                ssBufOverrun = false;
-            }
-            // do we need to disable interrupts briefly to prevent a race
-            // condition with schedHandler() ?
-            int out=outState;               // in case we're interrupted this 'should' be atomic
-            outState++;                     // increment
-            outState &= (SSBUF-1);              // wrap
-            //fprintf(stdout, "out: %d\n", out);
-            logData( state[out] );          // log state data to file
+            logData( fifo_pull() );         // log state data to file
             logStatus = !logStatus;         // log indicator LED
-            
-            //fprintf(stdout, "Time Stats\n----------\nSensors: %d\nGPS: %d\nAHRS: %d\nLog: %d\n----------\nTotal: %d",
-            //        tSensor, tGPS, tAHRS, tLog, tSensor+tGPS+tAHRS+tLog);
         }
 
     } // while
@@ -935,6 +909,7 @@ void displayData(const int mode)
  */
         
             if ((millis % 1000) == 0) {
+            	SystemState *s = fifo_first();
 
                 fprintf(stdout, "update() time = %.3f msec\n", getUpdateTime() / 1000.0);
                 fprintf(stdout, "Rangers: L=%.2f R=%.2f C=%.2f", sensors.leftRanger, sensors.rightRanger, sensors.centerRanger);
@@ -946,15 +921,14 @@ void displayData(const int mode)
                 fprintf(stdout, "g=(%4d, %4d, %4d) %d\n", sensors.g[0], sensors.g[1], sensors.g[2], sensors.gTemp);
                 fprintf(stdout, "gc=(%.1f, %.1f, %.1f)\n", sensors.gyro[0], sensors.gyro[1], sensors.gyro[2]);
                 fprintf(stdout, "a=(%5d, %5d, %5d)\n", sensors.a[0], sensors.a[1], sensors.a[2]);
-                fprintf(stdout, "estHdg=%.2f lagHdg=%.2f\n", state[inState].estHeading, state[inState].estLagHeading);
+                fprintf(stdout, "estHdg=%.2f lagHdg=%.2f\n", s->estHeading, s->estLagHeading);
                 //fprintf(stdout, "roll=%.2f pitch=%.2f yaw=%.2f\n", ToDeg(ahrs.roll), ToDeg(ahrs.pitch), ToDeg(ahrs.yaw));
                 fprintf(stdout, "speed: left=%.3f  right=%.3f\n", sensors.lrEncSpeed, sensors.rrEncSpeed);
                 fprintf(stdout, "gps=(%.6f, %.6f, %.1f, %.1f, %.1f, %d) %02x\n", 
                     sensors.gps.latitude(), sensors.gps.longitude(), sensors.gps.heading_deg(), 
                     sensors.gps.speed_mps(), sensors.gps.hdop(), sensors.gps.sat_count(),
                     (unsigned char) sensors.gps.getAvailable() );
-                fprintf(stdout, "brg=%6.2f d=%8.4f sa=%6.2f\n", 
-                    state[inState].bearing, state[inState].distance, state[inState].steerAngle);
+                fprintf(stdout, "brg=%6.2f d=%8.4f sa=%6.2f\n", s->bearing, s->distance, s->steerAngle);
                 /*
                 fprintf(stdout, "gps2=(%.6f, %.6f, %.1f, %.1f, %.1f, %d) %02x\n", 
                     gps2.latitude(), gps2.longitude(), gps2.heading_deg(), gps2.speed_mps(), gps2.hdop(), gps2.sat_count(),
@@ -1040,7 +1014,7 @@ void mavlinkMode() {
         int millis = timer.read_ms();
       
         if ((millis % 1000) == 0) {
-            SystemState s = state[outState];
+            SystemState *s = fifo_first();
         /*
         s.millis,
         s.current, s.voltage,
@@ -1060,7 +1034,7 @@ void mavlinkMode() {
         s.crossTrackErr
         */
 
-            float groundspeed = (s.lrEncSpeed + s.rrEncSpeed)/2.0;
+            float groundspeed = (s->lrEncSpeed + s->rrEncSpeed)/2.0;
             //mav_hud.groundspeed *= 2.237; // convert to mph
             //mav_hud.heading = compassHeading();
 
@@ -1069,7 +1043,7 @@ void mavlinkMode() {
             mavlink_msg_attitude_send(MAVLINK_COMM_0, millis*1000, 
                 0.0, //ToDeg(ahrs.roll),
                 0.0, //ToDeg(ahrs.pitch),
-                s.estHeading,
+                s->estHeading,
                 0.0, // rollspeed
                 0.0, // pitchspeed
                 0.0  // yawspeed
@@ -1079,7 +1053,7 @@ void mavlinkMode() {
             mavlink_msg_vfr_hud_send(MAVLINK_COMM_0, 
                     groundspeed, 
                     groundspeed, 
-                    s.estHeading, 
+                    s->estHeading,
                     mav_hud.throttle, 
                     0.0, // altitude
                     0.0  // climb
@@ -1104,7 +1078,7 @@ void mavlinkMode() {
                 sensors.gps.hdop()*100.0, 
                 0.0, // VDOP
                 groundspeed, 
-                s.estHeading
+                s->estHeading
             );
                 
             mavlink_msg_gps_status_send(MAVLINK_COMM_0, sensors.gps.sat_count(), 0, 0, 0, 0, 0);

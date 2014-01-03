@@ -8,8 +8,7 @@
 
 FILE *openlog(const char *prefix);
 bool initLogfile(void);
-void clearState( SystemState *s );
-void logData( SystemState s );
+void logData( SystemState *s );
 void closeLogfile(void);
 
 #endif

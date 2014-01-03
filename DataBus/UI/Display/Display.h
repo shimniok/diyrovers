@@ -38,7 +38,7 @@ public:
     void gauge(int slot);
 
     /** updates data on the display */
-    void update(SystemState state);
+    void update(SystemState *state);
     
     /** initializes the update display */
     void redraw(void);

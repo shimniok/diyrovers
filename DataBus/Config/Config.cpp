@@ -1,7 +1,7 @@
 #define MAXBUF 64
 
 #include "Config.h"
-#include "SDHCFileSystem.h"
+#include "SDFileSystem.h"
 #include "GeoPosition.h"
 #include "globals.h"
 #include "util.h"

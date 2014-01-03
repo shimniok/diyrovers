@@ -1,11 +1,14 @@
 #ifndef _SYSTEMSTATE_H
 #define _SYSTEMSTATE_H
 
-#define SSBUF 64
+// TODO 2 parameterize this
+#define SSBUF 32 // must be 2^n
 
 /** System State is the main mechanism for communicating current realtime system state to
  * the rest of the system for logging, data display, etc.
  */
+
+#include <stdbool.h>
 
 /* struct systemState
  * structure containing system sensor data
@@ -83,5 +86,14 @@ typedef struct {
     float errHeading;
     float steerAngle;
 } SystemState;
+
+void state_clear( SystemState *s );
+bool fifo_init(void);
+void fifo_reset(void);
+bool fifo_available(void);
+bool fifo_push(SystemState *s);
+SystemState *fifo_first(void);
+SystemState *fifo_last(void);
+SystemState *fifo_pull(void);
 
 #endif
