@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 #include <math.h>
+#include "FreeRTOS.h"
+#include "task.h"
 #include "mbed.h"
 #include "globals.h"
 #include "Filesystem.h"
@@ -255,6 +257,9 @@ int main()
     sensors.gps.setUpdateRate(10);
     sensors.gps.enable();        
 
+	//xTaskCreate( shell, ( signed char * ) "shell", configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY+1), NULL );
+	//vTaskStartScheduler(); // should never get past this line.
+
     fprintf(stdout, "Starting Scheduler...\n");
     display.status("Start scheduler     ");
     wait(0.2);
@@ -289,7 +294,7 @@ int main()
     char cmd;
     bool printMenu = true;
     bool printLCDMenu = true;
-    
+
     fprintf(stdout, "Starting main timer...\n");
 
     timer.start();

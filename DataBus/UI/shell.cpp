@@ -23,6 +23,14 @@ typedef struct {
 	const char *desc;
 } cmd;
 
+extern int autonomousMode();
+extern int resetMe();
+extern int gyroSwing();
+extern int compassSwing();
+extern void displayData(int mode);
+
+extern "C" {
+
 void shell(const void *args);
 void docmd(char *cmdline);
 void termInput(char *cmd);
@@ -408,7 +416,6 @@ int dohelp(const char *s) {
  * call external instrument check routine
  */
 int doinstrchk(const char *s) {
-	extern void displayData(int mode);
 	displayData(0);
 
 	return 0;
@@ -418,7 +425,6 @@ int doinstrchk(const char *s) {
  * perform compass swing, call external function
  */
 int docompswing(const char *s) {
-	extern int compassSwing();
 	compassSwing();
 
 	return 0;
@@ -428,7 +434,6 @@ int docompswing(const char *s) {
  * perform gyro swing, call external function
  */
 int dogyroswing(const char *s) {
-	extern int gyroSwing();
 	gyroSwing();
 
 	return 0;
@@ -438,7 +443,6 @@ int dogyroswing(const char *s) {
  * reset the processor
  */
 int doreset(const char *s) {
-	extern int resetMe();
 	resetMe();
 	return 0; // won't ever reach this line...
 }
@@ -447,8 +451,9 @@ int doreset(const char *s) {
  * call external doAutonomous mode to perform an autonomous run
  */
 int doautonomous(const char *s) {
-	extern int autonomousMode();
 	autonomousMode();
 
 	return 0;
+}
+
 }
