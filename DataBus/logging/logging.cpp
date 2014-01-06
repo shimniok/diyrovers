@@ -4,7 +4,7 @@
 #include "SDFileSystem.h"
 #include "SerialGraphicLCD.h"
 
-extern Serial pc;
+// TODO 2 figure out a way to pull out status updates, some kind of message, queue, something.
 extern SerialGraphicLCD lcd;
 
 // TODO 2 set up logging out of low priority interrupt handler
@@ -116,15 +116,15 @@ FILE *openlog(const char *prefix)
     FILE *fp = 0;
     char myname[64];
 
-    pc.printf("Opening file...\n");
+    fputs("Opening file...\n", stdout);
 
     while (fp == 0) {
     	sprintf(myname, "%s/test.txt", LOGDIR);
         if ((fp = fopen(myname, "w")) == 0) {
-            pc.printf("Waiting for filesystem to come online...");
+            fputs("Waiting for filesystem to come online...", stdout);
             wait(0.200);
             lcd.pos(0,1);
-            //FIXME lcd.printf("%-16s", "Waiting for fs");
+            lcd.puts("Waiting for fs  ");
         }
     }
     fclose(fp);
@@ -139,15 +139,21 @@ FILE *openlog(const char *prefix)
     }
     fp = fopen(myname, "w");
     if (fp == 0) {
-        pc.printf("file write failed: %s\n", myname);
+    	fputs("file write failed: ", stdout);
+    	fputs(myname, stdout);
+    	fputc('\n', stdout);
     } else {
 
         // TODO 3 set error message, get rid of writing to terminal
 
         //status = true;
-        pc.printf("opened %s for writing\n", myname);
+        fputs("opened ", stdout);
+        fputs(myname, stdout);
+        fputs(" for writing\n", stdout);
         lcd.pos(0,1);
-        //FIXME lcd.printf("%-16s", myname);
+        int pad=16-strlen(myname);
+        lcd.puts(myname);
+        while(pad--) lcd.putc(' ');
     }
 
     return fp;

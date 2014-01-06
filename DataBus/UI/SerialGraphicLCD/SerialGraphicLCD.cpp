@@ -1,4 +1,5 @@
 #include "SerialGraphicLCD.h"
+#include "print.h"
 
 #define XSIZE 6
 #define YSIZE 9
@@ -164,3 +165,78 @@ int SerialGraphicLCD::putc(const char c) {
 	return _lcd.putc(c);
 }
 
+
+// TODO 3 make general verison that works on Serial, FILE etc.
+// from Arduino source
+size_t SerialGraphicLCD::printNumber(unsigned long n)
+{
+    char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
+    char *str = &buf[sizeof(buf) - 1];
+
+    *str = '\0';
+
+    do {
+        unsigned long m = n;
+        n /= 10;
+        char c = m - 10 * n;
+        *--str = c + '0';
+    } while(n);
+
+    return _lcd.puts(str);
+}
+
+// TODO 3 make general verison that works on Serial, FILE etc.
+// from Arduino source
+size_t SerialGraphicLCD::printInt(long n) {
+    int t = 0;
+    if (n < 0) {
+        t = _lcd.putc('-');
+        n = -n;
+    }
+    return printNumber(n) + t;
+}
+
+// TODO 3 make general verison that works on Serial, FILE etc.
+// from Arduino source
+size_t SerialGraphicLCD::printFloat(double number, uint8_t digits)
+{
+    size_t n=0;
+
+    if (isnan(number)) return _lcd.puts("nan");
+    if (isinf(number)) return _lcd.puts("inf");
+    if (number > 4294967040.0) return _lcd.puts("ovf");  // constant determined empirically
+    if (number <-4294967040.0) return _lcd.puts("ovf");  // constant determined empirically
+
+    // Handle negative numbers
+    if (number < 0.0) {
+        n += _lcd.putc('-');
+        number = -number;
+    }
+
+    // Round correctly so that print(1.999, 2) prints as "2.00"
+    double rounding = 0.5;
+    for (uint8_t i=0; i < digits; ++i)
+        rounding /= 10.0;
+
+    number += rounding;
+
+    // Extract the integer part of the number and print it
+    unsigned long int_part = (unsigned long)number;
+    double remainder = number - (double)int_part;
+    n += printInt(int_part);
+
+    // Print the decimal point, but only if there are digits beyond
+    if (digits > 0) {
+        n += _lcd.putc('.');
+    }
+
+    // Extract digits from the remainder one at a time
+    while (digits-- > 0) {
+        remainder *= 10.0;
+        int toPrint = (int) remainder;
+        n += _lcd.putc(toPrint+'0');
+        remainder -= toPrint;
+    }
+
+    return n;
+}
