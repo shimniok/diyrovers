@@ -10,10 +10,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "globals.h"
+#include "util.h"
 #include "print.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "globals.h"
 #include "Filesystem.h"
 #include "Config.h"
 #include "Buttons.h"
@@ -32,12 +33,10 @@
 #include "Actuators.h"
 #include "IncrementalEncoder.h"
 #include "Steering.h"
-#include "Schedule.h"
 #include "GeoPosition.h"
 #include "Mapping.h"
 #include "SimpleFilter.h"
 #include "Beep.h"
-#include "util.h"
 #include "MAVlink/include/mavlink_bridge.h"
 #include "updater.h"
 
@@ -95,7 +94,6 @@ SerialGraphicLCD lcd(p17, p18, SD_FW);  // Graphic LCD with summoningdark firmwa
 
 // SENSORS
 Sensors sensors;                        // Abstraction of sensor drivers
-//DCM ahrs;                             // ArduPilot/MatrixPilot AHRS
 Serial *dev;                            // For use with bridge
 
 // MISC
@@ -115,7 +113,7 @@ Timer timer;                            // For main loop scheduling
 unsigned long age = 0;                  // gps fix age
 
 // schedule for LED warning flasher
-Schedule blink;
+//Schedule blink;
 
 // Estimation & Navigation Variables
 GeoPosition dr_here;                    // Estimated position based on estimated heading
@@ -319,6 +317,7 @@ int main()
 	vTaskStartScheduler(); // should never get past this line.
 	error("%% scheduler start failure %%\n");
 
+#if 1==0
     char cmd;
     bool printMenu = true;
     bool printLCDMenu = true;
@@ -382,8 +381,6 @@ int main()
             printLCDMenu = false;
         }
         
-        // TODO 2 move to UI area
-        /*
         if (printMenu) {
             int i=0;
             fprintf(stdout, "\n==============\nData Bus Menu\n==============\n");
@@ -401,7 +398,6 @@ int main()
             fflush(stdout);
             printMenu = false;
         }
-        */
 
         checkit(__FILE__, __LINE__);
 
@@ -494,24 +490,10 @@ int main()
         wait(0.1);
 
     } // while
+#endif
 
 }
 
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// INITIALIZATION ROUTINES
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-void initFlasher()
-{ 
-    // Set up flasher schedule; 3 flashes every 80ms
-    // for 80ms total, with a 9x80ms period
-    blink.max(9);
-    blink.scale(80);
-    blink.mode(Schedule::repeat);
-    blink.set(0, 1);  blink.set(2, 1);  blink.set(4, 1);
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -709,14 +691,14 @@ int gyroSwing()
     // Timing is pretty critical so just in case, disable serial processing from GPS
     sensors.gps.disable();
 
-    fprintf(stdout, "Entering gyro swing...\n");
+    fputs("Entering gyro swing...\n", stdout);
     display.status("Starting...");
     wait(2);
     fp = openlog("gy");
     wait(2);
     display.status("Begin. Select exits.");
 
-    fprintf(stdout, "Begin clockwise rotation, varying rpm... press select to exit\n");
+    fputs("Begin clockwise rotation, varying rpm... press select to exit\n", stdout);
 
     timer.reset();
     timer.start();
@@ -734,14 +716,27 @@ int gyroSwing()
         // fprintf(stdout, "%d,%d,%d,%d,%d\n", timer.read_ms(), heading, sensors.g[0], sensors.g[1], sensors.g[2]);
         // sensors.rightTotal gives us each tick of the machine, multiply by 2 for cumulative heading, which is easiest
         // to compare with cumulative integration of gyro (rather than dealing with 0-360 degree range and modulus and whatnot
-        if (fp) fprintf(fp, "%d,%d,%d,%d,%d,%d\n", timer.read_ms(), 2*sensors.rightTotal, sensors.g[0], sensors.g[1], sensors.g[2], sensors.gTemp);
-        wait(0.200);
+        if (fp) {
+        	printInt(fp, timer.read_ms());
+
+        	printInt(fp, 2*sensors.rightTotal);
+        	fputc(',', stdout);
+        	printInt(fp, sensors.g[0]);
+        	fputc(',', stdout);
+        	printInt(fp, sensors.g[1]);
+        	fputc(',', stdout);
+        	printInt(fp, sensors.g[2]);
+        	fputc(',', stdout);
+        	printInt(fp, sensors.gTemp);
+        	fputc('\n', stdout);
+        }
+        wait(0.200); // TODO 2 vTaskDelay()
     }    
     if (fp) {
         fclose(fp);
         display.status("Done. Saved.");
-        fprintf(stdout, "Data collection complete.\n");
-        wait(2);
+        fputs("Data collection complete.\n", stdout);
+        wait(2); // TODO 2 vTaskDelay()
     }
     
     keypad.pressed = false;
@@ -766,14 +761,16 @@ int compassSwing()
     // left is index track
     // right is encoder track
 
-    fprintf(stdout, "Entering compass swing...\n");
+    fputs("Entering compass swing...\n", stdout);
     display.status("Starting...");
     wait(2);
     fp = openlog("sw");
     wait(2);
     display.status("Ok. Begin.");
 
-    fprintf(stdout, "Begin clockwise rotation... exit after %d revolutions\n", revolutions);
+    fputs("Begin clockwise rotation... exit after ", stdout);
+    printInt(stdout, revolutions);
+    fputs(" revolutions\n", stdout);
 
     timer.reset();
     timer.start();
@@ -785,11 +782,12 @@ int compassSwing()
             break;    
         }
     }
-    fprintf(stdout, ">>>> Index detected. Starting data collection\n");
+    fputs(">>>> Index detected. Starting data collection\n", stdout);
     leftCount = 0;
     // TODO 3 how to parameterize status?
     lcd.pos(0,1);
-    //FIXME lcd.printf("%1d %-14s", revolutions, "revs left");
+    lcd.printInt(revolutions);
+    lcd.puts(" revs left    ");
 
     sensors._right.read(); // easiest way to reset the heading counter
     
@@ -822,7 +820,8 @@ int compassSwing()
             printInt(stdout, revolutions);
             fputs(" left\n", stdout); // we sense the rising and falling of the index so /2
             lcd.pos(0,1);
-            //FIXME lcd.printf("%1d %-14s", revolutions, "revs left");
+            lcd.printInt(revolutions);
+            lcd.puts("revs left     ");
         }
         
         float heading2d = 180 * atan2((float) sensors.mag[1], (float) sensors.mag[0]) / PI;
@@ -833,8 +832,14 @@ int compassSwing()
         fputc('\n', stdout);
 
 //        int t1=t.read_us();
-        if (fp) fprintf(fp, "%d, %d, %.2f, %.4f, %.4f, %.4f\n", 
-                            timer.read_ms(), heading, heading2d, sensors.mag[0], sensors.mag[1], sensors.mag[2]);
+        if (fp) {
+        	printInt(fp, timer.read_ms());
+        	printInt(fp, heading);
+        	printFloat(fp, heading2d, 2);
+        	printFloat(fp, sensors.mag[0], 4);
+        	printFloat(fp, sensors.mag[1], 4);
+        	printFloat(fp, sensors.mag[2], 4);
+        }
 //        int t2=t.read_us();
 //        fprintf(stdout, "dt=%d\n", t2-t1);
     }    
@@ -854,6 +859,7 @@ void servoCalibrate()
 {
 }
 
+// TODO 3 fix serial bridge, probably won't work like this, I don't know.
 void bridgeRecv()
 {
     while (dev && dev->readable()) {
@@ -914,16 +920,12 @@ void displayData(const int mode)
     sensors.gps.enable();
     sensors.gps.reset_available();    
 
-    // Init 2nd GPS
-    //gps2.enable();
-    //gps2.reset_available();
-
-    keypad.pressed = false;  
+    keypad.pressed = false;
     
     timer.reset();
     timer.start();
-      
-    fprintf(stdout, "press e to exit\n");
+
+    fputs("press e to exit\n", stdout);
     while (!done) {
         int millis = timer.read_ms();
 
@@ -932,83 +934,141 @@ void displayData(const int mode)
             done=true;
         }
         
+        // TODO 3 find a more standard way to determine if data is waiting
         while (pc.readable()) {
-            if (pc.getc() == 'e') {
+            if (fgetc(stdin) == 'e') {
                 done = true;
                 break;
             }
         }
 
-/*        
-        if (mode == AHRS_VISUALIZATION && (millis % 100) == 0) {
+        // TODO 2 use vTaskDelay here
+		if ((millis % 1000) == 0) {
+			SystemState *s = fifo_first();
 
-            fprintf(stdout, "!ANG:%.1f,%.1f,%.1f\r\n", ToDeg(ahrs.roll), ToDeg(ahrs.pitch), ToDeg(ahrs.yaw));
+			// update time
+			fputs("\nupdate() time = ", stdout);
+			printFloat(stdout, getUpdateTime()/1000.0, 3);
+			fputs(" msec\n", stdout);
 
-        } else if (mode == INSTRUMENT_CHECK) {
- */
-        
-            if ((millis % 1000) == 0) {
-            	//SystemState *s = fifo_first();
+			// rangers
+			fputs("Rangers: L=", stdout);
+			printFloat(stdout, sensors.leftRanger, 2);
+			fputs(" R=", stdout);
+			printFloat(stdout, sensors.rightRanger, 2);
+			fputs(" C=", stdout);
+			printFloat(stdout, sensors.centerRanger, 2);
+			fputc('\n', stdout);
 
-                //FIXME fprintf(stdout, "update() time = %.3f msec\n", getUpdateTime() / 1000.0);
-            	//FIXME fprintf(stdout, "Rangers: L=%.2f R=%.2f C=%.2f", sensors.leftRanger, sensors.rightRanger, sensors.centerRanger);
-            	fputc('\n', stdout);
-                //fprintf(stdout, "ahrs.MAG_Heading=%4.1f\n",  ahrs.MAG_Heading*180/PI);
-                //fprintf(stdout, "raw m=(%d, %d, %d)\n", sensors.m[0], sensors.m[1], sensors.m[2]);
-                //fprintf(stdout, "m=(%2.3f, %2.3f, %2.3f) %2.3f\n", sensors.mag[0], sensors.mag[1], sensors.mag[2],
-                //        sqrt(sensors.mag[0]*sensors.mag[0] + sensors.mag[1]*sensors.mag[1] + sensors.mag[2]*sensors.mag[2] ));
-            	//FIXME fprintf(stdout, "g=(%4d, %4d, %4d) %d\n", sensors.g[0], sensors.g[1], sensors.g[2], sensors.gTemp);
-            	//FIXME fprintf(stdout, "gc=(%.1f, %.1f, %.1f)\n", sensors.gyro[0], sensors.gyro[1], sensors.gyro[2]);
-            	//FIXME fprintf(stdout, "a=(%5d, %5d, %5d)\n", sensors.a[0], sensors.a[1], sensors.a[2]);
-            	//FIXME fprintf(stdout, "estHdg=%.2f lagHdg=%.2f\n", s->estHeading, s->estLagHeading);
-                //fprintf(stdout, "roll=%.2f pitch=%.2f yaw=%.2f\n", ToDeg(ahrs.roll), ToDeg(ahrs.pitch), ToDeg(ahrs.yaw));
-            	//FIXME fprintf(stdout, "speed: left=%.3f  right=%.3f\n", sensors.lrEncSpeed, sensors.rrEncSpeed);
-            	//FIXME fprintf(stdout, "gps=(%.6f, %.6f, %.1f, %.1f, %.1f, %d) %02x\n",
-            	//FIXME sensors.gps.latitude(), sensors.gps.longitude(), sensors.gps.heading_deg(),
-            	//FIXME sensors.gps.speed_mps(), sensors.gps.hdop(), sensors.gps.sat_count(),
-            	//FIXME (unsigned char) sensors.gps.getAvailable() );
-            	//FIXME fprintf(stdout, "brg=%6.2f d=%8.4f sa=%6.2f\n", s->bearing, s->distance, s->steerAngle);
-                /*
-                fprintf(stdout, "gps2=(%.6f, %.6f, %.1f, %.1f, %.1f, %d) %02x\n", 
-                    gps2.latitude(), gps2.longitude(), gps2.heading_deg(), gps2.speed_mps(), gps2.hdop(), gps2.sat_count(),
-                    (unsigned char) gps2.getAvailable() );
-                */
-            	//FIXME fprintf(stdout, "v=%.2f  a=%.3f\n", sensors.voltage, sensors.current);
-            	fputc('\n', stdout);
-            }
+			// gyro, raw
+			fputs("g=(", stdout);
+			printInt(stdout, sensors.g[0]);
+			fputc(',', stdout);
+			printInt(stdout, sensors.g[1]);
+			fputc(',', stdout);
+			printInt(stdout, sensors.g[2]);
+			fputs(") ", stdout);
+			printInt(stdout, sensors.gTemp);
+			fputc('\n', stdout);
 
-            if ((millis % 3000) == 0) {
+			// gyro, corrected
+			fputs("gc=(", stdout);
+			printInt(stdout, sensors.gyro[0]);
+			fputc(',', stdout);
+			printInt(stdout, sensors.gyro[1]);
+			fputc(',', stdout);
+			printInt(stdout, sensors.gyro[2]);
+			fputs(")\n", stdout);
 
-                lcd.pos(0,1);
-                //lcd.printf("H=%4.1f   ", ahrs.MAG_Heading*180/PI);
-                //wait(0.1);
-                lcd.pos(0,2);
-                //FIXME lcd.printf("G=%4.1f,%4.1f,%4.1f    ", sensors.gyro[0], sensors.gyro[1], sensors.gyro[2]);
-                wait(0.1);
-                lcd.pos(0,3);
-                //FIXME lcd.printf("La=%11.6f HD=%1.1f  ", sensors.gps.latitude(), sensors.gps.hdop());
-                wait(0.1);
-                lcd.pos(0,4);
-                //FIXME lcd.printf("Lo=%11.6f Sat=%-2d  ", sensors.gps.longitude(), sensors.gps.sat_count());
-                wait(0.1);
-                lcd.pos(0,5);
-                //FIXME lcd.printf("V=%5.2f A=%5.3f  ", sensors.voltage, sensors.current);
-                
-            }
-        //}
-    
+			// accelerometer
+			fputs("a=(", stdout);
+			printInt(stdout, sensors.a[0]);
+			fputc(',', stdout);
+			printInt(stdout, sensors.a[1]);
+			fputc(',', stdout);
+			printInt(stdout, sensors.a[2]);
+			fputs(")\n", stdout);
+
+			// heading
+			fputs("estHdg=", stdout);
+			printFloat(stdout, s->estHeading, 2);
+			fputs(" lagHdg=", stdout);
+			printFloat(stdout, s->estLagHeading, 2);
+			fputc('\n', stdout);
+
+			// speed
+			fputs("speed: left=", stdout);
+			printFloat(stdout, sensors.lrEncSpeed, 2);
+			fputs("  right=", stdout);
+			printFloat(stdout, sensors.rrEncSpeed, 2);
+			fputc('\n', stdout);
+
+			// gps
+			fputs("gps=(", stdout);
+			printFloat(stdout, sensors.gps.latitude(), 6);
+			fputs(", ", stdout);
+			printFloat(stdout, sensors.gps.longitude(), 6);
+			fputs(", ", stdout);
+			printFloat(stdout, sensors.gps.heading_deg(), 1);
+			fputs(", ", stdout);
+			printFloat(stdout, sensors.gps.speed_mps(), 1);
+			fputs(", ", stdout);
+			printFloat(stdout, sensors.gps.hdop(), 1);
+			fputs(", ", stdout);
+			printFloat(stdout, sensors.gps.sat_count(), 1);
+			fputs(", ", stdout);
+			printInt(stdout, sensors.gps.getAvailable());
+			fputc('\n', stdout);
+
+			// nav
+			fputs("brg=", stdout);
+			printFloat(stdout, s->bearing, 2);
+			fputs(" d=", stdout);
+			printFloat(stdout, s->distance, 4);
+			fputs(" sa=", stdout);
+			printFloat(stdout, s->steerAngle, 2);
+			fputc('\n', stdout);
+
+			// power
+			fputs("v=", stdout);
+			printFloat(stdout, sensors.voltage, 2);
+			fputs(" a=", stdout);
+			printFloat(stdout, sensors.current, 2);
+			fputc('\n', stdout);
+		}
+
+		/* TODO 3 figure out how/where to do instrument check.
+		if ((millis % 3000) == 0) {
+
+			lcd.pos(0,1);
+			//lcd.printf("H=%4.1f   ", ahrs.MAG_Heading*180/PI);
+			//wait(0.1);
+			lcd.pos(0,2);
+			//FIXME lcd.printf("G=%4.1f,%4.1f,%4.1f    ", sensors.gyro[0], sensors.gyro[1], sensors.gyro[2]);
+			wait(0.1);
+			lcd.pos(0,3);
+			//FIXME lcd.printf("La=%11.6f HD=%1.1f  ", sensors.gps.latitude(), sensors.gps.hdop());
+			wait(0.1);
+			lcd.pos(0,4);
+			//FIXME lcd.printf("Lo=%11.6f Sat=%-2d  ", sensors.gps.longitude(), sensors.gps.sat_count());
+			wait(0.1);
+			lcd.pos(0,5);
+			//FIXME lcd.printf("V=%5.2f A=%5.3f  ", sensors.voltage, sensors.current);
+
+		}
+		*/
+
     } // while !done
     // clear input buffer
-    while (pc.readable()) pc.getc();
+    fflush(stdin);
     lcd.clear();
     ahrsStatus = 0;
     gpsStatus = 0;
 }
 
 
-// TODO: 3 move Mavlink into main (non-interrupt) loop along with logging
+// TODO: 3 move Mavlink into task
 // possibly also buffered if necessary
-
 void mavlinkMode() {
     uint8_t system_type = MAV_FIXED_WING;
     uint8_t autopilot_type = MAV_AUTOPILOT_GENERIC;
@@ -1053,24 +1113,6 @@ void mavlinkMode() {
       
         if ((millis % 1000) == 0) {
             SystemState *s = fifo_first();
-        /*
-        s.millis,
-        s.current, s.voltage,
-        s.g[0], s.g[1], s.g[2],
-        s.gTemp,
-        s.a[0], s.a[1], s.a[2],
-        s.m[0], s.m[1], s.m[2],
-        s.gHeading, //s.cHeading,
-        //s.roll, s.pitch, s.yaw,
-        s.gpsLatitude, s.gpsLongitude, s.gpsCourse, s.gpsSpeed*0.44704, s.gpsHDOP, s.gpsSats, // convert gps speed to m/s
-        s.lrEncDistance, s.rrEncDistance, s.lrEncSpeed, s.rrEncSpeed, s.encHeading,
-        s.estHeading, s.estLatitude, s.estLongitude,
-        // s.estNorthing, s.estEasting, 
-        s.estX, s.estY,
-        s.nextWaypoint, s.bearing, s.distance, s.gbias, s.errAngle,
-        s.leftRanger, s.rightRanger, s.centerRanger,
-        s.crossTrackErr
-        */
 
             float groundspeed = (s->lrEncSpeed + s->rrEncSpeed)/2.0;
             //mav_hud.groundspeed *= 2.237; // convert to mph
@@ -1086,7 +1128,6 @@ void mavlinkMode() {
                 0.0, // pitchspeed
                 0.0  // yawspeed
             );
-
 
             mavlink_msg_vfr_hud_send(MAVLINK_COMM_0, 
                     groundspeed, 
@@ -1159,7 +1200,7 @@ void mavlinkMode() {
     //gps.gsvMessage(false);
     //gps.gsaMessage(false);
     
-    fprintf(stdout, "\n");
+    fputc('\n', stdout);
     
     return;
 }
@@ -1196,7 +1237,9 @@ int setBacklight(void) {
         if (printUpdate) {
             printUpdate = false;
             lcd.pos(0,1);
-            //FIXME lcd.printf("%3d%%%-16s", backlight, "");
+            lcd.printInt(backlight);
+            lcd.putc('%');
+            lcd.puts("   ");
         }
     }
     

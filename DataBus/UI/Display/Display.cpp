@@ -79,7 +79,7 @@ void Display::update(SystemState *state) {
 		lcd.circle(90, 40, 22, true);
 		lcd.circle(90, 40, 14, true);
 		lcd.posXY(90-9,40-(8/2)); // 3 * 6 / 2, char width=6, 5 chars, half that size
-	    //FIXME lcd.printf("%03.0f", state->estHeading);
+	    lcd.printInt((int) state->estHeading);
 		int nx = 90 - 18 * sin(3.141529 * state->estHeading / 180.0);
 		int ny = 40 - 18 * cos(-3.141529 * state->estHeading / 180.0);
 		lcd.posXY(nx - 2, ny - 3);

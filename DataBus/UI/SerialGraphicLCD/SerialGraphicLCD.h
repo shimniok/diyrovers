@@ -185,6 +185,15 @@ public:
     // TODO 3 documentation
     int putc(const char c);
     
+    // TODO 3 documentation
+    size_t printNumber(unsigned long n);
+
+    // TODO 3 documentation
+    size_t printInt(long n);
+
+    // TODO 3 documentation
+    size_t printFloat(double number, uint8_t digits);
+
     /** sets the resolution of the LCD so that the pos() call works properly
      * defaults to LCD_128x64.
      *
