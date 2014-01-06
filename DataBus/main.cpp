@@ -158,9 +158,31 @@ int resetMe()
     return 0;
 }
 
+extern "C" size_t xPortGetFreeHeapSize(void);
+
+#include "FATFileSystem.h"
+extern "C" void checkit(const char *s, const int l) {
+	FATFileSystem **w1 = FATFileSystem::_ffs;
+	FATFileSystem *w2 = w1[0];
+	fprintf(stdout, "WATCH %s:%d: %04x %04x %d\n", s, l, (unsigned int) w1, (unsigned int) w2, xPortGetFreeHeapSize());
+	return;
+}
 
 int main()
 {
+	//checkit(__FILE__, __LINE__);
+	xTaskCreate( shell, (const signed char * ) "shell", 128, NULL, (tskIDLE_PRIORITY+3), NULL );
+    //checkit(__FILE__, __LINE__);
+	vTaskStartScheduler(); // should never get past this line.
+	while(1);
+
+	// Send data back to the PC
+    pc.baud(115200);
+    fprintf(stdout, "Data Bus 2014\n");
+    fflush(stdin);
+
+    checkit(__FILE__, __LINE__);
+
     // Let's try setting priorities...
     //NVIC_SetPriority(DMA_IRQn, 0);
     NVIC_SetPriority(EINT0_IRQn, 5);    // wheel encoders
@@ -181,21 +203,18 @@ int main()
     NVIC_SetPriority(TIMER1_IRQn, 10); 	// unused(?)
     NVIC_SetPriority(TIMER2_IRQn, 10); 	// unused(?)
 
+    checkit(__FILE__, __LINE__);
+
     // Something here is jacking up the I2C stuff
     // Also when initializing with ESC powered, it causes motor to run which
     // totally jacks up everything (noise?)
     initSteering();
     initThrottle();
     // initFlasher();                       // Initialize autonomous mode flasher
-    
-    // Send data back to the PC
-    pc.baud(115200);
-    fprintf(stdout, "Data Bus 2014\n");
-    while (pc.readable()) pc.getc();        // flush buffer on reset
 
     display.init();
     display.status("Data Bus 2014");
-   
+
     fprintf(stdout, "Initializing...\n");
     display.status("Initializing");
     wait(0.2);
@@ -207,7 +226,7 @@ int main()
     confStatus = 0;
 
     if (!fifo_init()) {
-    	error("\n\n%% Error allocating SystemState array %%\n");
+    	error("\n\n%% Error initializing SystemState fifo %%\n");
     }
 
     fprintf(stdout, "Loading configuration...\n");
@@ -255,10 +274,7 @@ int main()
     display.status("Start GPS           "); // TODO 3: would be nice not to have to pad at this level
     wait(0.2);
     sensors.gps.setUpdateRate(10);
-    sensors.gps.enable();        
-
-	//xTaskCreate( shell, ( signed char * ) "shell", configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY+1), NULL );
-	//vTaskStartScheduler(); // should never get past this line.
+    sensors.gps.enable();
 
     fprintf(stdout, "Starting Scheduler...\n");
     display.status("Start scheduler     ");
@@ -290,6 +306,8 @@ int main()
     menu.add("Backlight", &setBacklight);
     menu.add("Reverse", &reverseScreen);
     menu.add("Reset", &resetMe);
+
+
 
     char cmd;
     bool printMenu = true;
@@ -375,6 +393,7 @@ int main()
             printMenu = false;
         }
 
+        checkit(__FILE__, __LINE__);
 
         // Basic functional architecture
         // SENSORS -> FILTERS -> AHRS -> POSITION -> NAVIGATION -> CONTROL | INPUT/OUTPUT | LOGGING
@@ -396,7 +415,7 @@ int main()
         // and then disable from user panel or when navigation is ended
 
         if (pc.readable()) {
-            cmd = pc.getc();
+            cmd = fgetc(stdin);
             fprintf(stdout, "%c\n", cmd);
             printMenu = true;
             printLCDMenu = true;
@@ -459,6 +478,7 @@ int main()
                     break;
             } // switch        
 
+            checkit(__FILE__, __LINE__);
         } // if (pc.readable())
 
         wait(0.1);
@@ -627,7 +647,7 @@ int compassCalibrate()
         }
         
         while (pc.readable()) {
-            if (pc.getc() == 'e') {
+            if (fgetc(stdin) == 'e') {
                 done = true;
                 break;
             }

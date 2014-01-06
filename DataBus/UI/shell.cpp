@@ -4,15 +4,14 @@
 #include "util.h"
 #include "Buttons.h"
 
+#define MAXBUF		128
 #define MAXCMDARR	18
-#define MAXCMD		16
-#define MAXDESC		32
 
 extern Serial pc;
 extern Buttons keypad;
 
-char cwd[64];
-char buf[128];
+char cwd[MAXBUF];
+char buf[MAXBUF];
 int status;
 bool debug=false;
 bool done=false;
@@ -31,7 +30,7 @@ extern void displayData(int mode);
 
 extern "C" {
 
-void shell(const void *args);
+void shell(void *args);
 void docmd(char *cmdline);
 void termInput(char *cmd);
 void resolveDirectory(char *newpath, char *path);
@@ -74,12 +73,20 @@ const cmd command[MAXCMDARR] = {
     	{ 0, 0, 0 }
 };
 
-void shell(const void *args) {
-    char cmdline[64];
+extern void checkit(const char *s, const int l);
+extern "C" size_t xPortGetFreeHeapSize(void);
 
-    pc.printf("Type help for assistance\n");
-    
-    strcpy(cwd, "/log");
+void shell(void *args) {
+    char cmdline[MAXBUF];
+
+    pc.baud(115200);
+
+    checkit(__FILE__, __LINE__);
+    fprintf(stdout, "%d bytes free.\nType help for assistance.\n", xPortGetFreeHeapSize());
+    checkit(__FILE__, __LINE__);
+
+    strncpy(cwd, "/log", MAXBUF-1);
+    checkit(__FILE__, __LINE__);
 
     status=0;
     done=false;
@@ -107,17 +114,21 @@ void shell(const void *args) {
  */
 void docmd(char *cmdline) {
 	char *arg;
-	char cmd[64];
-	char newpath[64];
+	char cmd[MAXBUF];
+	char newpath[MAXBUF];
 	bool found = false;
 
-    arg = split(cmd, cmdline, 64, ' ');
+    checkit(__FILE__, __LINE__);
+    arg = split(cmd, cmdline, MAXBUF, ' ');
+    checkit(__FILE__, __LINE__);
 
     if (strlen(cmd) > 0) {
 
+        checkit(__FILE__, __LINE__);
 		resolveDirectory(newpath, arg);
+        checkit(__FILE__, __LINE__);
 
-		if (debug) pc.printf("cmdline:<%s> cmd:<%s> arg:<%s> newpath:<%s>\n", cmdline, cmd, arg, newpath);
+		if (debug) fprintf(stdout, "cmdline:<%s> cmd:<%s> arg:<%s> newpath:<%s>\n", cmdline, cmd, arg, newpath);
 
 		for (int i=0; command[i].cmd; i++) {
 			if (!strcmp(cmd, command[i].cmd)) {
@@ -127,10 +138,12 @@ void docmd(char *cmdline) {
 		}
 
 		if (!found) {
-			pc.printf("%s: command not found\n", cmd);
+			fprintf(stdout, "%s: command not found\n", cmd);
 		}
 
     }
+
+    checkit(__FILE__, __LINE__);
 
 	return;
 }
@@ -144,27 +157,34 @@ void termInput(char *cmd) {
     char c;
     bool done = false;
     
-    memset(cmd, 0, 64);
+    memset(cmd, 0, MAXBUF);
     
-    pc.printf("(%s)# ", cwd);
+    fprintf(stdout, "(%s)# ", cwd);
     do {
-        cmd[i] = 0;
+        checkit(__FILE__, __LINE__);
+    	cmd[i] = 0;
+        checkit(__FILE__, __LINE__);
         c = pc.getc();
+        checkit(__FILE__, __LINE__);
         if (c == '\r') { // if return is hit, we're done, don't add \r to cmd
             done = true;
-        } else if (i < 64-1) {
+        } else if (i < MAXBUF-1) {
             if (c == 0x7f || c == '\b') { // backspace or delete
                 if (i > 0) { // if we're at the beginning, do nothing
                     i--;
-                    pc.printf("\b \b");
+                    fprintf(stdout, "\b \b");
+                    checkit(__FILE__, __LINE__);
                 }
             } else {
-                pc.printf("%c", c);
+                fprintf(stdout, "%c", c);
                 cmd[i++] = c;
+                checkit(__FILE__, __LINE__);
             }
         }
     } while (!done);
-    pc.printf("\n");
+    fprintf(stdout, "\n");
+
+    checkit(__FILE__, __LINE__);
 } 
 
 /** resolveDirectory
@@ -215,7 +235,9 @@ char *splitCmd(char *s, char *t, int max)
     }
   }
   *s = 0;
-    
+
+  checkit(__FILE__, __LINE__);
+
   return t;
 }
 
@@ -226,49 +248,53 @@ void splitName(const char *path, char *dirname, char *basename) {
     int sep;
     
     sep = 0;
-    if (debug) pc.printf("%d\n", strlen(path));
+    if (debug) fprintf(stdout, "%d\n", strlen(path));
     for (int i=strlen(path)-1; i >= 0; i--) {
-        if (debug) pc.printf("- %c\n", path[i]);
+        if (debug) fprintf(stdout, "- %c\n", path[i]);
         sep = i;
         if (path[i] == '/') break;
     }
     for (int j=0; j < sep; j++) {
-        if (debug) pc.printf("> %c\n", path[j]);
+        if (debug) fprintf(stdout, "> %c\n", path[j]);
         dirname[j] = path[j];
         dirname[j+1] = 0;
     }
     for (unsigned int k=sep+1; k != strlen(path); k++) {
-        if (debug) pc.printf("* %c\n", path[k]);
+        if (debug) fprintf(stdout, "* %c\n", path[k]);
         basename[k-(sep+1)] = path[k];
         basename[k-sep] = 0;    
     }
-    if (debug) pc.printf("d:<%s> b:<%s>\n", dirname, basename);
+    if (debug) fprintf(stdout, "d:<%s> b:<%s>\n", dirname, basename);
+
+    checkit(__FILE__, __LINE__);
 }
 
 /** ls
  * lists files in the current working directory, 4 columns
  */
 int dols(const char *path) {
-    if (debug) pc.printf("%s\n", cwd);
+    if (debug) fprintf(stdout, "%s\n", cwd);
     DIR *d;
     struct dirent *p;
-    
+
+    checkit(__FILE__, __LINE__);
+
     int count=0;
     if ((d = opendir(path)) != NULL) {
         while ((p = readdir(d)) != NULL) {
-            pc.printf("%14s", p->d_name);
+            fprintf(stdout, "%14s", p->d_name);
             if (count++ >= 3) {
                 count = 0;
-                pc.printf("\n");
+                fprintf(stdout, "\n");
             }
         }
-        pc.printf("\n");
+        fprintf(stdout, "\n");
         if (count < 3)
-            pc.printf("\n");
+            fprintf(stdout, "\n");
         closedir(d);
         status = 0;
     } else {
-        pc.printf("%s: No such directory\n", path);
+        fprintf(stdout, "%s: No such directory\n", path);
         status = 1;
     }
 
@@ -288,7 +314,7 @@ int docd(const char *path) {
  * print current working directory
  */
 int dopwd(const char *s) {
-    pc.printf("%s\n", cwd);
+    fprintf(stdout, "%s\n", cwd);
 
     return 0;
 }
@@ -302,7 +328,7 @@ int dotouch(const char *path) {
         fclose(fp);
         status = 0;
     } else {
-        pc.printf("%s: No such file\n", path);
+        fprintf(stdout, "%s: No such file\n", path);
         status = 1;
     }
 
@@ -323,12 +349,12 @@ int dohead(const char *path) {
     if ((fp = fopen(path, "r")) != NULL) {
         while (!feof(fp) && line++ < 10) {
             fgets(buf, 128, fp);
-            pc.printf("%s", buf);
+            fprintf(stdout, "%s", buf);
         }
         fclose(fp);
         status = 0;
     } else {
-        pc.printf("%s: No such file\n", path);
+        fprintf(stdout, "%s: No such file\n", path);
         status = 1;
     }
 
@@ -344,12 +370,12 @@ int docat(const char *path) {
     if ((fp = fopen(path, "r")) != NULL) {
         while (!feof(fp)) {
             if (fgets(buf, 127, fp) != NULL)
-                pc.printf("%s", buf);
+                fprintf(stdout, "%s", buf);
         }
         fclose(fp);
         status = 0;
     } else {
-        pc.printf("%s: No such file\n", path);
+        fprintf(stdout, "%s: No such file\n", path);
         status = 1;
     }
 
@@ -367,16 +393,16 @@ int dosend(const char *path) {
 
     if ((fp = fopen(path, "r")) != NULL) {
         splitName(path, dirname, basename);
-        pc.printf("%c%c%s%c", 1, 2, basename, 3);
+        fprintf(stdout, "%c%c%s%c", 1, 2, basename, 3);
         while (!feof(fp)) {
             if (fgets(buf, 127, fp) != NULL)
-                pc.printf("%s", buf);
+                fprintf(stdout, "%s", buf);
         }
         fclose(fp);
-        pc.printf("%c", 4);
+        fprintf(stdout, "%c", 4);
         status = 0;
     } else {
-        pc.printf("%s: No such file\n", path);
+        fprintf(stdout, "%s: No such file\n", path);
         status = 1;
     }
 
@@ -406,7 +432,7 @@ int dodebug(const char *s) {
  */
 int dohelp(const char *s) {
 	for (int i=0; command[i].cmd; i++) {
-		pc.printf("%10s %s\n", command[i].cmd, command[i].desc);
+		fprintf(stdout, "%10s %s\n", command[i].cmd, command[i].desc);
 	}
 
 	return 0;

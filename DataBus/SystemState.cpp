@@ -13,6 +13,7 @@
 volatile int inState = 0; // push pointer
 volatile int outState = 0; // pull pointer
 SystemState *state;
+SystemState mystate[SSBUF];
 
 void state_clear( SystemState *s )
 {
@@ -36,7 +37,8 @@ void state_clear( SystemState *s )
 bool fifo_init() {
     // Allocate memory for system state buffer
     // We're doing this to (hopefully) save some flash size
-    state = (SystemState *) malloc(SSBUF*sizeof(SystemState));
+    //state = (SystemState *) malloc(SSBUF*sizeof(SystemState));
+	state = mystate;
 	fifo_reset();
 	return (state != NULL);
 }
