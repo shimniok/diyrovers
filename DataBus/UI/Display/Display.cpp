@@ -21,8 +21,8 @@ Display::Display(void):
 
 void Display::init()
 {
-    lcd.baud(115200);
-    lcd.printf("test\n"); // hopefully force 115200 on powerup
+    //FIXME lcd.baud(115200);
+	lcd.puts("test\n"); // hopefully force 115200 on powerup
     lcd.clear();
     wait(0.3);
     
@@ -40,23 +40,30 @@ void Display::init()
 void Display::status(const char *st)
 {
     lcd.pos(0,1);
-    lcd.printf(LCD_FMT, st);
+    int pad = 20 - strlen(st);
+    while (pad--) lcd.putc(' ');
+    lcd.puts(st);
 }
 
 void Display::menu(const char *itemName)
 {
     lcd.pos(0,0);
-    lcd.printf("< %-14s >", itemName);
+    int pad = 14 - strlen(itemName);
+    while (pad--) lcd.putc(' ');
+    lcd.puts(itemName);
 }
 
 void Display::select(const char *itemName)
 {
     lcd.pos(0,0);
-    lcd.printf(">>%-14s", itemName);
+    lcd.puts(">>");
+    int pad = 14 - strlen(itemName);
+    while (pad--) lcd.putc(' ');
+    lcd.puts(itemName);
 }
 
 // display gauge at a given position (slot) along the bottom
-void Display::gauge(int slot)
+void Display::gauge(const int slot)
 {
 }
 
@@ -72,11 +79,11 @@ void Display::update(SystemState *state) {
 		lcd.circle(90, 40, 22, true);
 		lcd.circle(90, 40, 14, true);
 		lcd.posXY(90-9,40-(8/2)); // 3 * 6 / 2, char width=6, 5 chars, half that size
-		lcd.printf("%03.0f", state->estHeading);
+	    //FIXME lcd.printf("%03.0f", state->estHeading);
 		int nx = 90 - 18 * sin(3.141529 * state->estHeading / 180.0);
 		int ny = 40 - 18 * cos(-3.141529 * state->estHeading / 180.0);
 		lcd.posXY(nx - 2, ny - 3);
-		lcd.printf("N");
+	    lcd.putc('N');
 		//lcd.circle(nx, ny, 5, true);
 		int bx = 90 - 18 * sin(-3.141529 * (state->bearing-state->estHeading) / 180.0);
 		int by = 40 - 18 * cos(-3.141529 * (state->bearing-state->estHeading) / 180.0);
@@ -102,23 +109,6 @@ void Display::update(SystemState *state) {
     //a.init();
     g1.init();
     g2.init();
-    /*
-    lcd.posXY(50, 22);
-    lcd.printf("R");
-    lcd.rect(58, 20, 98, 30, true);
-    wait(0.01);
-    lcd.posXY(50, 32);
-    lcd.printf("L");
-    lcd.rect(58, 30, 98, 40, true);
-    wait(0.01);
-    lcd.posXY(50, 42);
-    lcd.printf("H");
-    lcd.rect(58, 40, 98, 50, true);
-    wait(0.01);
-    lcd.posXY(44,52);
-    lcd.printf("GH");
-    lcd.rect(58, 50, 98, 60, true);
-    */
 }
 
 

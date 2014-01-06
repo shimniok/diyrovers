@@ -11,8 +11,9 @@ class Config {
 		static const int MAX_WPT=10;	// maximum number of waypoints
         Config();
         bool load();
-        bool loaded;            // has the config been loaded yet?
-        float interceptDist;    // used for course correction steering calculation
+        void print(void);			// print out configuration to stdout
+        bool loaded;           		// has the config been loaded yet?
+        float interceptDist;    	// used for course correction steering calculation
         float waypointDist;     	// distance threshold to waypoint
         float brakeDist;        	// braking distance
         GeoPosition wpt[MAX_WPT];   // Waypoints, lat/lon coords

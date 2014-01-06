@@ -2,7 +2,7 @@
 #define _SYSTEMSTATE_H
 
 // TODO 2 parameterize this
-#define SSBUF 32 // must be 2^n
+#define SSBUF 16 // must be 2^n
 
 /** System State is the main mechanism for communicating current realtime system state to
  * the rest of the system for logging, data display, etc.

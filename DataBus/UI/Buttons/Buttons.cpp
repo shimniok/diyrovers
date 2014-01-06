@@ -5,7 +5,9 @@ PinDetect nextButton(p14);
 PinDetect selectButton(p16);            // Input selectButton
 PinDetect prevButton(p15);
 
-Buttons::Buttons(void): which(0), pressed(false)
+Buttons::Buttons(void):
+		which(0)
+,		pressed(false)
 {
 }
 

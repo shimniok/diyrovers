@@ -1,6 +1,7 @@
 #define MAXBUF 64
 
 #include "Config.h"
+#include "print.h"
 #include "SDFileSystem.h"
 #include "GeoPosition.h"
 #include "globals.h"
@@ -59,14 +60,15 @@ bool Config::load()
     char *p;
     double lat, lon;
     float wTopSpeed, wTurnSpeed;
-    bool declFound = false;
     bool confStatus = false;
 
-    pc.printf("opening config file...\n");
+    fputs("opening config file...\n", stdout);
     
     fp = fopen(CONFIGFILE, "r");
     if (fp == 0) {
-        pc.printf("Could not open %s\n", CONFIGFILE);
+        fputs("Could not open", stdout);
+        fputs(CONFIGFILE, stdout);
+        fputc('\n', stdout);
     } else {
         wptCount = 0;
         while (!feof(fp)) {
@@ -163,7 +165,7 @@ bool Config::load()
         } // while
 
         // Did we get the values we were looking for?
-        if (wptCount > 0 && declFound) {
+        if (wptCount > 0) {
             confStatus = true;
         }
         
@@ -175,4 +177,73 @@ bool Config::load()
     loaded = confStatus;
 
     return confStatus;
+}
+
+void Config::print(void) {
+
+    // Print out speed configuration data
+    fputs("Speed:", stdout);
+	fputs("\n escZero=", stdout);
+    printInt(stdout, escZero);
+    fputs("\n escMax=", stdout);
+    printInt(stdout, escMax);
+    fputs("\n Top=", stdout);
+    printFloat(stdout, topSpeed, 1);
+    fputs("\n Turn=", stdout);
+    printFloat(stdout, turnSpeed, 1);
+    fputs("\n Kp=", stdout);
+    printFloat(stdout, speedKp, 1);
+    fputs("\n Ki=", stdout);
+    printFloat(stdout, speedKi, 1);
+    fputs("\n Kd=", stdout);
+    printFloat(stdout, speedKd, 1);
+    fputc('\n', stdout);
+
+    // Print out steer configuration data
+    fputs("Steering:", stdout);
+    fputs("\n steerZero=", stdout);
+    printFloat(stdout, steerZero, 2);
+    fputs("\n steerGain=", stdout);
+    printFloat(stdout, steerGain, 1);
+    fputs("\n gainAngle=", stdout);
+    printFloat(stdout, steerGainAngle, 1);
+    fputc('\n', stdout);
+
+    // Print out nav config data
+    fputs("Navigation:", stdout);
+    fputs("\n Intercept dist=", stdout);
+    printFloat(stdout, interceptDist, 1);
+    fputs("\n Waypoint dist=", stdout);
+    printFloat(stdout, waypointDist, 1);
+    fputs("\n Brake dist=", stdout);
+    printFloat(stdout, brakeDist, 1);
+    fputs("\n Min turn radius=", stdout);
+    printFloat(stdout, minRadius, 1);
+    fputc('\n', stdout);
+
+    // TODO 3 Print curb configuration
+	// curbThreshold
+	// curbGain
+
+	// TODO 3 Print gyro/mag configuration
+
+    // Print Waypoint configuration
+    fputs("Waypoints:", stdout);
+    for (unsigned int w = 0; w < MAXWPT && w < wptCount; w++) {
+        fputs("\n waypoint #", stdout);
+        printInt(stdout, w);
+        fputs(" (", stdout);
+        printFloat(stdout, cwpt[w].x, 4);
+        fputs(", ", stdout);
+        printFloat(stdout, cwpt[w].y, 4);
+        fputs(") lat: ", stdout);
+        printFloat(stdout, wpt[w].latitude(), 7);
+        fputs(" lon: ", stdout);
+        printFloat(stdout, wpt[w].longitude(), 7);
+        fputs(", topspeed: ", stdout);
+        printFloat(stdout, topSpeed + wptTopSpeedAdj[w], 1);
+        fputs(", turnspeed: ", stdout);
+        printFloat(stdout, turnSpeed + wptTurnSpeedAdj[w], 1);
+    }
+    fputc('\n', stdout);
 }

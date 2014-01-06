@@ -22,7 +22,7 @@ void Bargraph::init()
         if (_n != ' ') {
             lcd->posXY(_x + (_w/2 - CHAR_WIDTH/2), _y2+2); // horizontal center
             //wait_ms(5);
-            lcd->printf("%c", _n);
+            //FIXME lcd->printf("%c", _n);
             //wait_ms(5);
         }
         lcd->rect(_x, _y, _x2, _y2, true);

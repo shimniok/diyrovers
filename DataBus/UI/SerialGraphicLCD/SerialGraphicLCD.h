@@ -60,7 +60,7 @@
  * }
  * @endcode
  */
-class SerialGraphicLCD: public Serial {
+class SerialGraphicLCD {
 public:
     /** Create a new interface to a Serial Graphic LCD
      * Note that the display lower left corner is coordinates 0, 0.
@@ -88,14 +88,14 @@ public:
      * @param col is the col coordinate
      * @param row is the row coordinate
      */
-    void pos(int col, int row);
+    void pos(const int col, const int row);
     
     /** set text position in x, y coordinates
      *
      * @param x is the x coordinate
      * @param y is the y coordinate
      */
-    void posXY(int x, int y);
+    void posXY(const int x, const int y);
     
     /** set or erase a pixel
      *
@@ -103,7 +103,7 @@ public:
      * @param y is the y coordinate
      * @param set if true sets the pixel, if false, erases it
      */
-    void pixel(int x, int y, bool set);
+    void pixel(const int x, const int y, const bool set);
     
     /** draw or erase a line
      *
@@ -113,7 +113,7 @@ public:
      * @param y2 is the y coordinate of the end of the line
      * @param set if true sets the line, if false, erases it
      */
-    void line(int x1, int y1, int x2, int y2, bool set);
+    void line(const int x1, const int y1, const int x2, const int y2, const bool set);
     
     /** set or reset a circle
      *
@@ -122,7 +122,7 @@ public:
      * @param r is the radius of the circle
      * @param set if true sets the pixel, if false, clears it
      */
-    void circle(int x, int y, int r, bool set);
+    void circle(const int x, const int y, const int r, const bool set);
     
     /** draw a rectangle
      *
@@ -131,7 +131,7 @@ public:
      * @param x2 is the x coordinate of the lower right of the rectangle
      * @param y2 is the y coordinate of the lower right of the rectangle
      */
-    void rect(int x1, int y1, int x2, int y2);
+    void rect(const int x1, const int y1, const int x2, const int y2);
 
     /** draw or erase a rectangle (SD firmware only)
      *
@@ -140,7 +140,7 @@ public:
      * @param x2 is the x coordinate of the lower right of the rectangle
      * @param y2 is the y coordinate of the lower right of the rectangle
      */
-    void rect(int x1, int y1, int x2, int y2, bool set);    
+    void rect(const int x1, const int y1, const int x2, const int y2, const bool set);
 
     /** Draw a filled box. 
      *
@@ -151,7 +151,7 @@ public:
      * @param fillByte describes 1 8-pixel high stripe that is repeated every x 
      * pixels and every 8 y pixels. The most useful are CLEAR (0x00) to clear the box, and FILL (0xFF) to fill it.
      */
-    void rectFill(int x1, int y1, int x2, int y2, char fillByte);
+    void rectFill(const int x1, const int y1, const int x2, const int y2, char fillByte);
     
     /** erase a rectangular area
      *
@@ -160,13 +160,13 @@ public:
      * @param x2 is the x coordinate of the lower right of the area
      * @param y2 is the y coordinate of the lower right of the area
      */
-    void erase(int x1, int y1, int x2, int y2);
+    void erase(const int x1, const int y1, const int x2, const int y2);
     
     /** set backlight duty cycle
      *
      * @param i is the duty cycle from 0 to 100; 0 is off, 100 is full power
      */
-    void backlight(int i);
+    void backlight(const int i);
     
     /** clear screen and put in reverse mode
      */
@@ -177,8 +177,13 @@ public:
      *
      * @param b is the baud rate, LCD_4800, LCD_9600, LCD_19200, LCD_38400, LCD_57600 or LCD_115200
      */
-    void lcdbaud(int b);
+    void lcdbaud(const int b);
     
+    // TODO 3 documentation
+    int puts(const char *s);
+
+    // TODO 3 documentation
+    int putc(const char c);
     
     /** sets the resolution of the LCD so that the pos() call works properly
      * defaults to LCD_128x64.
@@ -197,6 +202,7 @@ public:
     void resolution(int x, int y);
     
     private:
+    	Serial _lcd;
         int _xMax;
         int _yMax;
         int _firmware;

@@ -1,11 +1,14 @@
+#include <stdio.h>
+#include <string.h>
 #include "mbed.h"
+#include "print.h"
 #include "DirHandle.h"
 #include "SDFileSystem.h"
 #include "util.h"
 #include "Buttons.h"
 
 #define MAXBUF		128
-#define MAXCMDARR	18
+#define MAXCMDARR	19
 
 extern Serial pc;
 extern Buttons keypad;
@@ -43,6 +46,7 @@ int domkdir(const char *path);
 int dohead(const char *path);
 int docat(const char *path);
 int dosend(const char *path);
+int doprintfree(const char *path);
 int doexit(const char *s);
 int dodebug(const char *s);
 int dohelp(const char *s);
@@ -69,6 +73,7 @@ const cmd command[MAXCMDARR] = {
     	{ "gyro", dogyroswing, "gyro swing" },
     	{ "auto", doautonomous, "run autonomous mode" },
     	{ "reset", doreset, "reset the MCU" },
+    	{ "free", doprintfree, "heap bytes available" },
     	{ "exit", doexit, "exit shell" },
     	{ 0, 0, 0 }
 };
@@ -82,11 +87,12 @@ void shell(void *args) {
     pc.baud(115200);
 
     checkit(__FILE__, __LINE__);
-    fprintf(stdout, "%d bytes free.\nType help for assistance.\n", xPortGetFreeHeapSize());
+
+    strcpy(cwd, "/log");
+
     checkit(__FILE__, __LINE__);
 
-    strncpy(cwd, "/log", MAXBUF-1);
-    checkit(__FILE__, __LINE__);
+    fputs("Type help for assistance.\n", stdout);
 
     status=0;
     done=false;
@@ -102,7 +108,7 @@ void shell(void *args) {
         docmd(cmdline);
         
     }
-    pc.printf ("exiting shell\n");
+    fputs("exiting shell\n", stdout);
 
     return;
 }
@@ -138,7 +144,9 @@ void docmd(char *cmdline) {
 		}
 
 		if (!found) {
-			fprintf(stdout, "%s: command not found\n", cmd);
+			fputs(cmd, stdout);
+			fputs(": command not found\n", stdout);
+			//fprintf(stdout, "%s: command not found\n", cmd);
 		}
 
     }
@@ -159,12 +167,15 @@ void termInput(char *cmd) {
     
     memset(cmd, 0, MAXBUF);
     
-    fprintf(stdout, "(%s)# ", cwd);
+    fputc('(', stdout);
+    fputs(cwd, stdout);
+    fputs(")# ", stdout);
+    //fprintf(stdout, "(%s)# ", cwd);
     do {
         checkit(__FILE__, __LINE__);
     	cmd[i] = 0;
         checkit(__FILE__, __LINE__);
-        c = pc.getc();
+        c = fgetc(stdin);
         checkit(__FILE__, __LINE__);
         if (c == '\r') { // if return is hit, we're done, don't add \r to cmd
             done = true;
@@ -172,17 +183,17 @@ void termInput(char *cmd) {
             if (c == 0x7f || c == '\b') { // backspace or delete
                 if (i > 0) { // if we're at the beginning, do nothing
                     i--;
-                    fprintf(stdout, "\b \b");
+                    fputs("\b \b", stdout);
                     checkit(__FILE__, __LINE__);
                 }
             } else {
-                fprintf(stdout, "%c", c);
+                fputc(c, stdout);
                 cmd[i++] = c;
                 checkit(__FILE__, __LINE__);
             }
         }
     } while (!done);
-    fprintf(stdout, "\n");
+    fputc('\n', stdout);
 
     checkit(__FILE__, __LINE__);
 } 
@@ -282,19 +293,24 @@ int dols(const char *path) {
     int count=0;
     if ((d = opendir(path)) != NULL) {
         while ((p = readdir(d)) != NULL) {
-            fprintf(stdout, "%14s", p->d_name);
+        	int pad = 14 - strlen(p->d_name);
+        	while (pad--) fputc(' ', stdout);
+        	fputs(p->d_name, stdout);
+            //fprintf(stdout, "%14s", p->d_name);
             if (count++ >= 3) {
                 count = 0;
-                fprintf(stdout, "\n");
+                fputc('\n', stdout);
             }
         }
-        fprintf(stdout, "\n");
+        fputc('\n', stdout);
         if (count < 3)
-            fprintf(stdout, "\n");
+            fputc('\n', stdout);
         closedir(d);
         status = 0;
     } else {
-        fprintf(stdout, "%s: No such directory\n", path);
+    	fputs(path, stdout);
+    	fputs(": No such directory\n", stdout);
+        //fprintf(stdout, "%s: No such directory\n", path);
         status = 1;
     }
 
@@ -314,7 +330,9 @@ int docd(const char *path) {
  * print current working directory
  */
 int dopwd(const char *s) {
-    fprintf(stdout, "%s\n", cwd);
+	fputs(cwd, stdout);
+	fputc('\n', stdout);
+    //fprintf(stdout, "%s\n", cwd);
 
     return 0;
 }
@@ -328,7 +346,9 @@ int dotouch(const char *path) {
         fclose(fp);
         status = 0;
     } else {
-        fprintf(stdout, "%s: No such file\n", path);
+    	fputs(path, stdout);
+    	fputs(": No such file\n", stdout);
+    	//fprintf(stdout, "%s: No such file\n", path);
         status = 1;
     }
 
@@ -349,12 +369,15 @@ int dohead(const char *path) {
     if ((fp = fopen(path, "r")) != NULL) {
         while (!feof(fp) && line++ < 10) {
             fgets(buf, 128, fp);
-            fprintf(stdout, "%s", buf);
+            fputs(buf, stdout);
+            //fprintf(stdout, "%s", buf);
         }
         fclose(fp);
         status = 0;
     } else {
-        fprintf(stdout, "%s: No such file\n", path);
+    	fputs(path, stdout);
+    	fputs(": No such file\n", stdout);
+    	//fprintf(stdout, "%s: No such file\n", path);
         status = 1;
     }
 
@@ -368,14 +391,16 @@ int docat(const char *path) {
     FILE *fp;
 
     if ((fp = fopen(path, "r")) != NULL) {
-        while (!feof(fp)) {
-            if (fgets(buf, 127, fp) != NULL)
-                fprintf(stdout, "%s", buf);
+        while (fgets(buf, 127, fp)) {
+			fputs(buf, stdout);
+			//fprintf(stdout, "%s", buf);
         }
         fclose(fp);
         status = 0;
     } else {
-        fprintf(stdout, "%s: No such file\n", path);
+    	fputs(path, stdout);
+    	fputs(": No such file\n", stdout);
+    	//fprintf(stdout, "%s: No such file\n", path);
         status = 1;
     }
 
@@ -393,20 +418,35 @@ int dosend(const char *path) {
 
     if ((fp = fopen(path, "r")) != NULL) {
         splitName(path, dirname, basename);
-        fprintf(stdout, "%c%c%s%c", 1, 2, basename, 3);
+        fputc(0x01, stdout);
+        fputc(0x02, stdout);
+        fputs(basename, stdout);
+        fputc(0x03, stdout);
+        //fprintf(stdout, "%c%c%s%c", 1, 2, basename, 3);
         while (!feof(fp)) {
             if (fgets(buf, 127, fp) != NULL)
-                fprintf(stdout, "%s", buf);
+                fputs(buf, stdout);
+            	//fprintf(stdout, "%s", buf);
         }
         fclose(fp);
-        fprintf(stdout, "%c", 4);
+        fputc(0x04, stdout);
+        //fprintf(stdout, "%c", 4);
         status = 0;
     } else {
-        fprintf(stdout, "%s: No such file\n", path);
+    	fputs(path, stdout);
+    	fputs(": No such file\n", stdout);
+        //fprintf(stdout, "%s: No such file\n", path);
         status = 1;
     }
 
     return status;
+}
+
+int doprintfree(const char *s) {
+	printInt(stdout, xPortGetFreeHeapSize());
+	fputs(" bytes free.\n", stdout);
+    //fprintf(stdout, "%d bytes free.\nType help for assistance.\n", xPortGetFreeHeapSize());
+	return 0;
 }
 
 /** doexit
@@ -432,7 +472,13 @@ int dodebug(const char *s) {
  */
 int dohelp(const char *s) {
 	for (int i=0; command[i].cmd; i++) {
-		fprintf(stdout, "%10s %s\n", command[i].cmd, command[i].desc);
+		int pad = 10 - strlen(command[i].cmd);
+		while (pad--) fputc(' ', stdout);
+		fputs(command[i].cmd, stdout);
+		fputs(": ", stdout);
+		fputs(command[i].desc, stdout);
+		fputc('\n', stdout);
+		//fprintf(stdout, "%10s %s\n", command[i].cmd, command[i].desc);
 	}
 
 	return 0;

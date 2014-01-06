@@ -538,13 +538,13 @@ void update()
     // Periodically, we enter a new SystemState into the FIFO buffer
     // The main loop handles logging and will catch up to us provided
     // we feed in new log entries slowly enough.
-    if (go) {
+    //if (go) {
     	if (--log_count == 0) {
 			fifo_push(&nowState);
 			state_clear(&nowState);
 			log_count = LOG_SKIP;       // reset counter
     	}
-    }
+    //}
 
     // increment history fifo pointers with wrap-around
     prev = now;

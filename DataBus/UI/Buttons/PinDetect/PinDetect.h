@@ -202,7 +202,7 @@ public:
      *
      * @param int The time between pin samples in microseconds.
      */
-    void setSampleFrequency(int i = PINDETECT_SAMPLE_PERIOD) { 
+    void setSampleFrequency(const int i = PINDETECT_SAMPLE_PERIOD) {
         _sampleTime = i; 
         _prevState  = _in->read();        
         _ticker->attach_us( this, &PinDetect::isr, _sampleTime );

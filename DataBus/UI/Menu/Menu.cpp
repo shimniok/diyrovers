@@ -52,11 +52,12 @@ char *Menu::getItemName()
 
 void Menu::printAll()
 {
-    fprintf(stdout, "Menus:\n");
+    fputs("Menus:\n", stdout);
     for (int i=0; i < _itemCount; i++) {
-        fprintf(stdout, "%s\n", _name[i]);
+        fputs(_name[i], stdout);
+        fputc('\n', stdout);
     }
-    fprintf(stdout, "\n");
+    fputc('\n', stdout);
     
     return;   
 }

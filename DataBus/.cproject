@@ -15,7 +15,7 @@
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration buildProperties="" description="" id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.355719663" name="/" resourcePath="">
-						<toolChain id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.280696806" name="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base">
+						<toolChain id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.280696806" name="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base" resourceTypeBasedDiscovery="true" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base">
 							<option id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.option.target.processor.114095220" name="Processor" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.option.target.processor"/>
 							<option id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.option.target.thumb.370995577" name="Thumb (-mthumb)" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.option.target.thumb"/>
 							<option id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.option.target.thumbinterwork.1442293155" name="Thumb interwork (-mthumb-interwork)" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.option.target.thumbinterwork"/>
@@ -37,9 +37,11 @@
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.assembler.base.input.892056927" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.assembler.base.input"/>
 							</tool>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.1225129360" name="ARM Sourcery Linux GCC C Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base">
+								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.include.paths.471019059" name="Include paths (-I)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.include.paths" valueType="includePath"/>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.input.1606499079" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.input"/>
 							</tool>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base">
+								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.include.paths.291671610" name="Include paths (-I)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.include.paths" valueType="includePath"/>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.887767272" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 							</tool>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.linker.base.537501592" name="ARM Sourcery Linux GCC C Linker" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.linker.base"/>
@@ -145,11 +147,6 @@
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.364226584" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.691900382" name="Beep.cpp" rcbsApplicability="disable" resourcePath="UI/Beep/Beep.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.866461785">
-						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.866461785" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
-							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.254862223" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
-						</tool>
-					</fileInfo>
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1166270652" name="GPSStatus.cpp" rcbsApplicability="disable" resourcePath="UI/LCD/GPSStatus.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.2037268246">
 						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.2037268246" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.572636413" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
@@ -163,6 +160,11 @@
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1133580662" name="lcd.cpp" rcbsApplicability="disable" resourcePath="UI/LCD/lcd.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1393227974">
 						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1393227974" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.1606952048" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.691900382" name="Beep.cpp" rcbsApplicability="disable" resourcePath="UI/Beep/Beep.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.866461785">
+						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.866461785" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
+							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.254862223" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1507243047" name="SystemState.cpp" rcbsApplicability="disable" resourcePath="SystemState.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1338871072">
@@ -215,6 +217,16 @@
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.647531089" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 						</tool>
 					</fileInfo>
+					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1692494616" name="Schedule.cpp" rcbsApplicability="disable" resourcePath="Schedule/Schedule.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1501512080">
+						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1501512080" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
+							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.612973974" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.606948582" name="updater.cpp" rcbsApplicability="disable" resourcePath="updater.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.13996406">
+						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.13996406" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
+							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.77611221" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
+						</tool>
+					</fileInfo>
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.481475040" name="Steering.cpp" rcbsApplicability="disable" resourcePath="Actuators/Steering/Steering.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.611322413">
 						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.611322413" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.158851742" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
@@ -230,14 +242,9 @@
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.577032463" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.606948582" name="updater.cpp" rcbsApplicability="disable" resourcePath="updater.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.13996406">
-						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.13996406" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
-							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.77611221" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
-						</tool>
-					</fileInfo>
-					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1692494616" name="Schedule.cpp" rcbsApplicability="disable" resourcePath="Schedule/Schedule.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1501512080">
-						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1501512080" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
-							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.612973974" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
+					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1284794546" name="print.c" rcbsApplicability="disable" resourcePath="print.c" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.1225129360.955504963">
+						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.1225129360.955504963" name="ARM Sourcery Linux GCC C Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.1225129360">
+							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.input.1334521791" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1687041636" name="FATFileHandle.cpp" rcbsApplicability="disable" resourcePath="SDFileSystem/FATFileSystem/FATFileHandle.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1282366966">
@@ -255,14 +262,14 @@
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.452955068" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1857863479" name="diskio.cpp" rcbsApplicability="disable" resourcePath="SDFileSystem/FATFileSystem/ChaN/diskio.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1366883416">
-						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1366883416" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
-							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.810068805" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
-						</tool>
-					</fileInfo>
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.622286421" name="ccsbcs.cpp" rcbsApplicability="disable" resourcePath="SDFileSystem/FATFileSystem/ChaN/ccsbcs.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.255544669">
 						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.255544669" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.1759199853" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1857863479" name="diskio.cpp" rcbsApplicability="disable" resourcePath="SDFileSystem/FATFileSystem/ChaN/diskio.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1366883416">
+						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.1366883416" name="ARM Sourcery Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446">
+							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.810068805" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1775515126" name="ff.cpp" rcbsApplicability="disable" resourcePath="SDFileSystem/FATFileSystem/ChaN/ff.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446.397894923">
@@ -288,7 +295,7 @@
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056;org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.355719663;org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.1225129360;org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.input.1606499079">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arm.gnu.ARM_CS_GCCStandardMakePerFileProfile"/>
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arm.gnu.ARM_CS_GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056;org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.355719663;org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.1829255446;org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.887767272">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arm.gnu.ARM_CS_GCCManagedMakePerProjectProfileCPP"/>
@@ -297,7 +304,7 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arm.gnu.ARM_CS_GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arm.gnu.ARM_CS_GCCStandardMakePerFileProfile"/>
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arm.gnu.ARM_CS_GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>
