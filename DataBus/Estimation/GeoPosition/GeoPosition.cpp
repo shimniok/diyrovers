@@ -9,6 +9,9 @@ GeoPosition::GeoPosition():
 	_R(EARTHRADIUS)
 , 	_latitude(0.0)
 , 	_longitude(0.0)
+,	_northing(0.0)
+,	_easting(0.0)
+,	_time(0.0)
 {
 }
 
@@ -16,6 +19,9 @@ GeoPosition::GeoPosition(double latitude, double longitude):
 	_R(EARTHRADIUS)
 , 	_latitude(latitude)
 , 	_longitude(longitude)
+,	_northing(0.0)
+,	_easting(0.0)
+,	_time(0.0)
 {
 }
 
