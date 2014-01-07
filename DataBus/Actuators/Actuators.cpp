@@ -49,11 +49,11 @@ void setSteerScale(float s) {
 
 void setThrottle(float value)
 {
-	float newThrottle = escZero + value*escScale;
+	float newThrottle = value;
 
 	if (newThrottle > escMax) newThrottle = escMax;
 	if (newThrottle < escMin) newThrottle = escMin;
-	throttle = newThrottle;
+	throttle = escZero + newThrottle * escScale;
 
 	return;
 }
