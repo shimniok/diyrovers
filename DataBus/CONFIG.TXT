@@ -29,7 +29,29 @@
 nav,3.0,3.0,3.0,2.5
 
 ########################################################################################################## 
+# Vehicle config
+#
+#	veh, tire circ, wheelbase, track
+#
+#	wheelbase	distance between front and rear axles
+#	track		distance between left and right tire contact patches
+#
+veh,0.290,0.280
+
+########################################################################################################## 
+# Encoder config
+#
+#	enc,tire circ,stripe count
+#
+#	tire circ	circumference of tire
+#	stripe count	number of black and white stripes
+#
+# calibrated with 4 runs, average for both tires
+enc,0.321537,32
+
+########################################################################################################## 
 # Throttle (Speed) config
+#
 #	speed, minimum, stop, max, stop speed, turn speed, Kp, Ki, Kd
 #
 #	brake		esc value when braking
@@ -48,7 +70,7 @@ nav,3.0,3.0,3.0,2.5
 # 6/16/2012
 #speed,398,400,830,9.0,7.5,3.5,60.0,30.0,0.0
 # 5/8/2013
-speed,0.410,0.410,0.600,1.0,5.0,4.8,3.5,60.0,20.0,0.0
+speed,0.410,0.410,0.600,1.0,5.0,4.8,3.5,0.06,0.02.0,0.0
 
 ########################################################################################################## 
 # Steering config
