@@ -6,11 +6,21 @@
 /** create a new steering calculator for a particular vehicle
  *
  */
-Steering::Steering(float wheelbase, float track):
-    _wheelbase(wheelbase),
-    _track(track),
+Steering::Steering(void):
+    _wheelbase(0.0),
+    _track(0.0),
     _intercept(2.0)
 {
+}
+
+void Steering::setWheelbase(float wheelbase) {
+	_wheelbase = wheelbase;
+	return;
+}
+
+void Steering::setTrackWidth(float trackWidth) {
+	_track = trackWidth;
+	return;
 }
 
 void Steering::setIntercept(float intercept)

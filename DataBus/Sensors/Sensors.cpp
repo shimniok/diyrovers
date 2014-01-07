@@ -39,31 +39,33 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////// MAGNETOMETER CALIBRATION
 
 Sensors::Sensors():
-	gTemp(0),
-	leftRanger(0),
-	rightRanger(0),
-	centerRanger(0),
-	voltage(0),
-	current(0),
-	leftTotal(0),
-	rightTotal(0),
-	leftCount(0),
-	rightCount(0),
-	lrEncDistance(0.0),
-	rrEncDistance(0.0),
-	lrEncSpeed(0.0),
-	rrEncSpeed(0.0),
-	encDistance(0.0),
-	encSpeed(0.0),
-    gps(p26, p25),
-    _voltage(p19),               // Voltage from sensor board
-    _current(p20),               // Current from sensor board
-    _left(p30),                  // left wheel encoder
-    _right(p29),                 // Right wheel encoder
-    _gyro(p28, p27),             // MinIMU-9 gyro
-    _compass(p28, p27),          // MinIMU-9 compass/accelerometer
-    _rangers(p28, p27),          // Arduino ADC to I2C
-    _cam(p28, p27)
+	gTemp(0)
+,	leftRanger(0)
+,	rightRanger(0)
+,	centerRanger(0)
+,	voltage(0)
+,	current(0)
+,	leftTotal(0)
+,	rightTotal(0)
+,	leftCount(0)
+,	rightCount(0)
+,	lrEncDistance(0.0)
+,	rrEncDistance(0.0)
+,	lrEncSpeed(0.0)
+,	rrEncSpeed(0.0)
+,	encDistance(0.0)
+,	encSpeed(0.0)
+,   gps(p26, p25)
+,   _voltage(p19)
+,   _current(p20)
+,	_tireCircum(0.0)
+,   _stripeCount(0)
+,	_left(p30)
+,	_right(p29)
+,	_gyro(p28, p27)
+,	_compass(p28, p27)
+,	_rangers(p28, p27)
+,	_cam(p28, p27)
 {
     for (int i=0; i < 3; i++) {
         m_offset[i] = 0;
@@ -107,6 +109,11 @@ void Sensors::Compass_Calibrate(float offset[3], float scale[3])
     return;
 }
 
+void Sensors::Encoder_Calibrate(float tireCircum, int stripeCount) {
+	_tireCircum = tireCircum;
+	_stripeCount = stripeCount;
+	return;
+}
 
 void Sensors::Read_Encoders()
 {
@@ -123,9 +130,8 @@ void Sensors::Read_Encoders()
     // TODO 2 move Read_Encoders() into scheduler??
     
     // TODO 2 how do we track distance, should we only check distance everytime we do a nav/pos update?
-    // TODO 3 get rid of state variable
-    lrEncDistance  = (WHEEL_CIRC / WHEEL_STRIPES) * (double) leftCount;
-    rrEncDistance = (WHEEL_CIRC / WHEEL_STRIPES) * (double) rightCount;
+    lrEncDistance  = (_tireCircum / _stripeCount) * (double) leftCount;
+    rrEncDistance = (_tireCircum / _stripeCount) * (double) rightCount;
     //encDistance = (lrEncDistance + rrEncDistance) / 2.0;
     // compute speed from time between ticks
     int leftTime = _left.readTime();
@@ -139,15 +145,14 @@ void Sensors::Read_Encoders()
     if (leftTime <= 0) {
         lrEncSpeed = 0;
     } else {
-        lrEncSpeed = (2.0 * WHEEL_CIRC / WHEEL_STRIPES) / ((float) leftTime * 1e-6);
+        lrEncSpeed = (2.0 * _tireCircum / _stripeCount) / ((float) leftTime * 1e-6);
     }
     
     if (rightTime <= 0) {
         rrEncSpeed = 0;
     } else {
-        rrEncSpeed = (2.0 * WHEEL_CIRC / WHEEL_STRIPES) / ((float) rightTime * 1e-6);
+        rrEncSpeed = (2.0 * _tireCircum / _stripeCount) / ((float) rightTime * 1e-6);
     }
-        
     // Dead band
     if (lrEncSpeed < 0.1) lrEncSpeed = 0;
     if (rrEncSpeed < 0.1) rrEncSpeed = 0;

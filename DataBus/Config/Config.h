@@ -21,6 +21,10 @@ class Config {
         float wptTopSpeedAdj[MAX_WPT];	// Speed approaching waypoint
         float wptTurnSpeedAdj[MAX_WPT];
         unsigned int wptCount;  	// number of active waypoints
+        float tireCircum;			// tire circumference
+        int	stripeCount;			// number of black and white encoder stripes
+        float wheelbase;			// lengthwise distance between axles
+        float trackWidth;			// width between tire contact patches
         float escMin;             	// minimum ESC value; brake
         float escZero;            	// zero throttle
         float escMax;             	// max throttle

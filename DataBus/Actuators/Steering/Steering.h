@@ -17,7 +17,17 @@ class Steering
      * @param track vehicle track width
      * @param intercept new course intercept distance
      */
-    Steering(float wheelbase, float track);
+    Steering();
+
+    /** set vehicle wheelbase for calculations
+     * @param wheelbase vehicle wheelbase
+     */
+    void setWheelbase(float wheelbase);
+
+    /** set vehicle track width for calculations
+     * @param track vehicle track width
+     */
+    void setTrackWidth(float trackWidth);
 
     /** set intercept distance
      * @param intercept distance along new course at which turn arc will intercept

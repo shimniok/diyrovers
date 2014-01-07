@@ -20,6 +20,8 @@
 #define NAVIGATION		"nav"
 #define STEER			"steer"
 #define SPEED			"speed"
+#define VEHICLE			"veh"
+#define ENCODER			"enc"
 
 extern Serial pc;
 
@@ -31,6 +33,10 @@ Config::Config():
 ,	waypointDist(0.0)
 ,	brakeDist(0.0)
 ,	wptCount(0)
+,	tireCircum(0.0)
+,	stripeCount(0)
+,	wheelbase(0.0)
+,	trackWidth(0.0)
 ,	escMin(0.0)
 ,	escZero(0.0)
 ,	escMax(0.0)
@@ -43,6 +49,7 @@ Config::Config():
 ,	speedKi(0.0)
 ,	speedKd(0.0)
 ,	steerZero(0.0)
+,	steerScale(0.0)
 ,	curbThreshold(0.0)
 ,	curbGain(0.0)
 ,	gyroBias(0.0)
@@ -109,13 +116,26 @@ bool Config::load()
 				p = split(tmp, p, MAXBUF, ',');
 				minRadius = (float) cvstof(tmp);        	// minimum turning radius
 
+            } else if (!strcmp(tmp, VEHICLE)) {
+
+				p = split(tmp, p, MAXBUF, ',');
+				wheelbase = (float) cvstof(tmp); 	    	// distance between front and rear axle
+				p = split(tmp, p, MAXBUF, ',');
+				trackWidth = (float) cvstof(tmp);       	// distance between left and right tires
+
+            } else if (!strcmp(tmp, ENCODER)) {
+
+            	p = split(tmp, p, MAXBUF, ',');
+				tireCircum = (float) cvstof(tmp);  			// tire circumference
+				p = split(tmp, p, MAXBUF, ',');
+				stripeCount = atoi(tmp);       				// number of black and white wheel encoder stripes
+
             } else if (!strcmp(tmp, STEER)) {
 
             	p = split(tmp, p, MAXBUF, ',');
 				steerZero = cvstof(tmp);            		// servo center setting
 				p = split(tmp, p, MAXBUF, ',');
 				steerScale = cvstof(tmp);       			// ratio of servo to steering angle
-				p = split(tmp, p, MAXBUF, ',');
 
             } else if (!strcmp(tmp, SPEED)) {
 
@@ -180,6 +200,22 @@ bool Config::load()
 }
 
 void Config::print(void) {
+
+	// Print out vehicle configuration data
+	fputs("Vehicle:", stdout);
+	fputs("\n wheelbase=", stdout);
+	printFloat(stdout, wheelbase, 3);
+	fputs("\n track width=", stdout);
+	printFloat(stdout, trackWidth, 3);
+	fputc('\n', stdout);
+
+	// Print out encoder configuration
+	fputs("Encoders:", stdout);
+	fputs("\n tire circum=", stdout);
+	printFloat(stdout, tireCircum, 3);
+	fputs("\n enc stripes=", stdout);
+	printInt(stdout, stripeCount);
+    fputc('\n', stdout);
 
     // Print out speed configuration data
     fputs("Speed:", stdout);

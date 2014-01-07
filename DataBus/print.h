@@ -40,7 +40,13 @@ extern "C" size_t printInt(FILE *f, long n);
  */
 extern "C" size_t printFloat(FILE *f, double number, uint8_t digits);
 
-// TODO 2 documentation
+/** print an int as hex to FILE
+ *
+ * @param f is the FILE * to which the data will be sent
+ * @param n is the number to print
+ * @param digits is the number of hex digits to print
+ * @return the number of bytes printed
+ */
 extern "C" size_t printHex(FILE *f, long n, uint8_t digits);
 
 #ifdef __CPLUSPLUS

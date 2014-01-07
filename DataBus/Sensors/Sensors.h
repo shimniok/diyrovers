@@ -73,7 +73,9 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 class Sensors {
 public:
     Sensors(void);
+    // TODO 3 documentation in Sensors.h
     void Compass_Calibrate(float offset[3], float scale[3]);
+    void Encoder_Calibrate(float tireCircum, int stripeCount);
     void Read_Encoders(void);
     void Read_Gyro(void);
     void Read_Accel(void);
@@ -123,6 +125,8 @@ public:
     Ublox6 gps;                             // Ublox6 GPS
     AnalogIn _voltage;                      // Voltage from sensor board
     AnalogIn _current;                      // Current from sensor board
+    float _tireCircum;						// Tire circumference
+    int _stripeCount;						// Number of encoder stripes
     IncrementalEncoder _left;               // Left wheel encoder
     IncrementalEncoder _right;              // Right wheel encoder
     L3G4200D _gyro;                         // MinIMU-9 gyro

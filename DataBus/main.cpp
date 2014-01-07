@@ -59,9 +59,9 @@
 
 // Chassis specific parameters
 // TODO 1 put WHEEL_CIRC, WHEELBASE, and TRACK in config.txt
-#define WHEEL_CIRC 0.321537             // m; calibrated with 4 12.236m runs. Measured 13.125" or 0.333375m circumference
-#define WHEELBASE  0.290
-#define TRACK      0.280
+//#define WHEEL_CIRC 0.321537             // m; calibrated with 4 12.236m runs. Measured 13.125" or 0.333375m circumference
+//#define WHEELBASE  0.290
+//#define TRACK      0.280
 
 #define INSTRUMENT_CHECK    0
 #define AHRS_VISUALIZATION  1
@@ -85,7 +85,7 @@ Menu menu;
 Buttons keypad;
 
 // VEHICLE
-Steering steerCalc(TRACK, WHEELBASE);   // steering calculator
+Steering steerCalc; 	  				// steering calculator
 
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
@@ -247,6 +247,14 @@ int main()
 	// Calibrate steering
     setSteerMiddle(config.steerZero);
     setSteerScale(config.steerScale);
+
+    // Calibrate encoder
+    sensors.Encoder_Calibrate(config.tireCircum, config.stripeCount);
+
+    // Calibrate steering calculation
+    steerCalc.setIntercept(config.interceptDist);
+    steerCalc.setTrackWidth(config.trackWidth);
+    steerCalc.setWheelbase(config.wheelbase);
 
     // Calibrate sensors
     sensors.Compass_Calibrate(config.magOffset, config.magScale);
@@ -1032,26 +1040,43 @@ void displayData(const int mode)
 			fputc('\n', stdout);
 		}
 
-		/* TODO 3 figure out how/where to do instrument check.
+		/* TODO 3 figure out how/where to do instrument check. */
 		if ((millis % 3000) == 0) {
 
-			lcd.pos(0,1);
-			//lcd.printf("H=%4.1f   ", ahrs.MAG_Heading*180/PI);
-			//wait(0.1);
 			lcd.pos(0,2);
-			//FIXME lcd.printf("G=%4.1f,%4.1f,%4.1f    ", sensors.gyro[0], sensors.gyro[1], sensors.gyro[2]);
+			lcd.puts("G=");
+			lcd.printFloat(sensors.gyro[0], 1);
+			lcd.puts(",");
+			lcd.printFloat(sensors.gyro[1], 1);
+			lcd.puts(",");
+			lcd.printFloat(sensors.gyro[2], 1);
+			lcd.puts("      ");
 			wait(0.1);
+
 			lcd.pos(0,3);
-			//FIXME lcd.printf("La=%11.6f HD=%1.1f  ", sensors.gps.latitude(), sensors.gps.hdop());
+			lcd.puts("La=");
+			lcd.printFloat(sensors.gps.latitude(), 7);
+			lcd.puts(" HD=");
+			lcd.printFloat(sensors.gps.hdop(), 1);
+			lcd.puts("      ");
 			wait(0.1);
+
 			lcd.pos(0,4);
-			//FIXME lcd.printf("Lo=%11.6f Sat=%-2d  ", sensors.gps.longitude(), sensors.gps.sat_count());
+			lcd.puts("Lo=");
+			lcd.printFloat(sensors.gps.longitude(), 7);
+			lcd.puts(" Sat=");
+			lcd.printFloat(sensors.gps.sat_count(), 1);
+			lcd.puts("      ");
 			wait(0.1);
+
 			lcd.pos(0,5);
-			//FIXME lcd.printf("V=%5.2f A=%5.3f  ", sensors.voltage, sensors.current);
+			lcd.puts("V=");
+			lcd.printFloat(sensors.voltage, 2);
+			lcd.puts(" A=");
+			lcd.printFloat(sensors.current, 3);
+			lcd.puts("      ");
 
 		}
-		*/
 
     } // while !done
     // clear input buffer
