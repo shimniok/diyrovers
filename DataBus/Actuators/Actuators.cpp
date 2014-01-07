@@ -51,7 +51,9 @@ void setThrottle(float value)
 {
 	float newThrottle = escZero + value*escScale;
 
-	throttle = (newThrottle > escMax) ? escMax : newThrottle;
+	if (newThrottle > escMax) newThrottle = escMax;
+	if (newThrottle < escMin) newThrottle = escMin;
+	throttle = newThrottle;
 
 	return;
 }
