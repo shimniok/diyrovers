@@ -16,9 +16,9 @@ float escMax=0.520;                     // Servo setting for max throttle
 float escZero=0.400;					// Setting for zero speed (middle value)
 float escScale=1.0;						// Scales throttle specification to servo value
 float steerZero=0.500;					// Middle value for servo (wheels straight)
-float steerScale=808.0;						// Scales steering angle to servo value
+float steerScale=808.0;					// Scales steering angle to servo value
 
-#define THROTTLE_CENTER 0.4
+// TODO: 2 rework servo library to use standard ms value
 
 void setSteering(float steerAngle)
 {
@@ -32,8 +32,6 @@ void setSteering(float steerAngle)
 void initSteering()
 {
 	setSteering(0);
-    // TODO: 1 find a better servo library, this one sucks
-    // TODO: 2 parameterize steering.calibrate() values in config file
     steering.calibrate(0.005, 45.0);
 }
 
@@ -61,8 +59,6 @@ void setThrottle(float value)
 void initThrottle()
 {
 	setThrottle(0);
-    // TODO: 1 find a better servo library, this one sucks
-    // TODO: 2 parameterize throttle.calibrate in config file
     throttle.calibrate(0.001, 45.0);
 }
 

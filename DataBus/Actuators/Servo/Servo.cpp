@@ -25,13 +25,12 @@
 #include "mbed.h"
 
 static float clamp(float value, float min, float max) {
-    if(value < min) {
-        return min;
-    } else if(value > max) {
-        return max;
-    } else {
-        return value;
-    }
+	float result = value;
+
+    if (value < min) result = min;
+    if(value > max) result = max;
+
+    return result;
 }
 
 Servo::Servo(PinName pin) : _pwm(pin) {
