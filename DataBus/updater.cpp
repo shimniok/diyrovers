@@ -435,10 +435,7 @@ void update()
     //////////////////////////////////////////////////////////////////////////////
     // OBSTACLE DETECTION & AVOIDANCE
     //////////////////////////////////////////////////////////////////////////////
-    // TODO 2 limit steering angle based on object detection ?
-    // or limit relative brg perhaps?
-    // TODO 2 add vision obstacle detection and filtering
-    // TODO 2 add ranger obstacle detection and filtering/fusion with vision
+    // TODO 3 obstacle detection, vision based detection, etc.; avoidance
 
 
     //////////////////////////////////////////////////////////////////////////////
@@ -452,8 +449,8 @@ void update()
                                              config.cwpt[nextWaypoint].x, config.cwpt[nextWaypoint].y);
         
         // Apply gain factor for near straight line
-        // TODO 3 figure out a better, continuous way to deal with steering gain
-        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
+        // TODO 3 figure out a better, continuous way to deal with steering gain and put it in steering abstraction!
+        //if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 
         // Curb avoidance
         /*
@@ -480,7 +477,7 @@ void update()
             float derivative = (error - lastError) / speedDt; 
             // calculate how much to drive the output in order to get to the 
             // desired setpoint. 
-            int output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
+            float output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
             if (output > config.escMax) output = config.escMax;
             if (output < config.escMin) output = config.escMin;
             //fprintf(stdout, "s=%.1f d=%.1f o=%d\n", nowSpeed, desiredSpeed, output);

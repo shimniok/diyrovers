@@ -248,7 +248,7 @@ private:
     // internal utilities
     int from_hex(char a);
     int parse_int();
-    unsigned long parse_decimal();
+    long parse_decimal();
     unsigned long parse_degrees();
     bool term_complete();
     bool gpsisdigit(char c) { return c >= '0' && c <= '9'; }

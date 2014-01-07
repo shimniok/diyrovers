@@ -1,3 +1,4 @@
+#include "Stream.h"
 #include "SerialGraphicLCD.h"
 #include "print.h"
 
@@ -164,7 +165,6 @@ int SerialGraphicLCD::puts(const char *s) {
 int SerialGraphicLCD::putc(const char c) {
 	return _lcd.putc(c);
 }
-
 
 // TODO 3 make general verison that works on Serial, FILE etc.
 // from Arduino source

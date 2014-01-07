@@ -21,9 +21,10 @@ class Config {
         float wptTopSpeedAdj[MAX_WPT];	// Speed approaching waypoint
         float wptTurnSpeedAdj[MAX_WPT];
         unsigned int wptCount;  	// number of active waypoints
-        int escMin;             	// minimum ESC value; brake
-        int escZero;            	// zero throttle
-        int escMax;             	// max throttle
+        float escMin;             	// minimum ESC value; brake
+        float escZero;            	// zero throttle
+        float escMax;             	// max throttle
+        float escScale;
         float topSpeed;         	// default top speed to achieve on the straights
         float turnSpeed;        	// default speed for turns
         float startSpeed;       	// speed for start
@@ -31,9 +32,8 @@ class Config {
         float speedKp;          	// Speed PID proportional gain
         float speedKi;          	// Speed PID integral gain
         float speedKd;          	// Speed PID derivative gain
-        float steerZero;        	// zero steering aka center point
-        float steerGain;        	// gain factor for steering algorithm
-        float steerGainAngle;   	// angle below which steering gain takes effect
+        float steerZero;        	// servo value for middle
+        float steerScale;			// ratio of servo value to steering angle
         float curbThreshold;    	// distance at which curb avoid takes place
         float curbGain;        		// gain of curb avoid steering
         float gyroBias;     		// this needs to be 3d

@@ -31,9 +31,10 @@ Config::Config():
 ,	waypointDist(0.0)
 ,	brakeDist(0.0)
 ,	wptCount(0)
-,	escMin(0)
-,	escZero(0)
-,	escMax(0)
+,	escMin(0.0)
+,	escZero(0.0)
+,	escMax(0.0)
+,	escScale(0.0)
 ,	topSpeed(0.0)
 ,	turnSpeed(0.0)
 ,	startSpeed(0.0)
@@ -42,8 +43,6 @@ Config::Config():
 ,	speedKi(0.0)
 ,	speedKd(0.0)
 ,	steerZero(0.0)
-,	steerGain(0.0)
-,	steerGainAngle(0.0)
 ,	curbThreshold(0.0)
 ,	curbGain(0.0)
 ,	gyroBias(0.0)
@@ -115,18 +114,19 @@ bool Config::load()
             	p = split(tmp, p, MAXBUF, ',');
 				steerZero = cvstof(tmp);            		// servo center setting
 				p = split(tmp, p, MAXBUF, ',');
-				steerGain = cvstof(tmp);            		// steering angle multiplier
+				steerScale = cvstof(tmp);       			// ratio of servo to steering angle
 				p = split(tmp, p, MAXBUF, ',');
-				steerGainAngle = cvstof(tmp);       		// angle below which steering gain takes effect
 
             } else if (!strcmp(tmp, SPEED)) {
 
             	p = split(tmp, p, MAXBUF, ',');
-				escMin = atoi(tmp);                 		// minimum esc (brake) setting
+				escMin = cvstof(tmp);                 		// minimum esc (brake) setting
 				p = split(tmp, p, MAXBUF, ',');
-				escZero = atoi(tmp);                		// esc center/zero setting
+				escZero = cvstof(tmp);                		// esc center/zero setting
 				p = split(tmp, p, MAXBUF, ',');
-				escMax = atoi(tmp);                 		// maximum esc setting
+				escMax = cvstof(tmp);                 		// maximum esc setting
+				p = split(tmp, p, MAXBUF, ',');
+				escScale = cvstof(tmp);                		// ratio of servo to throttle value
 				p = split(tmp, p, MAXBUF, ',');
 				topSpeed = cvstof(tmp);             		// desired top speed
 				p = split(tmp, p, MAXBUF, ',');
@@ -183,11 +183,15 @@ void Config::print(void) {
 
     // Print out speed configuration data
     fputs("Speed:", stdout);
+	fputs("\n escMin=", stdout);
+	printFloat(stdout, escMin, 3);
 	fputs("\n escZero=", stdout);
-    printInt(stdout, escZero);
+	printFloat(stdout, escZero, 3);
     fputs("\n escMax=", stdout);
-    printInt(stdout, escMax);
-    fputs("\n Top=", stdout);
+    printFloat(stdout, escMax, 3);
+    fputs("\n escScale=", stdout);
+	printFloat(stdout, escScale, 4);
+	fputs("\n Top=", stdout);
     printFloat(stdout, topSpeed, 1);
     fputs("\n Turn=", stdout);
     printFloat(stdout, turnSpeed, 1);
@@ -202,11 +206,9 @@ void Config::print(void) {
     // Print out steer configuration data
     fputs("Steering:", stdout);
     fputs("\n steerZero=", stdout);
-    printFloat(stdout, steerZero, 2);
-    fputs("\n steerGain=", stdout);
-    printFloat(stdout, steerGain, 1);
-    fputs("\n gainAngle=", stdout);
-    printFloat(stdout, steerGainAngle, 1);
+    printFloat(stdout, steerZero, 3);
+    fputs("\n steerScale=", stdout);
+    printFloat(stdout, steerScale, 4);
     fputc('\n', stdout);
 
     // Print out nav config data

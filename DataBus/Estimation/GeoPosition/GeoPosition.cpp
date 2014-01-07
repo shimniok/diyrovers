@@ -3,13 +3,19 @@
 
 // Earth's mean radius in meters
 #define EARTHRADIUS 6371000.0
-// TODO: 2 altitude
+// TODO: 3 altitude
 
-GeoPosition::GeoPosition(): _R(EARTHRADIUS), _latitude(0.0), _longitude(0.0)
+GeoPosition::GeoPosition():
+	_R(EARTHRADIUS)
+, 	_latitude(0.0)
+, 	_longitude(0.0)
 {
 }
 
-GeoPosition::GeoPosition(double latitude, double longitude): _R(EARTHRADIUS), _latitude(latitude), _longitude(longitude)
+GeoPosition::GeoPosition(double latitude, double longitude):
+	_R(EARTHRADIUS)
+, 	_latitude(latitude)
+, 	_longitude(longitude)
 {
 }
 

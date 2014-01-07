@@ -39,11 +39,13 @@ bam degreesToBAM(float degrees) {
   return result;
 }
 
+/*
 int main() {
   float x;
 
   for (x=0; x < 360; x += 0.01) {
-    fprintf(stdout, "%5.2f %x\n", x, degreesToBAM(x));
+    printFloat(stdout, x, 2);
+    printHex(stdout, degreesToBAM(x), 4);
   }
-
 }
+*/

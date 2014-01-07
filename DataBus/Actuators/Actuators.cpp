@@ -2,55 +2,83 @@
 #include "Servo.h"
 #include "Config.h"
 
-extern Config config;
+// Measure wheel angle of both wheels at various servo values.
+// There should be a near linear relationship between servo value and steering angle
+// up to about 20 degrees.
+// Now find values of middle and scale that describe this linear relationship.
+// I came up with 0.5 and 1/808.0 (0.001238) on my ECX Circuit.
+// Enter those values into the config.
 
 Servo steering(p21);                    // Steering Servo
 Servo throttle(p22);                    // ESC
-int escMax=520;                         // Servo setting for max speed
+float escMin=0.400;						// Servo setting for minimum (brake) throttle
+float escMax=0.520;                     // Servo setting for max throttle
+float escZero=0.400;					// Setting for zero speed (middle value)
+float escScale=1.0;						// Scales throttle specification to servo value
+float steerZero=0.500;					// Middle value for servo (wheels straight)
+float steerScale=808.0;						// Scales steering angle to servo value
 
 #define THROTTLE_CENTER 0.4
 
-void initSteering()
+void setSteering(float steerAngle)
 {
-    if (config.loaded) {
-        // Setup steering servo
-        steering = config.steerZero;
-    } else {
-        steering = 0.4;
-    }
-    // TODO: 3 parameterize this in config file
-    steering.calibrate(0.005, 45.0); 
+    // Convert steerAngle to servo value assuming linear relationship between steering angle
+	// and servo value.
+    //
+    steering = steerZero + steerAngle * steerScale;
 }
 
+// Setup servo outputs
+void initSteering()
+{
+	setSteering(0);
+    // TODO: 1 find a better servo library, this one sucks
+    // TODO: 2 parameterize steering.calibrate() values in config file
+    steering.calibrate(0.005, 45.0);
+}
+
+void setSteerMiddle(float m) {
+	steerZero = m;
+	return;
+}
+
+void setSteerScale(float s) {
+	steerScale = s;
+	return;
+}
+
+void setThrottle(float value)
+{
+	float newThrottle = escZero + value*escScale;
+
+	throttle = (newThrottle > escMax) ? escMax : newThrottle;
+
+	return;
+}
 
 void initThrottle()
 {
-    if (config.loaded) {
-        throttle = (float)config.escZero/1000.0;
-    } else {
-        throttle = 0.410;
-    }
-    // TODO: 3 parameterize this in config file
-    throttle.calibrate(0.001, 45.0); 
+	setThrottle(0);
+    // TODO: 1 find a better servo library, this one sucks
+    // TODO: 2 parameterize throttle.calibrate in config file
+    throttle.calibrate(0.001, 45.0);
 }
 
-void setThrottle(int value)
-{
-    throttle = ((float)value)/1000.0;
+void setThrottleMiddle(float m) {
+	escZero = m;
+	return;
 }
 
-void setSteering(float steerAngle)
-{
-    // Convert steerAngle to servo value
-    // Testing determined near linear conversion between servo ms setting and steering angle
-    // up to 20*.  Assumes a particular servo library with range = 0.005
-    // In that case, f(SA) = servoPosition = 0.500 + SA/762.5
-    // between 20 and 24* the slope is approximately 475
-    // What if we ignore the linearity and just set to a max angle
-    // also range is 0.535-0.460 --> slope = 800
-    // steering = 0.500 + (double) steerAngle / 762.5;
-    //
-    // TODO: 1 parameterize through config
-    steering = 0.500 + (double) steerAngle / 808.0;
+void setThrottleMin(float m) {
+	escMin = m;
 }
-    
+
+void setThrottleMax(float m) {
+	escMax = m;
+	return;
+}
+
+void setThrottleScale(float s) {
+	escScale = s;
+	return;
+}

@@ -1,10 +1,6 @@
 #include "mbed.h"
 #include "Display.h"
 
-// TODO 3 would also be nice if we did all the printf crap here too
-
-#define LCD_FMT "%-20s" // used to fill a single line on the LCD screen
-
 // This is for the Sparkfun module
 #define DISPLAY_CLEAR     0x01
 #define DISPLAY_SET_POS   0x08
@@ -22,8 +18,8 @@ Display::Display(void):
 void Display::init()
 {
     //FIXME lcd.baud(115200);
-	lcd.puts("test\n"); // hopefully force 115200 on powerup
-    lcd.clear();
+	lcd.puts("test\n");
+	lcd.clear();
     wait(0.3);
     
     // Initialize LCD graphics

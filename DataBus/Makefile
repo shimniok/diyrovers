@@ -19,7 +19,7 @@ LINKER_SCRIPT = ../mbed/targets/cmsis/$(TARGET)/$(TOOLCHAIN)/LPC1768.ld
 ############################################################################### 
 CC = $(GCC_BIN)arm-none-eabi-gcc
 CPP = $(GCC_BIN)arm-none-eabi-g++
-CC_FLAGS = -c -ggdb -Os -fno-common -fmessage-length=0 -Wall -fno-exceptions -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -mtpcs-leaf-frame -mfix-cortex-m3-ldrd
+CC_FLAGS = -c -Os -fno-common -fmessage-length=0 -Wall -fno-exceptions -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -mtpcs-leaf-frame -mfix-cortex-m3-ldrd
 #for newlib-nano with gnuarm
 #CC_FLAGS += --specs=nano.specs
 ONLY_C_FLAGS = -std=gnu99

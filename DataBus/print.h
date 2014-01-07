@@ -15,14 +15,33 @@
 extern "C" {
 #endif
 
-// from Arduino source
+/** print an unsigned long number to FILE
+ *
+ * @param f is the FILE * to which the data will be sent
+ * @param n is the number to print
+ * @return the number of bytes printed
+ */
 extern "C" size_t printNumber(FILE *f, unsigned long n);
 
-// from Arduino source
+/** print a signed long number to FILE
+ *
+ * @param f is the FILE * to which the data will be sent
+ * @param n is the number to print
+ * @return the number of bytes printed
+ */
 extern "C" size_t printInt(FILE *f, long n);
 
-// from Arduino source
+/** print a double to FILE
+ *
+ * @param f is the FILE * to which the data will be sent
+ * @param number is the number to print
+ * @param digits is the number of digits to print after the decimal point
+ * @return the number of bytes printed
+ */
 extern "C" size_t printFloat(FILE *f, double number, uint8_t digits);
+
+// TODO 2 documentation
+extern "C" size_t printHex(FILE *f, long n, uint8_t digits);
 
 #ifdef __CPLUSPLUS
 }

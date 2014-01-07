@@ -179,19 +179,39 @@ public:
      */
     void lcdbaud(const int b);
     
-    // TODO 3 documentation
+    /** print a string to the lcd
+     * @param s is the string to print
+     * @return number of bytes sent
+     */
     int puts(const char *s);
 
-    // TODO 3 documentation
+    /** print a char to the lcd
+     *
+     * @param c is the char to print
+     * @return number of bytes sent
+     */
     int putc(const char c);
     
-    // TODO 3 documentation
+    /** print an unsigned long number to the lcd
+     *
+     * @param n is the number to print
+     * @return the number of bytes printed
+     */
     size_t printNumber(unsigned long n);
 
-    // TODO 3 documentation
+    /** print a signed long number to the lcd
+     *
+     * @param n is the number to print
+     * @return the number of bytes printed
+     */
     size_t printInt(long n);
 
-    // TODO 3 documentation
+    /** print a double to the lcd
+     *
+     * @param number is the number to print
+     * @param digits is the number of digits to print after the decimal point
+     * @return the number of bytes printed
+     */
     size_t printFloat(double number, uint8_t digits);
 
     /** sets the resolution of the LCD so that the pos() call works properly
@@ -209,8 +229,8 @@ public:
      * @param y is the number of vertical pixels
      */
     void resolution(int x, int y);
-    
-    private:
+
+private:
     	Serial _lcd;
         int _xMax;
         int _yMax;

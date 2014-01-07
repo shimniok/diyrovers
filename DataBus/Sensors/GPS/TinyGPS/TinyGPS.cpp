@@ -145,7 +145,7 @@ int TinyGPS::parse_int()
   return isneg ? -ret : ret;
 }
 
-unsigned long TinyGPS::parse_decimal()
+long TinyGPS::parse_decimal()
 {
   char *p = _term;
   bool isneg = *p == '-';

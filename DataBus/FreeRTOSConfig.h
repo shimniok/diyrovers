@@ -88,7 +88,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskSuspend				1
 #define INCLUDE_vTaskDelayUntil				1
 #define INCLUDE_vTaskDelay					1
-#define INCLUDE_uxTaskGetStackHighWaterMark	0
+#define INCLUDE_uxTaskGetStackHighWaterMark	0 //TODO 1
 
 /* Use the system definition, if there is one */
 #ifdef __NVIC_PRIO_BITS

@@ -15,8 +15,13 @@
 
 #########################################################################################################
 # Navigation config
-#	nav,intercept,waypoint distance, brake distance, min radius 	
-#	intercept distance, waypoint distance, brake distance, minimum turn radius
+#
+#	nav,intercept distance,waypoint distance, brake distance, min turn radius 
+#	
+#	intercept distance	the distance for path following algorithm, how far away the 'rabbit' is
+#	waypoint distance	distance threshold at which robot switches to next waypoint
+#	brake distance		distance at which turn speed is selected as the new speed
+#	min turn radius		minimum turn radius permitted
 #
 #nav,2.5,5.0,6.0,3.5
 #nav,5.0,5.0,6.0,5.0
@@ -24,12 +29,37 @@
 nav,3.0,3.0,3.0,2.5
 
 ########################################################################################################## 
+# Throttle (Speed) config
+#	speed, minimum, stop, max, stop speed, turn speed, Kp, Ki, Kd
+#
+#	brake		esc value when braking
+#	off		esc value when stopped, idle
+#	max		max esc value
+#	scale		ratio of servo to throttle value (probably 1)
+#	top speed	default cruise speed in m/s
+#	turn speed	turn speed in m/s
+#	Kp		Speed PID, proportional constant
+#	Ki		Speed PID, integral constant
+#	Kd		Speed PID, derivative constant
+#
+# ~4m/s (9mph) 515
+# ~5m/s (11mph) 530
+# ~6m/s (13mph) 550
+# 6/16/2012
+#speed,398,400,830,9.0,7.5,3.5,60.0,30.0,0.0
+# 5/8/2013
+speed,0.410,0.410,0.600,1.0,5.0,4.8,3.5,60.0,20.0,0.0
+
+########################################################################################################## 
 # Steering config
-#	steer,center,gain,gain angle,cte Ki,alg 
-#	center servo setting, steering gain (overcomes steering slop, hills, etc), 
-#		angle below which gain takes effect
+#
+#	steer,center,scale,gain,gain angle
+#
+#	center		servo center setting
+#	scale		ratio of servo to steering angle
+#
 #steer,0.5,2.0,5.0
-steer,0.5,0.05,1.0
+steer,0.5,0.001238
 
 ########################################################################################################## 
 # Curb avoid settings
@@ -40,19 +70,6 @@ steer,0.5,0.05,1.0
 #	set gain to 0 to disable
 #
 curb,110.0,0.0
-
-########################################################################################################## 
-# Throttle (Speed) config
-#	speed,min,off,max,top,turn,Kp,Ki,Kd	
-#	brake setting, off setting, max throttle, 
-#		top speed, turn speed, start speed, PID values: P, I, and D
-# ~4m/s (9mph) 515
-# ~5m/s (11mph) 530
-# ~6m/s (13mph) 550
-# 6/16/2012
-#speed,398,400,830,9.0,7.5,3.5,60.0,30.0,0.0
-# 5/8/2013
-speed,410,410,600,5.0,4.8,3.5,60.0,20.0,0.0
 
 # Waypoint
 # 	W,lat,lon,speedadj,turnspeedadj -- waypoint 0, latitude, longitude, top speed adj, turn speed adj

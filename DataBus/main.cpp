@@ -123,8 +123,6 @@ Mapping mapper;
 // FUNCTION DEFINITIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void initFlasher(void);
-//void initDR(void);
 int autonomousMode(void);
 void mavlinkMode(void);
 void servoCalibrate(void);
@@ -138,7 +136,6 @@ int setBacklight(void);
 int reverseScreen(void);
 float irDistance(const unsigned int adc);
 extern "C" void mbed_reset();
-//extern unsigned int matrix_error;
 
 // If we don't close the log file, when we restart, all the written data
 // will be lost.  So we have to use a button to force mbed to close the
@@ -159,14 +156,6 @@ int resetMe()
 }
 
 extern "C" size_t xPortGetFreeHeapSize(void);
-
-//#include "FATFileSystem.h"
-extern "C" void checkit(const char *s, const int l) {
-	//FATFileSystem **w1 = FATFileSystem::_ffs;
-	//FATFileSystem *w2 = w1[0];
-	//fprintf(stdout, "WATCH %s:%d: %04x %04x %d\n", s, l, (unsigned int) w1, (unsigned int) w2, xPortGetFreeHeapSize());
-	return;
-}
 
 //TODO 2 move to somewhere more appropriate
 extern "C" void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName ) {
@@ -199,8 +188,6 @@ int main()
     fputs("Data Bus 2014\n", stdout);
     fflush(stdin);
 
-    checkit(__FILE__, __LINE__);
-
     // Let's try setting priorities...
     //NVIC_SetPriority(DMA_IRQn, 0);
     NVIC_SetPriority(EINT0_IRQn, 5);    // wheel encoders
@@ -220,8 +207,6 @@ int main()
     NVIC_SetPriority(TIMER0_IRQn, 10); 	// unused(?)
     NVIC_SetPriority(TIMER1_IRQn, 10); 	// unused(?)
     NVIC_SetPriority(TIMER2_IRQn, 10); 	// unused(?)
-
-    checkit(__FILE__, __LINE__);
 
     // Something here is jacking up the I2C stuff
     // Also when initializing with ESC powered, it causes motor to run which
@@ -252,6 +237,16 @@ int main()
     wait(0.2);
     if (config.load())                          // Load various configurable parameters, e.g., waypoints, declination, etc.
         confStatus = 1;
+
+    // Calibrate throttle
+	setThrottleMin(config.escMin);
+	setThrottleMiddle(config.escZero);
+	setThrottleMax(config.escMax);
+	setThrottleScale(config.escScale);
+
+	// Calibrate steering
+    setSteerMiddle(config.steerZero);
+    setSteerScale(config.steerScale);
 
     // Calibrate sensors
     sensors.Compass_Calibrate(config.magOffset, config.magScale);
@@ -286,12 +281,12 @@ int main()
     restartNav();
     startUpdater();
 
-/*
+    /*
     fprintf(stdout, "Starting Camera...\n");
     display.status("Start Camera        ");
     wait(0.5);
     cam.start();
-*/
+     */
 
     fputs("Starting keypad...\n", stdout);
 
@@ -399,7 +394,7 @@ int main()
             printMenu = false;
         }
 
-        checkit(__FILE__, __LINE__);
+
 
         // Basic functional architecture
         // SENSORS -> FILTERS -> AHRS -> POSITION -> NAVIGATION -> CONTROL | INPUT/OUTPUT | LOGGING
@@ -484,7 +479,7 @@ int main()
                     break;
             } // switch        
 
-            checkit(__FILE__, __LINE__);
+
         } // if (pc.readable())
 
         wait(0.1);

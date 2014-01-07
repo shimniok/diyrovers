@@ -81,3 +81,37 @@ size_t printFloat(FILE *f, double number, uint8_t digits)
 
     return n;
 }
+
+size_t printHex(FILE *f, long n, uint8_t digits) {
+	unsigned char c;
+	long mask = 0xf0000000;
+
+	while (mask) {
+		c = (n & mask);
+		// TODO finish this
+		switch (c) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+			fputc('0'-c, f);
+			break;
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+			fputc('a'-c, f);
+			break;
+		}
+		mask >>= 4;
+	}
+	return 1;
+}
