@@ -32,20 +32,22 @@ void Display::init()
 
 }
 
-void Display::status(const char *st)
+void Display::status(const char *newstatus)
 {
     lcd.pos(0,1);
-    int pad = 20 - strlen(st);
+    int pad = 20 - strlen(newstatus);
+    lcd.puts(newstatus);
     while (pad--) lcd.putc(' ');
-    lcd.puts(st);
 }
 
 void Display::menu(const char *itemName)
 {
     lcd.pos(0,0);
     int pad = 14 - strlen(itemName);
-    while (pad--) lcd.putc(' ');
+    lcd.puts("< ");
     lcd.puts(itemName);
+    lcd.puts(" >");
+    while (pad--) lcd.putc(' ');
 }
 
 void Display::select(const char *itemName)

@@ -18,8 +18,6 @@ float escScale=1.0;						// Scales throttle specification to servo value
 float steerZero=0.500;					// Middle value for servo (wheels straight)
 float steerScale=808.0;					// Scales steering angle to servo value
 
-// TODO: 2 rework servo library to use standard ms value
-
 void setSteering(float steerAngle) {
     // Convert steerAngle to servo value assuming linear relationship between steering angle
 	// and servo value.

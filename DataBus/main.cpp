@@ -119,7 +119,7 @@ Mapping mapper;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int autonomousMode(void);
-void mavlinkMode(void);
+//void mavlinkMode(void);
 void servoCalibrate(void);
 void serialBridge(Serial &gps);
 int instrumentCheck(void);
@@ -160,7 +160,7 @@ extern "C" void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *p
 // TODO 2 move to a more appropriate location, perhaps an lcd status task?
 extern "C" void updateDisplay(void *args) {
 	SystemState *s;
-    display.redecorate();
+	display.redecorate();
 	while (1) {
 		// Pulling out current state so we get the most current
 		s = fifo_first();
@@ -171,10 +171,48 @@ extern "C" void updateDisplay(void *args) {
 		confStatus = !confStatus;
 		vTaskDelay(1500);
 	}
-	//nextUpdate = thisUpdate + 2000;
-	// TODO 3 move this statistic into display class
-	//fprintf(stdout, "update time: %d\n", getUpdateTime());
+	return;
 }
+
+/*
+extern "C" void userPanel(void *args) {
+	bool printLCDMenu=true;
+
+	while (1) {
+        if (keypad.pressed) {
+            keypad.pressed = false;
+            printLCDMenu = true;
+            switch (keypad.which) {
+                case NEXT_BUTTON:
+                    menu.next();
+                    break;
+                case PREV_BUTTON:
+                    menu.prev();
+                    break;
+                case SELECT_BUTTON:
+                    display.select(menu.getItemName());
+                    menu.select();
+                    // TODO 1 find a way to notify the shell and run the program
+                    break;
+                default:
+                    printLCDMenu = false;
+                    break;
+            }//switch
+            keypad.pressed = false;
+        }// if (keypad.pressed)
+
+        if (printLCDMenu) {
+            display.menu( menu.getItemName() );
+            display.status("Ready.");
+            display.redecorate();
+            printLCDMenu = false;
+        }
+
+        vTaskDelay(50); // TODO: convert this to block waiting for keypad pressed
+	}
+	return;
+}
+*/
 
 int main()
 {
@@ -277,8 +315,8 @@ int main()
     sensors.gps.setUpdateRate(10);
     sensors.gps.enable();
 
-    fputs("Starting Scheduler...\n", stdout);
-    display.status("Start scheduler     ");
+    fputs("Starting Updater...\n", stdout);
+    display.status("Start updater       ");
     wait(0.2);
     // Startup sensor/AHRS ticker; update every UPDATE_PERIOD
     restartNav();
@@ -308,8 +346,11 @@ int main()
     menu.add("Reverse", &reverseScreen);
     menu.add("Reset", &resetMe);
 
+    display.status("Starting RTOS       ");
+    wait(0.2);
 	//checkit(__FILE__, __LINE__);
-	xTaskCreate( shell, (const signed char * ) "shell", 800, NULL, (tskIDLE_PRIORITY+1), NULL );
+	xTaskCreate( shell, (const signed char * ) "shell", 700, NULL, (tskIDLE_PRIORITY+1), NULL );
+	//xTaskCreate( userPanel, (const signed char * ) "panel", 150, NULL, (tskIDLE_PRIORITY+2), NULL );
 	xTaskCreate( updateDisplay, (const signed char * ) "display", 100, NULL, (tskIDLE_PRIORITY+1), NULL );
     //checkit(__FILE__, __LINE__);
 	vTaskStartScheduler(); // should never get past this line.
@@ -937,15 +978,15 @@ void displayData(const int mode)
             done=true;
         }
         
-        // TODO 3 find a more standard way to determine if data is waiting
+        // TODO 4 would be nice if we could use streams, fcntl non-blocking, etc.
         while (pc.readable()) {
-            if (fgetc(stdin) == 'e') {
+            if (pc.getc() == 'e') {
                 done = true;
                 break;
             }
         }
 
-        // TODO 2 use vTaskDelay here
+        // TODO 3 use vTaskDelay here
 		if ((millis % 1000) == 0) {
 			SystemState *s = fifo_first();
 
@@ -1040,6 +1081,7 @@ void displayData(const int mode)
 			fputc('\n', stdout);
 		}
 
+#if 0==1
 		/* TODO 3 figure out how/where to do instrument check. */
 		if ((millis % 3000) == 0) {
 
@@ -1051,7 +1093,7 @@ void displayData(const int mode)
 			lcd.puts(",");
 			lcd.printFloat(sensors.gyro[2], 1);
 			lcd.puts("      ");
-			wait(0.1);
+			vTaskDelay(10);
 
 			lcd.pos(0,3);
 			lcd.puts("La=");
@@ -1059,7 +1101,7 @@ void displayData(const int mode)
 			lcd.puts(" HD=");
 			lcd.printFloat(sensors.gps.hdop(), 1);
 			lcd.puts("      ");
-			wait(0.1);
+			vTaskDelay(10);
 
 			lcd.pos(0,4);
 			lcd.puts("Lo=");
@@ -1067,7 +1109,7 @@ void displayData(const int mode)
 			lcd.puts(" Sat=");
 			lcd.printFloat(sensors.gps.sat_count(), 1);
 			lcd.puts("      ");
-			wait(0.1);
+			vTaskDelay(10);
 
 			lcd.pos(0,5);
 			lcd.puts("V=");
@@ -1075,8 +1117,10 @@ void displayData(const int mode)
 			lcd.puts(" A=");
 			lcd.printFloat(sensors.current, 3);
 			lcd.puts("      ");
+			vTaskDelay(10);
 
 		}
+#endif
 
     } // while !done
     // clear input buffer
@@ -1087,6 +1131,7 @@ void displayData(const int mode)
 }
 
 
+#if 0==1
 // TODO: 3 move Mavlink into task
 // possibly also buffered if necessary
 void mavlinkMode() {
@@ -1224,6 +1269,7 @@ void mavlinkMode() {
     
     return;
 }
+#endif
 
 int setBacklight(void) {
     Menu bmenu;
