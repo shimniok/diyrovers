@@ -17,8 +17,7 @@ Display::Display(void):
 
 void Display::init()
 {
-    //FIXME lcd.baud(115200);
-	lcd.puts("test\n");
+    lcd.puts("test\n");
 	lcd.clear();
     wait(0.3);
     
@@ -84,23 +83,10 @@ void Display::update(SystemState *state) {
 		int bx = 90 - 18 * sin(-3.141529 * (state->bearing-state->estHeading) / 180.0);
 		int by = 40 - 18 * cos(-3.141529 * (state->bearing-state->estHeading) / 180.0);
 		lcd.circle(bx, by, 2, true);
-
-		/*
-		lcd.posXY(60, 22);
-		lcd.printf("%.2f", state->rightRanger);
-		lcd.posXY(60, 32);
-		lcd.printf("%.2f", state->leftRanger);
-		lcd.posXY(60, 42);
-		lcd.printf("%5.1f", state->estHeading);
-		lcd.posXY(60, 52);
-		lcd.printf("%.3f", state->gpsCourse);
-		*/
-		// TODO: 3 address integer overflow
-		// TODO: 3 display scheduler() timing
 	}
 }
 
- void Display::redraw() { // TODO 3 rename
+ void Display::redecorate() {
     v.init();
     //a.init();
     g1.init();

@@ -6,22 +6,24 @@
 #include "SDFileSystem.h"
 #include "util.h"
 #include "Buttons.h"
+#include "Actuators.h"
 
 #define MAXBUF		128
-#define MAXCMDARR	19
+#define MAXCMDARR	20
 
 extern Serial pc;
 extern Buttons keypad;
 
 char cwd[MAXBUF];
 char buf[MAXBUF];
+char path[MAXBUF];
 int status;
 bool debug=false;
 bool done=false;
 
 typedef struct {
 	const char *cmd;
-	int (*f)(const char *arg0);
+	int (*f)(char *arg0);
 	const char *desc;
 } cmd;
 
@@ -38,23 +40,29 @@ void docmd(char *cmdline);
 void termInput(char *cmd);
 void resolveDirectory(char *newpath, char *path);
 void splitName(const char *path, char *dirname, char *basename);
-int dols(const char *path);
-int docd(const char *path);
-int dopwd(const char *s);
-int dotouch(const char *path);
-int domkdir(const char *path);
-int dohead(const char *path);
-int docat(const char *path);
-int dosend(const char *path);
-int doprintfree(const char *path);
-int doexit(const char *s);
-int dodebug(const char *s);
-int dohelp(const char *s);
-int doinstrchk(const char *s);
-int docompswing(const char *s);
-int dogyroswing(const char *s);
-int doreset(const char *s);
-int doautonomous(const char *s);
+int dols(char *arg);
+int docd(char *path);
+int dopwd(char *s);
+int dotouch(char *path);
+int dorm(char *path);
+int domkdir(char *path);
+int dohead(char *path);
+int docat(char *path);
+int dosend(char *path);
+int doprintfree(char *path);
+int doexit(char *s);
+int dodebug(char *s);
+int dohelp(char *s);
+int doinstrchk(char *s);
+int docompswing(char *s);
+int dogyroswing(char *s);
+int doreset(char *s);
+int doautonomous(char *s);
+int dospeed(char *arg);
+int dosteer(char *arg);
+
+// TODO 3 multiple arguments
+// TODO 1 convert all functions to parse argument(s)
 
 const cmd command[MAXCMDARR] = {
     	{ "help", dohelp, "print this help" },
@@ -66,7 +74,7 @@ const cmd command[MAXCMDARR] = {
     	{ "head", dohead, "output first part of file" },
     	{ "cat", docat, "output file" },
     	{ "send", dosend, "send file to terminal" },
-    	{ "rm", remove, "remove file" },
+    	{ "rm", dorm, "remove file" },
     	{ "debug", dodebug, "toggle debug mode" },
     	{ "stat", doinstrchk, "instrument check" },
     	{ "comp", docompswing, "compass swing" },
@@ -74,6 +82,8 @@ const cmd command[MAXCMDARR] = {
     	{ "auto", doautonomous, "run autonomous mode" },
     	{ "reset", doreset, "reset the MCU" },
     	{ "free", doprintfree, "heap bytes available" },
+    	{ "speed", dospeed, "set speed servo output" },
+    	{ "steer", dosteer, "set steering servo output" },
 //    	{ "exit", doexit, "exit shell" },
     	{ 0, 0, 0 }
 };
@@ -116,19 +126,16 @@ void shell(void *args) {
 void docmd(char *cmdline) {
 	char *arg;
 	char cmd[MAXBUF];
-	char newpath[MAXBUF];
 	bool found = false;
 
     arg = split(cmd, cmdline, MAXBUF, ' ');
     if (strlen(cmd) > 0) {
-		resolveDirectory(newpath, arg);
-
-		if (debug) fprintf(stdout, "cmdline:<%s> cmd:<%s> arg:<%s> newpath:<%s>\n", cmdline, cmd, arg, newpath);
+		if (debug) fprintf(stdout, "cmdline:<%s> cmd:<%s> arg:<%s>\n", cmdline, cmd, arg);
 
 		for (int i=0; command[i].cmd; i++) {
 			if (!strcmp(cmd, command[i].cmd)) {
 				found = true;
-				command[i].f(newpath);
+				command[i].f(arg);
 			}
 		}
 
@@ -263,10 +270,12 @@ void splitName(const char *path, char *dirname, char *basename) {
 /** ls
  * lists files in the current working directory, 4 columns
  */
-int dols(const char *path) {
+int dols(char *arg) {
     if (debug) fprintf(stdout, "%s\n", cwd);
     DIR *d;
     struct dirent *p;
+
+	resolveDirectory(path, arg);
 
     int count=0;
     if ((d = opendir(path)) != NULL) {
@@ -296,8 +305,10 @@ int dols(const char *path) {
 /** cd
  * changes current working directory
  */
-int docd(const char *path) {
-    strcpy(cwd, path);
+int docd(char *arg) {
+
+	resolveDirectory(path, arg);
+	strcpy(cwd, path);
 
     return 0;
 }
@@ -305,7 +316,7 @@ int docd(const char *path) {
 /** pwd
  * print current working directory
  */
-int dopwd(const char *s) {
+int dopwd(char *arg) {
 	fputs(cwd, stdout);
 	fputc('\n', stdout);
     //fprintf(stdout, "%s\n", cwd);
@@ -316,8 +327,10 @@ int dopwd(const char *s) {
 /** touch
  * create an empty file
  */
-int dotouch(const char *path) {
+int dotouch(char *arg) {
     FILE *fp;
+
+    resolveDirectory(path, arg);
     if ((fp = fopen(path, "w")) != NULL) {
         fclose(fp);
         status = 0;
@@ -330,17 +343,24 @@ int dotouch(const char *path) {
     return status;
 } 
 
-int domkdir(const char *path) {
+int dorm(char *arg) {
+	resolveDirectory(path, arg);
+	return remove(path);
+}
+
+int domkdir(char *arg) {
+	resolveDirectory(path, arg);
 	return mkdir(path, S_IRWXU|S_IRWXG|S_IRWXO);
 }
 
 /** head
  * print the first 10 lines of a file
  */
-int dohead(const char *path) {
+int dohead(char *arg) {
     FILE *fp;
     char line = 0;
-    
+
+	resolveDirectory(path, arg);
     if ((fp = fopen(path, "r")) != NULL) {
         while (!feof(fp) && line++ < 10) {
             fgets(buf, 128, fp);
@@ -360,9 +380,10 @@ int dohead(const char *path) {
 /** cat
  * display the content of a file
  */
-int docat(const char *path) {
+int docat(char *arg) {
     FILE *fp;
 
+	resolveDirectory(path, arg);
     if ((fp = fopen(path, "r")) != NULL) {
         while (fgets(buf, 127, fp)) {
 			fputs(buf, stdout);
@@ -383,10 +404,11 @@ int docat(const char *path) {
  * Initiates escape sequence: ^A^B, sends filename, ^C, and then file
  * contents followed by ^D
  */
-int dosend(const char *path) {
+int dosend(char *arg) {
     FILE *fp;
     char dirname[32], basename[16];
 
+	resolveDirectory(path, arg);
     if ((fp = fopen(path, "r")) != NULL) {
         splitName(path, dirname, basename);
         fputc(0x01, stdout);
@@ -409,7 +431,7 @@ int dosend(const char *path) {
     return status;
 }
 
-int doprintfree(const char *s) {
+int doprintfree(char *arg) {
 	printInt(stdout, xPortGetFreeHeapSize());
 	fputs(" bytes free.\n", stdout);
 
@@ -419,7 +441,7 @@ int doprintfree(const char *s) {
 /** doexit
  * set a flag to exit the shell
  */
-int doexit(const char *s) {
+int doexit(char *arg) {
 	done = true;
 
 	return 0;
@@ -428,7 +450,7 @@ int doexit(const char *s) {
 /** dodebug
  * toggle the debug state variable
  */
-int dodebug(const char *s) {
+int dodebug(char *arg) {
 	debug = !debug;
 
 	return 0;
@@ -437,7 +459,7 @@ int dodebug(const char *s) {
 /** dohelp
  * print the list of commands and descriptions
  */
-int dohelp(const char *s) {
+int dohelp(char *arg) {
 	for (int i=0; command[i].cmd; i++) {
 		int pad = 10 - strlen(command[i].cmd);
 		while (pad--) fputc(' ', stdout);
@@ -453,7 +475,7 @@ int dohelp(const char *s) {
 /** doinstrchk
  * call external instrument check routine
  */
-int doinstrchk(const char *s) {
+int doinstrchk(char *arg) {
 	displayData(0);
 
 	return 0;
@@ -462,7 +484,7 @@ int doinstrchk(const char *s) {
 /** docompswing
  * perform compass swing, call external function
  */
-int docompswing(const char *s) {
+int docompswing(char *arg) {
 	compassSwing();
 
 	return 0;
@@ -471,7 +493,7 @@ int docompswing(const char *s) {
 /** dogyroswing
  * perform gyro swing, call external function
  */
-int dogyroswing(const char *s) {
+int dogyroswing(char *arg) {
 	gyroSwing();
 
 	return 0;
@@ -480,7 +502,7 @@ int dogyroswing(const char *s) {
 /** doreset
  * reset the processor
  */
-int doreset(const char *s) {
+int doreset(char *arg) {
 	resetMe();
 	return 0; // won't ever reach this line...
 }
@@ -488,8 +510,34 @@ int doreset(const char *s) {
 /** doautonomous
  * call external doAutonomous mode to perform an autonomous run
  */
-int doautonomous(const char *s) {
+int doautonomous(char *arg) {
 	autonomousMode();
+
+	return 0;
+}
+
+
+
+int dospeed(char *arg) {
+	float v = cvstof(arg);
+	fputs("speed=", stdout);
+	printFloat(stdout, v, 4);
+	setThrottle(v);
+	fputs(" servo=", stdout);
+	printFloat(stdout, getThrottle(), 4);
+	fputc('\n', stdout);
+
+	return 0;
+}
+
+int dosteer(char *arg) {
+	float v = cvstof(arg);
+	fputs("angle=", stdout);
+	printFloat(stdout, v, 4);
+	fputs(" servo=", stdout);
+	setSteering(v);
+	printFloat(stdout, getSteering(), 4);
+	fputc('\n', stdout);
 
 	return 0;
 }

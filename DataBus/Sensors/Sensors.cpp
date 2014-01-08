@@ -127,8 +127,6 @@ void Sensors::Read_Encoders()
     //  is huge, what do we do?  Slipping wheel?  Skidding wheel?  Broken encoder?
     //  front encoders would be ideal as additional sanity check
     
-    // TODO 2 move Read_Encoders() into scheduler??
-    
     // TODO 2 how do we track distance, should we only check distance everytime we do a nav/pos update?
     lrEncDistance  = (_tireCircum / _stripeCount) * (double) leftCount;
     rrEncDistance = (_tireCircum / _stripeCount) * (double) rightCount;

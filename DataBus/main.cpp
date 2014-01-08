@@ -57,12 +57,7 @@
 #define TEMP_CHAN        4
 #define GYRO_CHAN        5
 
-// Chassis specific parameters
-// TODO 1 put WHEEL_CIRC, WHEELBASE, and TRACK in config.txt
-//#define WHEEL_CIRC 0.321537             // m; calibrated with 4 12.236m runs. Measured 13.125" or 0.333375m circumference
-//#define WHEELBASE  0.290
-//#define TRACK      0.280
-
+// Display modes
 #define INSTRUMENT_CHECK    0
 #define AHRS_VISUALIZATION  1
 #define DISPLAY_PANEL       2
@@ -157,15 +152,15 @@ int resetMe()
 
 extern "C" size_t xPortGetFreeHeapSize(void);
 
-//TODO 2 move to somewhere more appropriate
+// TODO 2 move vApplicationStackOverflowHook to somewhere more appropriate
 extern "C" void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName ) {
 	error("%% stack overflow in %s %%\n", pcTaskName);
 }
 
-//TODO 2 move to a more appropriate location
+// TODO 2 move to a more appropriate location, perhaps an lcd status task?
 extern "C" void updateDisplay(void *args) {
 	SystemState *s;
-    display.redraw();
+    display.redecorate();
 	while (1) {
 		// Pulling out current state so we get the most current
 		s = fifo_first();
@@ -380,7 +375,7 @@ int main()
         if (printLCDMenu) {
             display.menu( menu.getItemName() );
             display.status("Ready.");
-            display.redraw();
+            display.redecorate();
             printLCDMenu = false;
         }
         
@@ -629,6 +624,7 @@ int compassCalibrate()
     display.status("Starting...");
 
     fp = openlog("cal");
+    if (fp == NULL) return -1;
 
     wait(2);
     display.status("Select exits");
@@ -698,6 +694,8 @@ int gyroSwing()
     display.status("Starting...");
     wait(2);
     fp = openlog("gy");
+    if (fp == NULL) return -1;
+
     wait(2);
     display.status("Begin. Select exits.");
 
@@ -768,6 +766,8 @@ int compassSwing()
     display.status("Starting...");
     wait(2);
     fp = openlog("sw");
+    if (fp == NULL) return -1;
+
     wait(2);
     display.status("Ok. Begin.");
 
@@ -937,9 +937,8 @@ void displayData(const int mode)
             done=true;
         }
         
-        // TODO 3 find a more standard way to determine if data is waiting
         while (pc.readable()) {
-            if (fgetc(stdin) == 'e') {
+            if (pc.getc() == 'e') {
                 done = true;
                 break;
             }
@@ -1225,7 +1224,6 @@ void mavlinkMode() {
     return;
 }
 
-// TODO 2 move to display
 int setBacklight(void) {
     Menu bmenu;
     bool done = false;

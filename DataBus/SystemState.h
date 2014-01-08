@@ -1,7 +1,6 @@
 #ifndef _SYSTEMSTATE_H
 #define _SYSTEMSTATE_H
 
-// TODO 2 parameterize this
 #define SSBUF 16 // must be 2^n
 
 /** System State is the main mechanism for communicating current realtime system state to

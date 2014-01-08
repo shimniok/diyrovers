@@ -6,6 +6,9 @@
 /** set steering to steering angle */
 void setSteering(float steerAngle);
 
+/** get actual servo setting */
+float getSteering(void);
+
 /** initialize steering */
 void initSteering(void);
 
@@ -23,6 +26,9 @@ void setSteerScale(float s);
 
 /** set throttle to throttle value */
 void setThrottle(float value);
+
+/** return actual servo setting */
+float getThrottle(void);
 
 /** initialize throttle */
 void initThrottle(void);

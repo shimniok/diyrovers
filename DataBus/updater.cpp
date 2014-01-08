@@ -45,18 +45,14 @@ int power_count=PWR_SKIP;				// read power sensors every so often
 int log_count=LOG_SKIP;                 // buffer a new status entry for logging every log_count calls to schedHandler
 int tReal;                              // calculate real elapsed time
 
-extern DigitalOut gpsStatus;
 
 // TODO: 3 better encapsulation, please
+extern DigitalOut gpsStatus;			// GPS status LED
+extern DigitalOut ahrsStatus;           // AHRS status LED
 extern Sensors sensors;
-//extern SystemState *state;
-//extern volatile unsigned char inState;
-//extern volatile unsigned char outState;
-//extern bool ssBufOverrun;
 extern Mapping mapper;
 extern Steering steerCalc;              // steering calculator
 extern Timer timer;
-extern DigitalOut ahrsStatus;           // AHRS status LED
 
 // Navigation
 extern Config config;
@@ -92,6 +88,7 @@ float Kbias = 0.995;
 float filtErrRate = 0;
 float biasErrAngle = 0;
 
+// Gyro/heading history
 #define MAXHIST 128 // must be multiple of 0x08
 #define inc(x)  (x) = ((x)+1)&(MAXHIST-1)
 struct history_rec {
@@ -100,7 +97,6 @@ struct history_rec {
     float hdg;      // heading
     float dist;     // distance
     float gyro;     // heading rate
-    //float ghdg;   // uncorrected gyro heading
     float dt;       // delta time
 } history[MAXHIST]; // fifo for sensor data, position, heading, dt
 
@@ -170,7 +166,7 @@ void setSpeed(const float speed)
     return;
 }
 
-// TODO 2 put update sections into separate modules, possibly call using timers with varying priorities?
+// TODO 2 split update function into multiple tasks, one for reading, one for estimation, control?
 
 /** update() runs the data collection, estimation, steering control, and throttle control */
 void update()
@@ -232,13 +228,11 @@ void update()
     	power_count = PWR_SKIP;
     }
     sensors.Read_Encoders(); 
-    // TODO 3 really need to do some filtering on the speed
-    //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
-    nowSpeed = sensors.encSpeed;
     sensors.Read_Gyro(); 
     sensors.Read_Rangers();
     sensors.Read_Accel();
     //sensors.Read_Camera();
+
 
     //////////////////////////////////////////////////////////////////////////////
     // Obtain GPS data                        
@@ -280,11 +274,9 @@ void update()
 
     // TODO: 3 Position filtering
     //    position will be updated based on heading error from heading estimate
-    // TODO: 2 Distance/speed filtering
-    //    this might be useful, but not sure it's worth the effort
 
     // So the big pain in the ass is that the GPS data coming in represents the
-    // state of the system ~1s ago. Yes, a full second of lag despite running
+    // state of the system N seconds ago. Up to a full second of lag despite running
     // at 10hz (or whatever).  So if we try and fuse a lagged gps heading with a
     // relatively current gyro heading rate, the gyro is ignored and the heading
     // estimate lags reality
@@ -413,10 +405,10 @@ void update()
             setSpeed( config.startSpeed );
         } else if (distance < config.brakeDist || prevDistance < config.brakeDist) {
             setSpeed( config.turnSpeed );
-            // TODO 3 setSpeed( config.wptTurnSpeed[nextWaypoint] );
+            // TODO 2 setSpeed( config.wptTurnSpeed[nextWaypoint] );
         } else {
             setSpeed( config.topSpeed );
-            // TODO 3 setSpeed( config.wptTopSpeed[nextWaypoint] );
+            // TODO 2 setSpeed( config.wptTopSpeed[nextWaypoint] );
         }
 
         if (distance < config.waypointDist) {
@@ -427,7 +419,7 @@ void update()
         }
         
     } else {
-        setSpeed( 0.0 );
+        setSpeed( 0.0 ); // TODO if we set speed 0 here but in control area it sets it based on desired speed now what?
     }
     // Are we at the last waypoint?
     // currently handled external to this routine
@@ -442,6 +434,7 @@ void update()
     // CONTROL UPDATE
     //////////////////////////////////////////////////////////////////////////////
 
+    if (go) // TODO 1 temporarily only enable control output when in go mode
     if (--control_count == 0) {
   
         steerAngle = steerCalc.pathPursuitSA(history[now].hdg, history[now].x, history[now].y,
@@ -458,7 +451,7 @@ void update()
             steerAngle -= config.curbGain * (config.curbThreshold - sensors.rightRanger);
         }
         */
-                    
+
         setSteering( steerAngle );
 
         // PID control for throttle
@@ -468,7 +461,11 @@ void update()
         if (desiredSpeed <= 0.1) {
             setThrottle( config.escZero );
         } else {
-            // PID loop for throttle control
+            // TODO 3 filter speed
+        	// e.g., nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed; and/or median filter and/or logic checks
+        	// may also want to filter against GPS speed? would involve lag compensation though, thus memory expensive
+            nowSpeed = sensors.encSpeed;
+        	// PID loop for throttle control
             // http://www.codeproject.com/Articles/36459/PID-process-control-a-Cruise-Control-example
             float error = desiredSpeed - nowSpeed; 
             // track error over time, scaled to the timer interval

@@ -21,10 +21,10 @@
 float clamp(float v, float min, float max, bool flip);
 
 /** Convert char to integer */
-int ctoi(char c);
+int ctoi(const char c);
 
 /** Convert string to floating point */
-double cvstof(char *s);
+double cvstof(const char *s);
 
 /** Tokenize a string 
  * @param s is the string to tokenize

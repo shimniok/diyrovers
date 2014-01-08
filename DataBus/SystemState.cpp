@@ -15,6 +15,8 @@ volatile int outState = 0; // pull pointer
 SystemState *state;
 SystemState mystate[SSBUF];
 
+// TODO 1 convert this to generic fifo, use for systemstate and gyro history
+
 void state_clear( SystemState *s )
 {
     s->millis = 0;

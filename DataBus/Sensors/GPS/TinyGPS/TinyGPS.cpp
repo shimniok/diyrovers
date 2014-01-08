@@ -161,7 +161,7 @@ long TinyGPS::parse_decimal()
         ret += p[2] - '0';
     }
   }
-  return isneg ? -ret : ret; // TODO 2 can't return negative when we're returning an unsigned!
+  return isneg ? -ret : ret;
 }
 
 // mes 04/27/12 increased fractional precision to 7 digits, was 5

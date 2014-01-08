@@ -20,17 +20,19 @@ float steerScale=808.0;					// Scales steering angle to servo value
 
 // TODO: 2 rework servo library to use standard ms value
 
-void setSteering(float steerAngle)
-{
+void setSteering(float steerAngle) {
     // Convert steerAngle to servo value assuming linear relationship between steering angle
 	// and servo value.
     //
     steering = steerZero + steerAngle * steerScale;
 }
 
+float getSteering(void) {
+	return steering.read();
+}
+
 // Setup servo outputs
-void initSteering()
-{
+void initSteering() {
 	setSteering(0);
     steering.calibrate(0.005, 45.0);
 }
@@ -54,6 +56,10 @@ void setThrottle(float value)
 	throttle = escZero + newThrottle * escScale;
 
 	return;
+}
+
+float getThrottle(void) {
+	return throttle.read();
 }
 
 void initThrottle()

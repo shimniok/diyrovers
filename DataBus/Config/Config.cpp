@@ -212,7 +212,7 @@ void Config::print(void) {
 	// Print out encoder configuration
 	fputs("Encoders:", stdout);
 	fputs("\n tire circum=", stdout);
-	printFloat(stdout, tireCircum, 3);
+	printFloat(stdout, tireCircum, 5);
 	fputs("\n enc stripes=", stdout);
 	printInt(stdout, stripeCount);
     fputc('\n', stdout);

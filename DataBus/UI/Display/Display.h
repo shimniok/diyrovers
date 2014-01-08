@@ -41,7 +41,7 @@ public:
     void update(SystemState *state);
     
     /** initializes the update display */
-    void redraw(void);
+    void redecorate(void);
 
     SerialGraphicLCD lcd;
     

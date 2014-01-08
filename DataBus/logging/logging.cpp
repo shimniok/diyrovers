@@ -4,14 +4,13 @@
 #include "SDFileSystem.h"
 #include "SerialGraphicLCD.h"
 
+// TODO 2 set up logging as a low priority task
+
 // TODO 2 figure out a way to pull out status updates, some kind of message, queue, something.
 extern SerialGraphicLCD lcd;
 
-// TODO 2 set up logging out of low priority interrupt handler
+#define LOGDIR "/log"
 
-#define LOGDIR "/log" // TODO 2 parameterize log directory
-
-//SDFileSystem sd(p5, p6, p7, p8, "log"); // mosi, miso, sclk, cs
 static FILE *logp;
 
 Timer logtimer;
@@ -111,6 +110,8 @@ void logData( SystemState *s )
 }
 
 
+// TODO 3 better decoupling for openlog, print to screen?? lcd?? should probably send event to status task
+
 FILE *openlog(const char *prefix)
 {
     FILE *fp = 0;
@@ -143,10 +144,6 @@ FILE *openlog(const char *prefix)
     	fputs(myname, stdout);
     	fputc('\n', stdout);
     } else {
-
-        // TODO 3 set error message, get rid of writing to terminal
-
-        //status = true;
         fputs("opened ", stdout);
         fputs(myname, stdout);
         fputs(" for writing\n", stdout);

@@ -23,7 +23,7 @@ float clamp(float v, float min, float max, bool flip)
 
 // convert character to an int
 //
-int ctoi(char c)
+int ctoi(const char c)
 {
   int i=-1;
   
@@ -39,7 +39,7 @@ int ctoi(char c)
 
 // convert string to floating point
 //
-double cvstof(char *s)
+double cvstof(const char *s)
 {
   double f=0.0;
   double mult = 0.1;
