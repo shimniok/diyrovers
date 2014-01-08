@@ -158,40 +158,62 @@ extern "C" void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *p
 	error("%% stack overflow in %s %%\n", pcTaskName);
 }
 
-xSemaphoreHandle printMenu;
-xSemaphoreHandle printDecor;
-xSemaphoreHandle printSelect;
-
 // TODO 2 move to a more appropriate location, perhaps an lcd status task?
-extern "C" void updateDisplay(void *args) {
+extern "C" void updatePanel(void *args) {
+	bool printMenu = true;
+	bool printDecor = true;
 	SystemState *s;
 	const int SKIP=150;
 	int counter=SKIP;
 	display.redecorate();
 	while (1) {
+        if (keypad.pressed) {
+            keypad.pressed = false;
+        	printMenu = true;
+            switch (keypad.which) {
+                case NEXT_BUTTON:
+                    menu.next();
+                    break;
+                case PREV_BUTTON:
+                    menu.prev();
+                    break;
+                case SELECT_BUTTON:
+        			display.select(menu.getItemName());
+                    // menu.select();
+                    // TODO 1 find a way to notify the shell and run the program
+                    break;
+                default:
+                	printMenu = false;
+                	break;
+            }//switch
+            keypad.pressed = false;
+        }// if (keypad.pressed)
+
+		if (printMenu) {
+            display.menu( menu.getItemName() );
+            display.status("Ready.");
+            printMenu = false;
+		}
+
+		if (printDecor) {
+            display.redecorate();
+            printDecor = false;
+		}
+
 		if (--counter == 0) {
 			// Pulling out current state so we get the most current
 			s = fifo_first();
 			display.update(s);
+			counter = SKIP;
 		}
-		while (xSemaphoreTake(printMenu, 0)) {
-            display.menu( menu.getItemName() );
-            display.status("Ready.");
-            vTaskDelay(10);
-        }
-		while (xSemaphoreTake(printDecor, 0)) {
-            display.redecorate();
-            vTaskDelay(10);
-		}
-		while (xSemaphoreTake(printSelect, 0)) {
-			display.select(menu.getItemName());
-		}
+
 		confStatus = !confStatus;
 		vTaskDelay(10);
 	}
 	return;
 }
 
+/*
 extern "C" void userPanel(void *args) {
 	while (1) {
         if (keypad.pressed) {
@@ -217,6 +239,7 @@ extern "C" void userPanel(void *args) {
 	}
 	return;
 }
+*/
 
 
 int main()
@@ -356,14 +379,10 @@ int main()
     wait(0.2);
 	//checkit(__FILE__, __LINE__);
 
-    printMenu = xSemaphoreCreateCounting(1, 1); // print out menu initially
-    printDecor = xSemaphoreCreateCounting(1, 1); // print out decoration initially
-    printSelect = xSemaphoreCreateCounting(1, 0); // don't display select initially
-    if (printDecor == NULL || printMenu == NULL || printSelect == NULL) error("%% error creating semaphore %%\n");
     // TODO 2 check for pdPASS returned on xTaskCreate
     xTaskCreate( shell, (const signed char * ) "shell", 700, NULL, (tskIDLE_PRIORITY+1), NULL );
-	xTaskCreate( userPanel, (const signed char * ) "panel", 200, NULL, (tskIDLE_PRIORITY+2), NULL );
-	xTaskCreate( updateDisplay, (const signed char * ) "display", 100, NULL, (tskIDLE_PRIORITY+1), NULL );
+	//xTaskCreate( userPanel, (const signed char * ) "panel", 200, NULL, (tskIDLE_PRIORITY+2), NULL );
+	xTaskCreate( updatePanel, (const signed char * ) "update", 250, NULL, (tskIDLE_PRIORITY+1), NULL );
     //checkit(__FILE__, __LINE__);
 	vTaskStartScheduler(); // should never get past this line.
 	error("%% scheduler start failure %%\n");
