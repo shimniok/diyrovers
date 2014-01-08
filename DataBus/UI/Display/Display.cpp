@@ -34,16 +34,16 @@ void Display::init()
 
 void Display::status(const char *newstatus)
 {
-    lcd.pos(0,1);
     int pad = 20 - strlen(newstatus);
+    lcd.pos(0,1);
     lcd.puts(newstatus);
     while (pad--) lcd.putc(' ');
 }
 
 void Display::menu(const char *itemName)
 {
-    lcd.pos(0,0);
     int pad = 14 - strlen(itemName);
+    lcd.pos(0,0);
     lcd.puts("< ");
     lcd.puts(itemName);
     lcd.puts(" >");
@@ -52,11 +52,11 @@ void Display::menu(const char *itemName)
 
 void Display::select(const char *itemName)
 {
-    lcd.pos(0,0);
-    lcd.puts(">>");
     int pad = 14 - strlen(itemName);
-    while (pad--) lcd.putc(' ');
+    lcd.pos(0,0);
+    lcd.puts(">> ");
     lcd.puts(itemName);
+    while (pad--) lcd.putc(' ');
 }
 
 // display gauge at a given position (slot) along the bottom

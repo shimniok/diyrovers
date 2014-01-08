@@ -8,6 +8,8 @@
 #define _SERIALGRAPHICLCD_H
 
 #include "mbed.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 /** Firmware modes */
 #define SFE_FW 0x01       // Stock SFE firmware

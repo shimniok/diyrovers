@@ -15,6 +15,7 @@
 #include "print.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 #include "Filesystem.h"
 #include "Config.h"
 #include "Buttons.h"
@@ -157,31 +158,45 @@ extern "C" void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *p
 	error("%% stack overflow in %s %%\n", pcTaskName);
 }
 
+xSemaphoreHandle printMenu;
+xSemaphoreHandle printDecor;
+xSemaphoreHandle printSelect;
+
 // TODO 2 move to a more appropriate location, perhaps an lcd status task?
 extern "C" void updateDisplay(void *args) {
 	SystemState *s;
+	const int SKIP=150;
+	int counter=SKIP;
 	display.redecorate();
 	while (1) {
-		// Pulling out current state so we get the most current
-		s = fifo_first();
-		// Now populate in the current GPS data
-		//s->gpsHDOP = sensors.gps.hdop();
-		//s->gpsSats = sensors.gps.sat_count();
-		display.update(s);
+		if (--counter == 0) {
+			// Pulling out current state so we get the most current
+			s = fifo_first();
+			display.update(s);
+		}
+		while (xSemaphoreTake(printMenu, 0)) {
+            display.menu( menu.getItemName() );
+            display.status("Ready.");
+            vTaskDelay(10);
+        }
+		while (xSemaphoreTake(printDecor, 0)) {
+            display.redecorate();
+            vTaskDelay(10);
+		}
+		while (xSemaphoreTake(printSelect, 0)) {
+			display.select(menu.getItemName());
+		}
 		confStatus = !confStatus;
-		vTaskDelay(1500);
+		vTaskDelay(10);
 	}
 	return;
 }
 
-/*
 extern "C" void userPanel(void *args) {
-	bool printLCDMenu=true;
-
 	while (1) {
         if (keypad.pressed) {
             keypad.pressed = false;
-            printLCDMenu = true;
+        	xSemaphoreGive(printMenu);
             switch (keypad.which) {
                 case NEXT_BUTTON:
                     menu.next();
@@ -190,29 +205,19 @@ extern "C" void userPanel(void *args) {
                     menu.prev();
                     break;
                 case SELECT_BUTTON:
-                    display.select(menu.getItemName());
+                    xSemaphoreGive(printSelect);
                     menu.select();
                     // TODO 1 find a way to notify the shell and run the program
-                    break;
-                default:
-                    printLCDMenu = false;
                     break;
             }//switch
             keypad.pressed = false;
         }// if (keypad.pressed)
 
-        if (printLCDMenu) {
-            display.menu( menu.getItemName() );
-            display.status("Ready.");
-            display.redecorate();
-            printLCDMenu = false;
-        }
-
         vTaskDelay(50); // TODO: convert this to block waiting for keypad pressed
 	}
 	return;
 }
-*/
+
 
 int main()
 {
@@ -335,6 +340,7 @@ int main()
     
     fputs("Adding menu items...\n", stdout);
 
+    // TODO 1 figure out how to launch these from both shell and menu
     // Setup LCD Input Menu
     menu.add("Auto mode", &autonomousMode);
     menu.add("Instruments", &instrumentCheck);
@@ -349,8 +355,14 @@ int main()
     display.status("Starting RTOS       ");
     wait(0.2);
 	//checkit(__FILE__, __LINE__);
-	xTaskCreate( shell, (const signed char * ) "shell", 700, NULL, (tskIDLE_PRIORITY+1), NULL );
-	//xTaskCreate( userPanel, (const signed char * ) "panel", 150, NULL, (tskIDLE_PRIORITY+2), NULL );
+
+    printMenu = xSemaphoreCreateCounting(1, 1); // print out menu initially
+    printDecor = xSemaphoreCreateCounting(1, 1); // print out decoration initially
+    printSelect = xSemaphoreCreateCounting(1, 0); // don't display select initially
+    if (printDecor == NULL || printMenu == NULL || printSelect == NULL) error("%% error creating semaphore %%\n");
+    // TODO 2 check for pdPASS returned on xTaskCreate
+    xTaskCreate( shell, (const signed char * ) "shell", 700, NULL, (tskIDLE_PRIORITY+1), NULL );
+	xTaskCreate( userPanel, (const signed char * ) "panel", 200, NULL, (tskIDLE_PRIORITY+2), NULL );
 	xTaskCreate( updateDisplay, (const signed char * ) "display", 100, NULL, (tskIDLE_PRIORITY+1), NULL );
     //checkit(__FILE__, __LINE__);
 	vTaskStartScheduler(); // should never get past this line.

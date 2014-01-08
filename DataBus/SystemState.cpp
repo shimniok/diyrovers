@@ -13,7 +13,7 @@
 volatile int inState = 0; // push pointer
 volatile int outState = 0; // pull pointer
 SystemState *state;
-SystemState mystate[SSBUF];
+SystemState mystate[SSBUF] __attribute__ ((section("AHBSRAM0")));
 
 // TODO 1 convert this to generic fifo, use for systemstate and gyro history
 

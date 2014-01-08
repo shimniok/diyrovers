@@ -98,7 +98,7 @@ struct history_rec {
     float dist;     // distance
     float gyro;     // heading rate
     float dt;       // delta time
-} history[MAXHIST]; // fifo for sensor data, position, heading, dt
+} history[MAXHIST]  __attribute__ ((section("AHBSRAM0"))); // fifo for sensor data, position, heading, dt
 
 int hCount;         // history counter; we can go back in time to reference gyro history
 int now = 0;        // fifo input index, latest entry

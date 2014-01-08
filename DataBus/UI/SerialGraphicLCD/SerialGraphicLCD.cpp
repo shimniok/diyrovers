@@ -20,6 +20,7 @@ SerialGraphicLCD::SerialGraphicLCD(PinName tx, PinName rx, int firmware):
 }
 
 void SerialGraphicLCD::clear() {
+
     _lcd.putc((int) 0x7c);
     _lcd.putc(0x00);
 }
