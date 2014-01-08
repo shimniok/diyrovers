@@ -49,11 +49,9 @@ void setSteerScale(float s) {
 
 void setThrottle(float value)
 {
-	float newThrottle = value;
-
-	if (newThrottle > escMax) newThrottle = escMax;
-	if (newThrottle < escMin) newThrottle = escMin;
-	throttle = escZero + newThrottle * escScale;
+	if (value > escMax) value = escMax;
+	if (value < escMin) value = escMin;
+	throttle = value * escScale;
 
 	return;
 }
@@ -65,7 +63,7 @@ float getThrottle(void) {
 void initThrottle()
 {
 	setThrottle(0);
-    throttle.calibrate(0.001, 45.0);
+    //throttle.calibrate(5.0/1000.0, 45.0);
 }
 
 void setThrottleMiddle(float m) {
