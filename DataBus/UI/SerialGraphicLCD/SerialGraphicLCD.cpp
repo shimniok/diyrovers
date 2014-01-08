@@ -166,10 +166,6 @@ int SerialGraphicLCD::putc(const char c) {
 	return _lcd.putc(c);
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> rtos
 // TODO 3 make general verison that works on Serial, FILE etc.
 // from Arduino source
 size_t SerialGraphicLCD::printNumber(unsigned long n)

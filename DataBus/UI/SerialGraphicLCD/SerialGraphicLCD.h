@@ -192,7 +192,6 @@ public:
      */
     int putc(const char c);
     
-<<<<<<< HEAD
     /** print an unsigned long number to the lcd
      *
      * @param n is the number to print
@@ -213,15 +212,6 @@ public:
      * @param digits is the number of digits to print after the decimal point
      * @return the number of bytes printed
      */
-=======
-    // TODO 3 documentation
-    size_t printNumber(unsigned long n);
-
-    // TODO 3 documentation
-    size_t printInt(long n);
-
-    // TODO 3 documentation
->>>>>>> rtos
     size_t printFloat(double number, uint8_t digits);
 
     /** sets the resolution of the LCD so that the pos() call works properly

@@ -1040,7 +1040,6 @@ void displayData(const int mode)
 			fputc('\n', stdout);
 		}
 
-<<<<<<< HEAD
 		/* TODO 3 figure out how/where to do instrument check. */
 		if ((millis % 3000) == 0) {
 
@@ -1078,28 +1077,6 @@ void displayData(const int mode)
 			lcd.puts("      ");
 
 		}
-=======
-		/* TODO 3 figure out how/where to do instrument check.
-		if ((millis % 3000) == 0) {
-
-			lcd.pos(0,1);
-			//lcd.printf("H=%4.1f   ", ahrs.MAG_Heading*180/PI);
-			//wait(0.1);
-			lcd.pos(0,2);
-			//FIXME lcd.printf("G=%4.1f,%4.1f,%4.1f    ", sensors.gyro[0], sensors.gyro[1], sensors.gyro[2]);
-			wait(0.1);
-			lcd.pos(0,3);
-			//FIXME lcd.printf("La=%11.6f HD=%1.1f  ", sensors.gps.latitude(), sensors.gps.hdop());
-			wait(0.1);
-			lcd.pos(0,4);
-			//FIXME lcd.printf("Lo=%11.6f Sat=%-2d  ", sensors.gps.longitude(), sensors.gps.sat_count());
-			wait(0.1);
-			lcd.pos(0,5);
-			//FIXME lcd.printf("V=%5.2f A=%5.3f  ", sensors.voltage, sensors.current);
-
-		}
-		*/
->>>>>>> rtos
 
     } // while !done
     // clear input buffer

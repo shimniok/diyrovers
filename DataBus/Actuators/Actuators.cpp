@@ -33,8 +33,8 @@ float getSteering(void) {
 
 // Setup servo outputs
 void initSteering() {
-	setSteering(0);
-    steering.calibrate(0.005, 45.0);
+    steering.calibrate(0.0005, 30);
+    setSteering(0);
 }
 
 void setSteerMiddle(float m) {
@@ -62,8 +62,9 @@ float getThrottle(void) {
 
 void initThrottle()
 {
+	throttle.calibrate(0.0005, 45);
 	setThrottle(0);
-    //throttle.calibrate(5.0/1000.0, 45.0);
+	return;
 }
 
 void setThrottleMiddle(float m) {
@@ -73,6 +74,7 @@ void setThrottleMiddle(float m) {
 
 void setThrottleMin(float m) {
 	escMin = m;
+	return;
 }
 
 void setThrottleMax(float m) {
