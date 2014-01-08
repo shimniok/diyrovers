@@ -819,6 +819,10 @@ static inline uint8_t put_bitfield_n_by_index(int32_t b, uint8_t bits, uint8_t p
 
         // First pack everything we can into the current 'open' byte
         //curr_bits_n = bits_remain << 3; // Equals  bits_remain mod 8
+<<<<<<< HEAD
+=======
+        // TODO 3
+>>>>>>> rtos
         if (bits_remain <= (8 - i_bit_index))
         {
             // Enough space

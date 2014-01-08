@@ -4,7 +4,12 @@
 #include "SDFileSystem.h"
 #include "SerialGraphicLCD.h"
 
+<<<<<<< HEAD
 // TODO 2 set up logging as a low priority task
+=======
+// TODO 2 figure out a way to pull out status updates, some kind of message, queue, something.
+extern SerialGraphicLCD lcd;
+>>>>>>> rtos
 
 // TODO 2 figure out a way to pull out status updates, some kind of message, queue, something.
 extern SerialGraphicLCD lcd;
@@ -144,6 +149,13 @@ FILE *openlog(const char *prefix)
     	fputs(myname, stdout);
     	fputc('\n', stdout);
     } else {
+<<<<<<< HEAD
+=======
+
+        // TODO 3 set error message, get rid of writing to terminal
+
+        //status = true;
+>>>>>>> rtos
         fputs("opened ", stdout);
         fputs(myname, stdout);
         fputs(" for writing\n", stdout);
