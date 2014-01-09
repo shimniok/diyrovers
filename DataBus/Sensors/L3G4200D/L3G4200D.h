@@ -87,11 +87,18 @@ class L3G4200D
          */
         L3G4200D(PinName sda, PinName scl);
         
-        /** Read gyro values
+        /** Read all gyro values
          * @param g Array containing x, y, and z gyro values
          * @return g Array containing x, y, and z gyro values
          */
         void read(int g[3]);
+
+        /** Read single axis gyro value
+         * @param g is data for axis in question
+         * @param which is the axis, 0:x, 1:y, 2:z
+         * @return gyro value for the requested axis
+         */
+        int read(int axis);
 
         /** Read raw temperature value
          * @return temperature value in raw byte form

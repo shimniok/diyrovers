@@ -1,3 +1,5 @@
+#include "FreeRTOS.h"
+#include "task.h"
 #include "mbed.h"
 #include "util.h"
 #include "globals.h"
@@ -22,7 +24,8 @@
 #define _z_ 2
 
 // TODO 3 parameterize LED update and feed through event queue (or something)
-DigitalOut useGpsStat(LED1);
+DigitalOut useGpsStat(LED2);
+DigitalOut updateStat(LED4);
 
 SystemState nowState;
 
@@ -43,12 +46,12 @@ int control_count=CTRL_SKIP;			// update control outputs every so often
 int update_count=MAG_SKIP;              // call Update_mag() every update_count calls to schedHandler()
 int power_count=PWR_SKIP;				// read power sensors every so often
 int log_count=LOG_SKIP;                 // buffer a new status entry for logging every log_count calls to schedHandler
-int tReal;                              // calculate real elapsed time
+int t[9];								// calculate real elapsed time
 
+DigitalOut gpsStatus(LED3);				// GPS status LED
+DigitalOut updateStatus(LED4);     		// AHRS status LED
 
 // TODO: 3 better encapsulation, please
-extern DigitalOut gpsStatus;			// GPS status LED
-extern DigitalOut ahrsStatus;           // AHRS status LED
 extern Sensors sensors;
 extern Mapping mapper;
 extern Steering steerCalc;              // steering calculator
@@ -114,6 +117,8 @@ void startUpdater()
     // Initialize logging buffer
     // Needs to happen after we've reset the millisecond timer and after
     // the schedHandler() fires off at least once more with the new time
+    timer.reset();
+    timer.start();
     sched.attach(&update, UPDATE_PERIOD);
 }
 
@@ -151,9 +156,9 @@ void endRun()
 }
 
 /** get elasped time in update loop */
-int getUpdateTime()
+int getUpdateTime(int i)
 {
-    return tReal;
+    return t[i];
 }
 
 /** Set the desired speed for the controller to attain */
@@ -166,15 +171,23 @@ void setSpeed(const float speed)
     return;
 }
 
+#include "print.h" // FIXME
+
 // TODO 2 split update function into multiple tasks, one for reading, one for estimation, control?
 
 /** update() runs the data collection, estimation, steering control, and throttle control */
 void update()
 {
-    tReal = timer.read_us();
+	vTaskSuspendAll();
+
+	//float gz;
     bool useGps=false;
 
-    ahrsStatus = 0;
+    t[0] = timer.read_us();
+
+    updateStatus = 1;
+    useGpsStat = 0;
+
     thisTime = timer.read_ms();
     dt = (lastTime < 0) ? 0 : ((float) thisTime - (float) lastTime) / 1000.0; // first pass let dt=0
     lastTime = thisTime;
@@ -220,6 +233,8 @@ void update()
         now = 1;    // new input slot
     }
 
+    t[1] = timer.read_us();
+
     //////////////////////////////////////////////////////////////////////////////
     // SENSOR UPDATES
     //////////////////////////////////////////////////////////////////////////////
@@ -227,12 +242,13 @@ void update()
     	sensors.Read_Power();
     	power_count = PWR_SKIP;
     }
-    sensors.Read_Encoders(); 
-    sensors.Read_Gyro(); 
-    sensors.Read_Rangers();
-    sensors.Read_Accel();
-    //sensors.Read_Camera();
+    sensors.readEncoders();
+    sensors.readGyro();
+    //sensors.readRangers();
+    //sensors.readAccel();
+    //sensors.readCamera();
 
+    t[2] = timer.read_us();
 
     //////////////////////////////////////////////////////////////////////////////
     // Obtain GPS data                        
@@ -267,6 +283,9 @@ void update()
     }
 
     useGpsStat = useGps;
+
+    t[3] = timer.read_us();
+
     
     //////////////////////////////////////////////////////////////////////////////
     // HEADING AND POSITION UPDATE
@@ -293,7 +312,8 @@ void update()
 
     // Save current data into history fifo to use 1 second from now
     history[now].dist = (sensors.lrEncDistance + sensors.rrEncDistance) / 2.0; // current distance traveled
-    history[now].gyro = sensors.gyro[_z_];  // current raw gyro data
+    history[now].gyro = sensors.gyro[_z_];  // current gyro data
+    //history[now].gyro = gz;  // current gyro data
     history[now].dt = dt; // current dt, to address jitter
     history[now].hdg = clamp360( history[prev].hdg + dt*(history[now].gyro - gyroBias) ); // compute current heading from current gyro
     float r = PI/180 * history[now].hdg;
@@ -386,6 +406,8 @@ void update()
     // "here" is the current position
     cartHere.set(history[now].x, history[now].y);
 
+    t[4] = timer.read_us();
+
     //////////////////////////////////////////////////////////////////////////////
     // NAVIGATION UPDATE
     //////////////////////////////////////////////////////////////////////////////
@@ -423,7 +445,10 @@ void update()
     }
     // Are we at the last waypoint?
     // currently handled external to this routine
-        
+
+    t[5] = timer.read_us();
+
+
     //////////////////////////////////////////////////////////////////////////////
     // OBSTACLE DETECTION & AVOIDANCE
     //////////////////////////////////////////////////////////////////////////////
@@ -434,7 +459,6 @@ void update()
     // CONTROL UPDATE
     //////////////////////////////////////////////////////////////////////////////
 
-    if (go) // TODO 1 temporarily only enable control output when in go mode
     if (--control_count == 0) {
   
         steerAngle = steerCalc.pathPursuitSA(history[now].hdg, history[now].x, history[now].y,
@@ -485,6 +509,9 @@ void update()
         control_count = CTRL_SKIP;
     }      
 
+    t[6] = timer.read_us();
+
+
     //////////////////////////////////////////////////////////////////////////////
     // DATA FOR LOGGING
     //////////////////////////////////////////////////////////////////////////////
@@ -495,10 +522,12 @@ void update()
     nowState.voltage = sensors.voltage;
     nowState.current = sensors.current;
     for (int i=0; i < 3; i++) {
-        nowState.m[i] = sensors.m[i];
+    	//nowState.m[i] = sensors.m[i];
+		nowState.m[i] = 0;
         nowState.g[i] = sensors.g[i];
-        nowState.gyro[i] = sensors.gyro[i];
-        nowState.a[i] = sensors.a[i];
+		nowState.gyro[i] = sensors.gyro[i];
+		//nowState.a[i] = sensors.a[i];
+        nowState.a[i] = 0;
     }
     nowState.gTemp = sensors.gTemp;
     nowState.lrEncSpeed = sensors.lrEncSpeed;
@@ -542,8 +571,12 @@ void update()
     prev = now;
     inc(now);
 
-    // timing
-    tReal = timer.read_us() - tReal;
+    updateStatus = 0;
 
-    ahrsStatus = 1;
+    // timing
+    t[7] = timer.read_us();
+
+    xTaskResumeAll();
+
+    return;
 }

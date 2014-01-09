@@ -113,7 +113,7 @@ void logData( SystemState *s )
 FILE *openlog(const char *prefix)
 {
     FILE *fp = 0;
-    char myname[64];
+    char myname[32];
 
     fputs("Opening file...\n", stdout);
 

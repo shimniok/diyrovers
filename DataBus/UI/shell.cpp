@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "mbed.h"
+#include "updater.h"
 #include "print.h"
 #include "DirHandle.h"
 #include "SDFileSystem.h"
@@ -9,7 +10,7 @@
 #include "Actuators.h"
 
 #define MAXBUF		128
-#define MAXCMDARR	20
+#define MAXCMDARR	21
 
 extern Serial pc;
 extern Buttons keypad;
@@ -60,6 +61,7 @@ int doreset(char *s);
 int doautonomous(char *s);
 int dospeed(char *arg);
 int dosteer(char *arg);
+int dotimes(char *arg);
 
 // TODO 3 multiple arguments
 // TODO 1 convert all functions to parse argument(s)
@@ -84,6 +86,7 @@ const cmd command[MAXCMDARR] = {
     	{ "free", doprintfree, "heap bytes available" },
     	{ "speed", dospeed, "set speed servo output" },
     	{ "steer", dosteer, "set steering servo output" },
+    	{ "time", dotimes, "display update timing stats" },
 //    	{ "exit", doexit, "exit shell" },
     	{ 0, 0, 0 }
 };
@@ -539,6 +542,20 @@ int dosteer(char *arg) {
 	printFloat(stdout, getSteering(), 4);
 	fputc('\n', stdout);
 
+	return 0;
+}
+
+int dotimes(char *arg) {
+	int i;
+	for (i = 1; i < 8; i++) {
+		printInt(stdout, i);
+		fputc(':', stdout);
+		printInt(stdout, getUpdateTime(i)-getUpdateTime(i-1));
+		fputc('\n', stdout);
+	}
+	fputs("total:", stdout);
+	printInt(stdout, getUpdateTime(7)-getUpdateTime(0));
+	fputc('\n', stdout);
 	return 0;
 }
 

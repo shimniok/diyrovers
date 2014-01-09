@@ -210,7 +210,7 @@ int SDFileSystem::disk_initialize() {
         return 1;
     }
     
-    _spi.frequency(1000000); // Set to 1MHz for data transfer
+    _spi.frequency(5000000); // Set to 1MHz for data transfer
     return 0;
 }
 
@@ -375,7 +375,7 @@ int SDFileSystem::_write(const uint8_t*buffer, uint32_t length) {
     
     // write the data
     for (unsigned int i = 0; i < length; i++) {
-        _spi.write(buffer[i]);
+        _spi.write(buffer[i]); // TODO 1 use DMA instead?
     }
     
     // write the checksum

@@ -37,6 +37,8 @@
 // mbed I2C libraries take the 7-bit address shifted left 1 bit
 // #define GYR_ADDRESS (0xD2 >> 1)
 #define GYR_ADDRESS 0xD2
+#define GYR_ADDRESSR (0b1101001)
+#define GYR_ADDRESSW (0b1101000)
 
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -73,25 +75,75 @@ byte L3G4200D::readReg(const byte reg)
     return value;
 }
 
+int L3G4200D::read(int axis)
+{
+	byte addr;
+	int result;
+
+	switch (axis) {
+	case 0:
+		addr = L3G4200D_OUT_X_L;
+		break;
+	case 1:
+		addr = L3G4200D_OUT_Y_L;
+		break;
+	case 2:
+	default:
+		addr = L3G4200D_OUT_Z_L;
+		break;
+	}
+	// FIXME
+	data[0] = addr|(1<<7);
+	_device.write(GYR_ADDRESS, data, 1);
+    _device.read(GYR_ADDRESS, data, 2);
+	uint8_t la = data[0];
+	uint8_t ha = data[1];
+    result = (short) (ha << 8 | la);
+	return result;
+	/*
+	_device.start();
+	_device.write(GYR_ADDRESSW);
+	// Set MSB to indicate multiple bytes will be read
+	_device.write(addr|(1<<7));
+	_device.start();
+	_device.write(GYR_ADDRESSR);
+	uint8_t la  = _device.read(1);
+	uint8_t ha  = _device.read(0);
+	_device.stop();
+    return (ha << 8 | la);
+    */
+}
+
 // Reads the 3 gyro channels and stores them in vector g
 void L3G4200D::read(int g[3])
 {
-    // assert the MSB of the address to get the gyro 
-    // to do slave-transmit subaddress updating.
-    data[0] = L3G4200D_OUT_X_L | (1 << 7);
-    _device.write(GYR_ADDRESS, data, 1);
+	// Set MSB to indicate multiple bytes will be read
+	data[0] = L3G4200D_OUT_X_L|(1<<7);
+	_device.write(GYR_ADDRESS, data, 1);
+    _device.read(GYR_ADDRESS, data, 6);
 
-//    Wire.requestFrom(GYR_ADDRESS, 6);
-//    while (Wire.available() < 6);
-    
-    _device.read(GYR_ADDRESS, data, 6); 
+	uint8_t xla = data[0];
+	uint8_t xha = data[1];
+	uint8_t yla = data[2];
+	uint8_t yha = data[3];
+	uint8_t zla = data[4];
+	uint8_t zha = data[5];
 
-    uint8_t xla = data[0];
-    uint8_t xha = data[1];
-    uint8_t yla = data[2];
-    uint8_t yha = data[3];
-    uint8_t zla = data[4];
-    uint8_t zha = data[5];
+	/*
+	_device.start();
+	_device.write(GYR_ADDRESSW);
+	// Set MSB to indicate multiple bytes will be read
+	_device.write(L3G4200D_OUT_X_L|(1<<7));
+	_device.start();
+	_device.write(GYR_ADDRESSR);
+	uint8_t xla  = _device.read(1);
+	uint8_t xha = _device.read(1);
+	uint8_t yla = _device.read(1);
+	uint8_t yha = _device.read(1);
+	uint8_t zla  = _device.read(1);
+	uint8_t zha = _device.read(0);
+	_device.stop();
+	*/
 
     g[0] = (short) (xha << 8 | xla);
     g[1] = (short) (yha << 8 | yla);

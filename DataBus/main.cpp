@@ -70,8 +70,6 @@
 // OUTPUT
 DigitalOut confStatus(LED1);            // Config file status LED
 DigitalOut logStatus(LED2);             // Log file status LED
-DigitalOut gpsStatus(LED3);             // GPS fix status LED
-DigitalOut ahrsStatus(LED4);            // AHRS status LED
 //DigitalOut sonarStart(p18);             // Sends signal to start sonar array pings
 Display display;                        // UI display
 //Beep speaker(p24);                      // Piezo speaker
@@ -284,8 +282,6 @@ int main()
     wait(0.2);
     
     // Initialize status LEDs
-    ahrsStatus = 0;
-    gpsStatus = 0;
     logStatus = 0;
     confStatus = 0;
 
@@ -380,7 +376,7 @@ int main()
 	//checkit(__FILE__, __LINE__);
 
     // TODO 2 check for pdPASS returned on xTaskCreate
-    xTaskCreate( shell, (const signed char * ) "shell", 700, NULL, (tskIDLE_PRIORITY+1), NULL );
+    xTaskCreate( shell, (const signed char * ) "shell", 800, NULL, (tskIDLE_PRIORITY+1), NULL );
 	//xTaskCreate( userPanel, (const signed char * ) "panel", 200, NULL, (tskIDLE_PRIORITY+2), NULL );
 	xTaskCreate( updatePanel, (const signed char * ) "update", 250, NULL, (tskIDLE_PRIORITY+1), NULL );
     //checkit(__FILE__, __LINE__);
@@ -657,11 +653,26 @@ int autonomousMode()
         // Since this could take anywhere from a few hundred usec to
         // 150ms, we run it opportunistically and use a buffer. That way
         // the sensor updates, calculation, and control can continue to happen
+        int t1 = timer.read_us();
         if (fifo_available()) {
-            logStatus = !logStatus;         // log indicator LED
+        	logStatus = !logStatus;         // log indicator LED
             logData( fifo_pull() );         // log state data to file
             logStatus = !logStatus;         // log indicator LED
         }
+        int t2 = timer.read_us();
+    	fputs("total:", stdout);
+    	printInt(stdout, t2-t1);
+    	fputc('\n', stdout);
+    	int i;
+    	for (i = 1; i < 8; i++) {
+    		printInt(stdout, i);
+    		fputc(':', stdout);
+    		printInt(stdout, getUpdateTime(i)-getUpdateTime(i-1));
+    		fputc('\n', stdout);
+    	}
+    	fputs("total:", stdout);
+    	printInt(stdout, getUpdateTime(7)-getUpdateTime(0));
+    	fputc('\n', stdout);
 
     } // while
     closeLogfile();
@@ -669,11 +680,6 @@ int autonomousMode()
     logStatus = 0;
     display.status("Completed. Saved.");
     wait(2.0);
-
-    ahrsStatus = 0;
-    gpsStatus = 0;
-    //confStatus = 0;
-    //flasher = 0;
 
     sensors.gps.disableVerbose();
 
@@ -1023,10 +1029,11 @@ void displayData(const int mode)
 
 			// update time
 			fputs("\nupdate() time = ", stdout);
-			printFloat(stdout, getUpdateTime()/1000.0, 3);
+			printFloat(stdout, (getUpdateTime(7)-getUpdateTime(0))/1000.0, 3);
 			fputs(" msec\n", stdout);
 
 			// rangers
+#if 0
 			fputs("Rangers: L=", stdout);
 			printFloat(stdout, sensors.leftRanger, 2);
 			fputs(" R=", stdout);
@@ -1034,34 +1041,35 @@ void displayData(const int mode)
 			fputs(" C=", stdout);
 			printFloat(stdout, sensors.centerRanger, 2);
 			fputc('\n', stdout);
+#endif
 
 			// gyro, raw
 			fputs("g=(", stdout);
-			printInt(stdout, sensors.g[0]);
+			printInt(stdout, s->g[0]);
 			fputc(',', stdout);
-			printInt(stdout, sensors.g[1]);
+			printInt(stdout, s->g[1]);
 			fputc(',', stdout);
-			printInt(stdout, sensors.g[2]);
+			printInt(stdout, s->g[2]);
 			fputs(") ", stdout);
-			printInt(stdout, sensors.gTemp);
+			printInt(stdout, s->gTemp);
 			fputc('\n', stdout);
 
 			// gyro, corrected
 			fputs("gc=(", stdout);
-			printInt(stdout, sensors.gyro[0]);
+			printInt(stdout, s->gyro[0]);
 			fputc(',', stdout);
-			printInt(stdout, sensors.gyro[1]);
+			printInt(stdout, s->gyro[1]);
 			fputc(',', stdout);
-			printInt(stdout, sensors.gyro[2]);
+			printInt(stdout, s->gyro[2]);
 			fputs(")\n", stdout);
 
 			// accelerometer
 			fputs("a=(", stdout);
-			printInt(stdout, sensors.a[0]);
+			printInt(stdout, s->a[0]);
 			fputc(',', stdout);
-			printInt(stdout, sensors.a[1]);
+			printInt(stdout, s->a[1]);
 			fputc(',', stdout);
-			printInt(stdout, sensors.a[2]);
+			printInt(stdout, s->a[2]);
 			fputs(")\n", stdout);
 
 			// heading
@@ -1073,26 +1081,26 @@ void displayData(const int mode)
 
 			// speed
 			fputs("speed: left=", stdout);
-			printFloat(stdout, sensors.lrEncSpeed, 2);
+			printFloat(stdout, s->lrEncSpeed, 2);
 			fputs("  right=", stdout);
-			printFloat(stdout, sensors.rrEncSpeed, 2);
+			printFloat(stdout, s->rrEncSpeed, 2);
 			fputc('\n', stdout);
 
 			// gps
 			fputs("gps=(", stdout);
-			printFloat(stdout, sensors.gps.latitude(), 6);
+			printFloat(stdout, s->gpsLatitude, 6);
 			fputs(", ", stdout);
-			printFloat(stdout, sensors.gps.longitude(), 6);
+			printFloat(stdout, s->gpsLongitude, 6);
 			fputs(", ", stdout);
-			printFloat(stdout, sensors.gps.heading_deg(), 1);
+			printFloat(stdout, s->gpsCourse_deg, 1);
 			fputs(", ", stdout);
-			printFloat(stdout, sensors.gps.speed_mps(), 1);
+			printFloat(stdout, s->gpsSpeed_mps, 1);
 			fputs(", ", stdout);
-			printFloat(stdout, sensors.gps.hdop(), 1);
+			printFloat(stdout, s->gpsHDOP, 1);
 			fputs(", ", stdout);
-			printFloat(stdout, sensors.gps.sat_count(), 1);
+			printFloat(stdout, s->gpsSats, 1);
 			fputs(", ", stdout);
-			printInt(stdout, sensors.gps.getAvailable());
+			//printInt(stdout, sensors.gps.getAvailable());
 			fputc('\n', stdout);
 
 			// nav
@@ -1106,9 +1114,9 @@ void displayData(const int mode)
 
 			// power
 			fputs("v=", stdout);
-			printFloat(stdout, sensors.voltage, 2);
+			printFloat(stdout, s->voltage, 2);
 			fputs(" a=", stdout);
-			printFloat(stdout, sensors.current, 2);
+			printFloat(stdout, s->current, 2);
 			fputc('\n', stdout);
 		}
 
@@ -1157,8 +1165,6 @@ void displayData(const int mode)
     // clear input buffer
     fflush(stdin);
     lcd.clear();
-    ahrsStatus = 0;
-    gpsStatus = 0;
 }
 
 

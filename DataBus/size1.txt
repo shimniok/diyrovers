@@ -1,0 +1,23 @@
+arm-none-eabi-size -A DataBus.elf
+DataBus.elf  :
+section             size        addr
+.text             141136           0
+.ARM.exidx           488      141136
+.data               1744   268435656
+AHBSRAM0            6016   268437400
+.bss               15000   268443416
+.heap              32768   268458416
+.stack              4140   268464092
+.debug_aranges      3392           0
+.debug_info       175028           0
+.debug_abbrev      28573           0
+.debug_line        27905           0
+.debug_frame       18872           0
+.debug_str         16246           0
+.debug_loc         28689           0
+.comment             160           0
+.ARM.attributes       39           0
+.debug_ranges       4576           0
+Total             504772
+
+

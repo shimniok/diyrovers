@@ -8,8 +8,11 @@
 /** attach the update routine to Ticker interrupt */
 void startUpdater(void);
 
-/** Returns the elapsed time taken by the updater routine on its most recent run */
-int getUpdateTime(void);
+/** Returns the elapsed time taken by the updater routine on its most recent run
+ * @param timing variable to return
+ * @return timing variable
+ */
+int getUpdateTime(int i);
 
 /** Indicates to the updater that the vehicle should begin its run */
 void beginRun(void);

@@ -76,10 +76,10 @@ public:
     // TODO 3 documentation in Sensors.h
     void Compass_Calibrate(float offset[3], float scale[3]);
     void Encoder_Calibrate(float tireCircum, int stripeCount);
-    void Read_Encoders(void);
-    void Read_Gyro(void);
-    void Read_Accel(void);
-    void Read_Compass(void);
+    void readEncoders(void);
+    void readGyro(void);
+    void readAccel(void);
+    void readCompass(void);
     void Calculate_Offsets(void);
     void Compass_Heading(void);
     void getRawMag(int mag[3]);

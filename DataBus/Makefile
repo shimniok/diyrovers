@@ -35,7 +35,7 @@ LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc
 
 OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
 
-SIZE = $(GCC_BIN)arm-none-eabi-size -A
+SIZE = $(GCC_BIN)arm-none-eabi-size
 
 all: $(PROJECT).bin
 	$(SIZE) $(PROJECT).elf

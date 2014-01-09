@@ -1,0 +1,22 @@
+New GPS / Gyro Lag Compensation
+===============================
+
+Previously a large history array stored every single piece of gyro and position
+data. Lagged gyro data was put into the Kalman filter.  When GPS updates were
+received, correction was with respect to a single gyro entry in the past. Then,
+the heading error was applied to all gyro calculated headings to present, and
+positions were each rotated by that amount.
+
+Problems: In the current configuration, this process is the most time consuming
+of the entire update routine. Rotation takes a lot of time. Also, storing
+history for 100Hz sampling of gyro data requires a lot of memory because we
+are storing all this:
+
+    float x;        // x coordinate
+    float y;        // y coordinate
+    float hdg;      // heading
+    float dist;     // distance
+    float gyro;     // heading rate
+    float dt;       // delta time
+
+

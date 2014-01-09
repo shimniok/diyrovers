@@ -115,7 +115,7 @@ void Sensors::Encoder_Calibrate(float tireCircum, int stripeCount) {
 	return;
 }
 
-void Sensors::Read_Encoders()
+void Sensors::readEncoders()
 {
     // Odometry            
     leftCount = _left.read();
@@ -160,7 +160,7 @@ void Sensors::Read_Encoders()
 }
 
 
-void Sensors::Read_Gyro()
+void Sensors::readGyro()
 {
     _gyro.read(g);
     gTemp = (int) _gyro.readTemp();
@@ -173,7 +173,7 @@ void Sensors::Read_Gyro()
 }
 
 // Reads x,y and z accelerometer registers
-void Sensors::Read_Accel()
+void Sensors::readAccel()
 {
     _compass.readAcc(a);
 
@@ -184,7 +184,7 @@ void Sensors::Read_Accel()
     return;  
 }
 
-void Sensors::Read_Compass()
+void Sensors::readCompass()
 {
     _compass.readMag(m);
     // adjust for compass axis offsets, scale, and orientation (sign)
@@ -209,8 +209,8 @@ void Sensors::Calculate_Offsets()
     }
 
     for(int i=0; i < samples; i++) {  // We take some readings...
-        Read_Gyro();
-        Read_Accel();
+        readGyro();
+        readAccel();
         wait(0.010); // sample at 100hz
         for(int y=0; y < 3; y++) {   // accumulate values
             g_offset[y] += g[y];
@@ -259,7 +259,7 @@ void Sensors::Compass_Heading()
 
 void Sensors::getRawMag(int rawmag[3])
 {
-    Read_Compass();
+    readCompass();
     for (int i=0; i < 3; i++) {
         rawmag[i] = m[i];
     }        
