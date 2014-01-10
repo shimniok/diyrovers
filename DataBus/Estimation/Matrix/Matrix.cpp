@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "Matrix.h"
+#include "float.h"
+#include "print.h"
 
 unsigned int matrix_error = 0;
 
@@ -215,7 +217,7 @@ void Matrix_print(int n, int m, float *A, const char *name)
     fputs("=[", stdout);
     for (int i=0; i < n; i++) {
         for (int j=0; j < m; j++) {
-            fprintf(stdout, "%5.5f", A[i*m+j]);
+            //printFloat(stdout, A[i*m+j], 5);
             if (j < m-1) fputs(", ", stdout);
         }
         if (i < n-1) fputs("; ", stdout);
@@ -229,7 +231,7 @@ void Vector_Print(float A[3], const char *name)
 	fputs(name, stdout);
     fputs("=[", stdout);
     for (int i=0; i < 3; i++)
-        fprintf(stdout, "%5.5f ", A[i]);
+        //printFloat(stdout, A[i], 5);
     fputs("]\n", stdout);
     
     return;

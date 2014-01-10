@@ -1,5 +1,7 @@
 #include "mbed.h"
 #include "Matrix.h"
+#include "Fixed.h"
+#include "FixedMatrix.h"
 #include "util.h"
 
 #define DEBUG 1
@@ -9,38 +11,51 @@
 /*
  * Kalman Filter Setup
  */
+
+#if 1
+static FixedMatrix x(2,1);
+static FixedMatrix z(2,1);
+static FixedMatrix A(2,2);
+static FixedMatrix H(2,2);
+static FixedMatrix K(2,2);
+static FixedMatrix P(2,2);
+static FixedMatrix R(2,2);
+static FixedMatrix Q(2,2);
+static FixedMatrix I(2,2);
+#else
 static float x[2]={ 0, 0 };                 // System State: hdg, hdg rate
 float z[2]={ 0, 0 };                        // measurements, hdg, hdg rate
 static float A[4]={ 1, 0, 0, 1};            // State transition matrix; A[1] should be dt
 static float H[4]={ 1, 0, 0, 1 };           // Observer matrix maps measurements to state transition
-float K[4]={ 0, 0, 0, 0 };                  // Kalman gain
+Fixed K[4]={ 0, 0, 0, 0 };                  // Kalman gain
 static float P[4]={ 1000, 0, 0, 1000 };     // Covariance matrix
 static float R[4]={ 100, 0, 0, 0.03 };        // Measurement noise, hdg, hdg rate
 static float Q[4]={ 100, 0, 0, 0.01 };        // Process noise matrix
 static float I[4]={ 1, 0, 0, 1 };           // Identity matrix
+#endif
 
-float kfGetX(const int i)
+float kfGetX(int i)
 {
-    return (i >= 0 && i < 2) ? x[i] : float(0);
+    return (i >= 0 && i < 2) ? x[i].toFloat() : float(0);
 }
 
 /** headingKalmanInit
  *
  * initialize x, z, K, and P
  */
-void headingKalmanInit(const float x0)
+void headingKalmanInit(float x0)
 {
-    x[0] = x0;
-    x[1] = 0;
-
-    z[0] = 0;
-    z[1] = 0;
-
-    K[0] = 0; K[1] = 0;
-    K[2] = 0; K[3] = 0;
-    
-    P[0] = 1000; P[1] = 0;
-    P[2] = 0;    P[3] = 1000;
+#if 1
+	A(0,0) = 1;	A(1,1) = 1;
+	H(0,0) = 1;	H(1,1) = 1;
+	P(0,0) = 1000; P(1,1) = 1000;
+	R(0,0) = 100; R(1,1) = 0.03;
+	Q(0,0) = 100; Q(1,1) = 0.01;
+	I(0,0) = 1; I(1,1) = 1;
+	x(0,0) = x0;
+#else
+	x[0] = x0;
+#endif
 }
 
 
@@ -64,7 +79,7 @@ void headingKalmanInit(const float x0)
  *
  * returns : current heading estimate
  */
-float headingKalman(const float dt, const float Hgps, const bool gps, const float dHgyro, const bool gyro)
+float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
 {
     A[1] = dt;
 
@@ -107,8 +122,7 @@ float headingKalman(const float dt, const float Hgps, const bool gps, const floa
      *
      * x = A*x; // Eq 1.9
      ***********************************************************************/
-    float xp[2];
-    Matrix_Multiply(2,2,1, xp, A, x);
+    x = A*x;
     
     //Matrix_print(2,1, xp, "3. xp");
 
@@ -118,13 +132,9 @@ float headingKalman(const float dt, const float Hgps, const bool gps, const floa
      *
      * P = A*P*A' + Q; // Eq 1.10
      ***********************************************************************/
-    float At[4];
-    Matrix_Transpose(2,2, At, A);
-    float AP[4];
-    Matrix_Multiply(2,2,2, AP, A, P);
-    float APAt[4];
-    Matrix_Multiply(2,2,2, APAt, AP, At);
-    Matrix_Add(2,2, P, APAt, Q);
+    P = A*P;
+    P = P*~A;
+    P += Q;
 
     //Matrix_print(2,2, P, "4. P");
 
@@ -135,36 +145,8 @@ float headingKalman(const float dt, const float Hgps, const bool gps, const floa
      *
      * K = P*H'*inv(H*P*H' + R);    // Eq 1.11
      ***********************************************************************/
-    float Ht[4];
-    //Matrix_print(2,2, H,    "5. H");
-    Matrix_Transpose(2,2, Ht, H);
-    //Matrix_print(2,2, Ht,    "5. Ht");
+    K = P*~H*!(H*P*~H + R);
 
-    float HP[2];
-    //Matrix_print(2,2, P,    "5. P");
-    Matrix_Multiply(2,2,2, HP, H, P);
-    //Matrix_print(2,2, HP,    "5. HP");
-
-    float HPHt[4];
-    Matrix_Multiply(2,2,2, HPHt, HP, Ht);
-    //Matrix_print(2,2, HPHt,    "5. HPHt");
-    
-    float HPHtR[4];
-    //Matrix_print(2,2, R,    "5. R");
-    Matrix_Add(2,2, HPHtR, HPHt, R);
-    //Matrix_print(2,2, HPHtR,    "5. HPHtR");
-
-    Matrix_Inverse(2, HPHtR);
-    //Matrix_print(2,2, HPHtR,    "5. HPHtR");
-
-    float PHt[2];
-    //Matrix_print(2,2, P,    "5. P");
-    //Matrix_print(2,2, Ht,    "5. Ht");
-    Matrix_Multiply(2,2,2, PHt, P, Ht);
-    //Matrix_print(2,2, PHt,    "5. PHt");
-    
-    Matrix_Multiply(2,2,2, K, PHt, HPHtR);
-    
     //Matrix_print(2,2, K,    "5. K");
         
     /**********************************************************************
@@ -175,27 +157,8 @@ float headingKalman(const float dt, const float Hgps, const bool gps, const floa
      *
      * x = x + K*(z-H*x);            // Eq 1.12
      ***********************************************************************/
-    float Hx[2];
-    Matrix_Multiply(2,2,1, Hx, H, xp);
+    x += K*(z-H*x);
     
-    //Matrix_print(2,2, H, "6. H");
-    //Matrix_print(2,1, x, "6. x");
-    //Matrix_print(2,1, Hx, "6. Hx");
-    
-    float zHx[2];
-    Matrix_Subtract(2,1, zHx, z, Hx);
-    zHx[0] = clamp180(zHx[0]);
-
-    //Matrix_print(2,1, z, "6. z");
-    //Matrix_print(2,1, zHx, "6. zHx");
-    
-    float KzHx[2];
-    Matrix_Multiply(2,2,1, KzHx, K, zHx);
-
-    //Matrix_print(2,2, K, "6. K");
-    //Matrix_print(2,1, KzHx, "6. KzHx");
-    
-    Matrix_Add(2,1, x, xp, KzHx);
     x[0] = clamp360(x[0]);    // Clamp to 0-360 range
 
     //Matrix_print(2,1, x, "6. x");
@@ -206,17 +169,8 @@ float headingKalman(const float dt, const float Hgps, const bool gps, const floa
      *
      * P = (I-K*H)*P;                // Eq 1.13
      ***********************************************************************/
-    float KH[4];
-    //Matrix_print(2,2, K, "7. K");
-    Matrix_Multiply(2,2,2, KH, K, H);
-    //Matrix_print(2,2, KH, "7. KH");
-    float IKH[4];
-    Matrix_Subtract(2,2, IKH, I, KH);
-    //Matrix_print(2,2, IKH, "7. IKH");
-    float P2[4];
-    Matrix_Multiply(2,2,2, P2, IKH, P);
-    Matrix_Copy(2, 2, P, P2);
+    P = (I-K*H)*P;
 
     //Matrix_print(2,2, P, "7. P");
-    return x[0];
+    return x[0].toFloat();
 }

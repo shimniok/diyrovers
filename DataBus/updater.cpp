@@ -61,8 +61,8 @@ extern Timer timer;
 extern Config config;
 int nextWaypoint = 0;                   // next waypoint destination
 int lastWaypoint = 1;
-double bearing;                         // bearing to next waypoint
-double distance;                        // distance to next waypoint
+double bearing_deg;                         // bearing to next waypoint
+double distance_m;                        // distance to next waypoint
 float steerAngle;                       // steering angle
 
 // Throttle PID
@@ -412,8 +412,8 @@ void update()
     // NAVIGATION UPDATE
     //////////////////////////////////////////////////////////////////////////////
     
-    bearing = cartHere.bearingTo(config.cwpt[nextWaypoint]);
-    distance = cartHere.distanceTo(config.cwpt[nextWaypoint]);
+    bearing_deg = cartHere.bearingTo(config.cwpt[nextWaypoint]);
+    distance_m = cartHere.distanceTo(config.cwpt[nextWaypoint]);
     float prevDistance = cartHere.distanceTo(config.cwpt[lastWaypoint]);
 
     // if within config.waypointDist distance threshold move to next waypoint
@@ -425,7 +425,7 @@ void update()
         // from waypoint 0, but we trick the algorithm by initializing prevWaypoint to waypoint 1
         if ( (thisTime - timeZero) < 3000 ) {
             setSpeed( config.startSpeed );
-        } else if (distance < config.brakeDist || prevDistance < config.brakeDist) {
+        } else if (distance_m < config.brakeDist || prevDistance < config.brakeDist) {
             setSpeed( config.turnSpeed );
             // TODO 2 setSpeed( config.wptTurnSpeed[nextWaypoint] );
         } else {
@@ -433,7 +433,7 @@ void update()
             // TODO 2 setSpeed( config.wptTopSpeed[nextWaypoint] );
         }
 
-        if (distance < config.waypointDist) {
+        if (distance_m < config.waypointDist) {
             //fprintf(stdout, "Arrived at wpt %d\n", nextWaypoint);
             //speaker.beep(3000.0, 0.5); // non-blocking
             lastWaypoint = nextWaypoint;
@@ -542,8 +542,8 @@ void update()
     nowState.estLongitude = here.longitude();
     nowState.estX = history[now].x;
     nowState.estY = history[now].y;
-    nowState.bearing = bearing;
-    nowState.distance = distance;
+    nowState.bearing_deg = bearing_deg;
+    nowState.distance_m = distance_m;
     nowState.nextWaypoint = nextWaypoint;
     nowState.gbias = gyroBias;
     nowState.errHeading = errHeading;

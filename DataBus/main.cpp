@@ -249,12 +249,12 @@ int main()
 
     // Let's try setting priorities...
     //NVIC_SetPriority(DMA_IRQn, 0);
+    NVIC_SetPriority(TIMER3_IRQn, 3);   // updater running off Ticker
     NVIC_SetPriority(EINT0_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(EINT1_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(EINT2_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(EINT3_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(SPI_IRQn, 7);    	// uSD card, logging
-    NVIC_SetPriority(TIMER3_IRQn, 8);   // updater running off Ticker
     NVIC_SetPriority(UART0_IRQn, 10);   // USB
     NVIC_SetPriority(UART1_IRQn, 10);
     NVIC_SetPriority(UART2_IRQn, 10);
@@ -583,7 +583,7 @@ int autonomousMode()
     //bool started = false;  // flag to indicate robot has exceeded min speed.
     
     if (initLogfile()) logStatus = 1; // Open the log file in sprintf format string style; numbers go in %d
-    wait(0.2);
+    vTaskDelay(portTICK_RATE_MS*200);
 
     sensors.gps.disableVerbose();
     sensors.gps.enable();
@@ -591,11 +591,11 @@ int autonomousMode()
 
     fprintf(stdout, "Press select button to start.\n");
     display.status("Select starts.");
-    wait(1.0);
+    vTaskDelay(portTICK_RATE_MS*1000);
     
     timer.reset();
     timer.start();
-    wait(0.1);
+    vTaskDelay(portTICK_RATE_MS*100);
     
     // Tell the navigation / position estimation stuff to reset to starting waypoint
     // Disable 05/27/2013 to try and fix initial heading estimate
@@ -676,10 +676,10 @@ int autonomousMode()
 
     } // while
     closeLogfile();
-    wait(2.0);
+    vTaskDelay(portTICK_RATE_MS*2000);
     logStatus = 0;
     display.status("Completed. Saved.");
-    wait(2.0);
+    vTaskDelay(portTICK_RATE_MS*2000);
 
     sensors.gps.disableVerbose();
 
@@ -994,7 +994,9 @@ void displayData(const int mode)
 {
     bool done = false;
 
+#if 0
     lcd.clear();
+#endif
 
     // Init GPS
     sensors.gps.disableVerbose();
@@ -1002,13 +1004,9 @@ void displayData(const int mode)
     sensors.gps.reset_available();    
 
     keypad.pressed = false;
-    
-    timer.reset();
-    timer.start();
 
     fputs("press e to exit\n", stdout);
     while (!done) {
-        int millis = timer.read_ms();
 
         if (keypad.pressed) {
             keypad.pressed = false;
@@ -1023,143 +1021,138 @@ void displayData(const int mode)
             }
         }
 
-        // TODO 3 use vTaskDelay here
-		if ((millis % 1000) == 0) {
-			SystemState *s = fifo_first();
+		SystemState *s = fifo_first();
 
-			// update time
-			fputs("\nupdate() time = ", stdout);
-			printFloat(stdout, (getUpdateTime(7)-getUpdateTime(0))/1000.0, 3);
-			fputs(" msec\n", stdout);
+		// update time
+		fputs("\nupdate() time = ", stdout);
+		printFloat(stdout, (getUpdateTime(7)-getUpdateTime(0))/1000.0, 3);
+		fputs(" msec\n", stdout);
 
-			// rangers
-#if 0
-			fputs("Rangers: L=", stdout);
-			printFloat(stdout, sensors.leftRanger, 2);
-			fputs(" R=", stdout);
-			printFloat(stdout, sensors.rightRanger, 2);
-			fputs(" C=", stdout);
-			printFloat(stdout, sensors.centerRanger, 2);
-			fputc('\n', stdout);
+		// rangers
+#ifdef USE_RANGERS
+		fputs("Rangers: L=", stdout);
+		printFloat(stdout, sensors.leftRanger, 2);
+		fputs(" R=", stdout);
+		printFloat(stdout, sensors.rightRanger, 2);
+		fputs(" C=", stdout);
+		printFloat(stdout, sensors.centerRanger, 2);
+		fputc('\n', stdout);
 #endif
 
-			// gyro, raw
-			fputs("g=(", stdout);
-			printInt(stdout, s->g[0]);
-			fputc(',', stdout);
-			printInt(stdout, s->g[1]);
-			fputc(',', stdout);
-			printInt(stdout, s->g[2]);
-			fputs(") ", stdout);
-			printInt(stdout, s->gTemp);
-			fputc('\n', stdout);
+		// gyro, raw
+		fputs("g=(", stdout);
+		printInt(stdout, s->g[0]);
+		fputc(',', stdout);
+		printInt(stdout, s->g[1]);
+		fputc(',', stdout);
+		printInt(stdout, s->g[2]);
+		fputs(") ", stdout);
+		printInt(stdout, s->gTemp);
+		fputc('\n', stdout);
 
-			// gyro, corrected
-			fputs("gc=(", stdout);
-			printInt(stdout, s->gyro[0]);
-			fputc(',', stdout);
-			printInt(stdout, s->gyro[1]);
-			fputc(',', stdout);
-			printInt(stdout, s->gyro[2]);
-			fputs(")\n", stdout);
+		// gyro, corrected
+		fputs("gc=(", stdout);
+		printInt(stdout, s->gyro[0]);
+		fputc(',', stdout);
+		printInt(stdout, s->gyro[1]);
+		fputc(',', stdout);
+		printInt(stdout, s->gyro[2]);
+		fputs(")\n", stdout);
 
-			// accelerometer
-			fputs("a=(", stdout);
-			printInt(stdout, s->a[0]);
-			fputc(',', stdout);
-			printInt(stdout, s->a[1]);
-			fputc(',', stdout);
-			printInt(stdout, s->a[2]);
-			fputs(")\n", stdout);
+		// accelerometer
+		fputs("a=(", stdout);
+		printInt(stdout, s->a[0]);
+		fputc(',', stdout);
+		printInt(stdout, s->a[1]);
+		fputc(',', stdout);
+		printInt(stdout, s->a[2]);
+		fputs(")\n", stdout);
 
-			// heading
-			fputs("estHdg=", stdout);
-			printFloat(stdout, s->estHeading, 2);
-			fputs(" lagHdg=", stdout);
-			printFloat(stdout, s->estLagHeading, 2);
-			fputc('\n', stdout);
+		// heading
+		fputs("estHdg=", stdout);
+		printFloat(stdout, s->estHeading, 2);
+		fputs(" lagHdg=", stdout);
+		printFloat(stdout, s->estLagHeading, 2);
+		fputc('\n', stdout);
 
-			// speed
-			fputs("speed: left=", stdout);
-			printFloat(stdout, s->lrEncSpeed, 2);
-			fputs("  right=", stdout);
-			printFloat(stdout, s->rrEncSpeed, 2);
-			fputc('\n', stdout);
+		// speed
+		fputs("speed: left=", stdout);
+		printFloat(stdout, s->lrEncSpeed, 2);
+		fputs("  right=", stdout);
+		printFloat(stdout, s->rrEncSpeed, 2);
+		fputc('\n', stdout);
 
-			// gps
-			fputs("gps=(", stdout);
-			printFloat(stdout, s->gpsLatitude, 6);
-			fputs(", ", stdout);
-			printFloat(stdout, s->gpsLongitude, 6);
-			fputs(", ", stdout);
-			printFloat(stdout, s->gpsCourse_deg, 1);
-			fputs(", ", stdout);
-			printFloat(stdout, s->gpsSpeed_mps, 1);
-			fputs(", ", stdout);
-			printFloat(stdout, s->gpsHDOP, 1);
-			fputs(", ", stdout);
-			printFloat(stdout, s->gpsSats, 1);
-			fputs(", ", stdout);
-			//printInt(stdout, sensors.gps.getAvailable());
-			fputc('\n', stdout);
+		// gps
+		fputs("gps=(", stdout);
+		printFloat(stdout, s->gpsLatitude, 6);
+		fputs(", ", stdout);
+		printFloat(stdout, s->gpsLongitude, 6);
+		fputs(", ", stdout);
+		printFloat(stdout, s->gpsCourse_deg, 1);
+		fputs(", ", stdout);
+		printFloat(stdout, s->gpsSpeed_mps, 1);
+		fputs(", ", stdout);
+		printFloat(stdout, s->gpsHDOP, 1);
+		fputs(", ", stdout);
+		printFloat(stdout, s->gpsSats, 1);
+		fputs(", ", stdout);
+		//printInt(stdout, sensors.gps.getAvailable());
+		fputc('\n', stdout);
 
-			// nav
-			fputs("brg=", stdout);
-			printFloat(stdout, s->bearing, 2);
-			fputs(" d=", stdout);
-			printFloat(stdout, s->distance, 4);
-			fputs(" sa=", stdout);
-			printFloat(stdout, s->steerAngle, 2);
-			fputc('\n', stdout);
+		// nav
+		fputs("brg=", stdout);
+		printFloat(stdout, s->bearing_deg, 2);
+		fputs(" d=", stdout);
+		printFloat(stdout, s->distance_m, 4);
+		fputs(" sa=", stdout);
+		printFloat(stdout, s->steerAngle, 2);
+		fputc('\n', stdout);
 
-			// power
-			fputs("v=", stdout);
-			printFloat(stdout, s->voltage, 2);
-			fputs(" a=", stdout);
-			printFloat(stdout, s->current, 2);
-			fputc('\n', stdout);
-		}
+		// power
+		fputs("v=", stdout);
+		printFloat(stdout, s->voltage, 2);
+		fputs(" a=", stdout);
+		printFloat(stdout, s->current, 2);
+		fputc('\n', stdout);
 
 #if 0==1
 		/* TODO 3 figure out how/where to do instrument check. */
-		if ((millis % 3000) == 0) {
+		lcd.pos(0,2);
+		lcd.puts("G=");
+		lcd.printFloat(sensors.gyro[0], 1);
+		lcd.puts(",");
+		lcd.printFloat(sensors.gyro[1], 1);
+		lcd.puts(",");
+		lcd.printFloat(sensors.gyro[2], 1);
+		lcd.puts("      ");
+		vTaskDelay(10);
 
-			lcd.pos(0,2);
-			lcd.puts("G=");
-			lcd.printFloat(sensors.gyro[0], 1);
-			lcd.puts(",");
-			lcd.printFloat(sensors.gyro[1], 1);
-			lcd.puts(",");
-			lcd.printFloat(sensors.gyro[2], 1);
-			lcd.puts("      ");
-			vTaskDelay(10);
+		lcd.pos(0,3);
+		lcd.puts("La=");
+		lcd.printFloat(sensors.gps.latitude(), 7);
+		lcd.puts(" HD=");
+		lcd.printFloat(sensors.gps.hdop(), 1);
+		lcd.puts("      ");
+		vTaskDelay(10);
 
-			lcd.pos(0,3);
-			lcd.puts("La=");
-			lcd.printFloat(sensors.gps.latitude(), 7);
-			lcd.puts(" HD=");
-			lcd.printFloat(sensors.gps.hdop(), 1);
-			lcd.puts("      ");
-			vTaskDelay(10);
+		lcd.pos(0,4);
+		lcd.puts("Lo=");
+		lcd.printFloat(sensors.gps.longitude(), 7);
+		lcd.puts(" Sat=");
+		lcd.printFloat(sensors.gps.sat_count(), 1);
+		lcd.puts("      ");
+		vTaskDelay(10);
 
-			lcd.pos(0,4);
-			lcd.puts("Lo=");
-			lcd.printFloat(sensors.gps.longitude(), 7);
-			lcd.puts(" Sat=");
-			lcd.printFloat(sensors.gps.sat_count(), 1);
-			lcd.puts("      ");
-			vTaskDelay(10);
-
-			lcd.pos(0,5);
-			lcd.puts("V=");
-			lcd.printFloat(sensors.voltage, 2);
-			lcd.puts(" A=");
-			lcd.printFloat(sensors.current, 3);
-			lcd.puts("      ");
-			vTaskDelay(10);
-
-		}
+		lcd.pos(0,5);
+		lcd.puts("V=");
+		lcd.printFloat(sensors.voltage, 2);
+		lcd.puts(" A=");
+		lcd.printFloat(sensors.current, 3);
+		lcd.puts("      ");
+		vTaskDelay(10);
 #endif
+
+		vTaskDelay(portTICK_RATE_MS*1000);
 
     } // while !done
     // clear input buffer
@@ -1168,7 +1161,7 @@ void displayData(const int mode)
 }
 
 
-#if 0==1
+#if USE_MAVLINK
 // TODO: 3 move Mavlink into task
 // possibly also buffered if necessary
 void mavlinkMode() {

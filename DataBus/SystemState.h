@@ -1,7 +1,7 @@
 #ifndef _SYSTEMSTATE_H
 #define _SYSTEMSTATE_H
 
-#define SSBUF 16 // must be 2^n
+#define SSBUF 8 // must be 2^n
 
 /** System State is the main mechanism for communicating current realtime system state to
  * the rest of the system for logging, data display, etc.
@@ -9,81 +9,42 @@
 
 #include <stdbool.h>
 
-/* struct systemState
- * structure containing system sensor data
- ****** System Status
- * millis               number of milliseconds since epoch (or startup)
- * current              current draw in amps
- * voltage              voltage in volts
- ****** Data reported by IMU
- * g[3]                 raw 3-axis gyro values; if using 1-axis, then store data in gx
- * gTemp                Gyro temperature
- * a[3]                 raw 3-axis accelerometer values
- * m[3]                 raw 3-axis magnetometer values; if using 2d then store data in mx and my
- * gHeading             independently calculated gyro heading in degrees
- * cHeading             independently calculated compass heading in degrees
- ****** AHRS Estimates
- * roll, pitch, yaw     estimated attitude in degrees relative to the world frame
- ****** Data reported by GPS
- * gpsLatitude          raw GPS latitude in fractional degrees (e.g., 39.123456)
- * gpsLongitude         raw GPS longitude in fractional degrees (e.g., -104.123456
- * gpsCourse_deg        raw GPS course in degrees
- * gpsSpeed_mps         raw GPS speed in m/s
- * gpsHDOP              raw GPS Horizontal Dilution of Precision
- * gpsSats              raw GPS Satellite fix count
- ****** Odometry data
- * lrEncDistance        left rear encoder distance since last log update
- * rrEncDistance        right rear encoder distance since last log update
- * lrEncSpeed           left rear encoder speed 
- * rrEncSpeed           right rear encoder speed
- * encHeading           estimated heading based on encoder readings
- ****** Estimated Position and Heading
- * estLagHeading        estimated heading in degrees, lagged to sync with gps
- * estHeading           estimated current heading
- * estLatitude          estimated latitude in fractional degrees (e.g., 39.123456)
- * estLongitude         estimated longitude in fractional degrees (e.g., -104.123456)
- * estNorthing          some algorithms use UTM.  Estimated UTM northing
- * estEasting           estimated UTM easting
- * estX, estY           some algorithms use simple x, y distance from origin (meters)
- ****** Waypoint data
- * nextWaypoint         integer ID of the next waypoint
- * bearing              estimated bearing to next waypoint in degrees
- * distance             estimated distance to next waypoint in meters
- ****** Control data
- * throttle             raw servo setting(units?)
- * steering             raw servo setting(units?)
- */
+/* struct to hold system state, all relevant variables */
 typedef struct {
-    unsigned int millis;
-    float current, voltage;
-    int g[3];
-    float gyro[3];
-    int gTemp;
-    int a[3];
-    int m[3];
-    float gHeading;
-    float cHeading;
+    unsigned int millis;		// number of milliseconds since epoch (or startup)
+    float current;				// current draw in amps
+    float voltage;				// voltage in volts
+    int g[3];					// raw 3-axis gyro values
+    float gyro[3];				// corrected, signed, scaled gyro (calculated)
+    int gTemp;					// gyro temperature
+    int a[3];					// raw 3-axis accelerometer values
+    int m[3];					// raw 3-axis magnetometer values
+    float gHeading;				// independently calculated gyro heading in degrees
+    float cHeading;				// independently calculated compass heading in degrees
     //float roll, pitch, yaw;
-    double gpsLatitude;
-    double gpsLongitude;
-    float gpsCourse_deg;
-    float gpsSpeed_mps;
-    float gpsHDOP;
-    int gpsSats;
-    float lrEncDistance, rrEncDistance;
-    float lrEncSpeed, rrEncSpeed;
-    float encHeading;
-    float estHeading;
-    float estLagHeading;
-    double estLatitude, estLongitude;
-    //double estNorthing, estEasting;
-    float estX, estY;
-    unsigned short nextWaypoint;
-    float bearing;
-    float distance;
-    float gbias;
-    float errHeading;
-    float steerAngle;
+    double gpsLatitude;			// GPS latitude in fractional degrees (e.g., 39.123456)
+    double gpsLongitude;		// GPS longitude in fractional degrees (e.g., -104.123456
+    float gpsCourse_deg;		// GPS course in degrees
+    float gpsSpeed_mps;			// GPS speed in m/s
+    float gpsHDOP;				// GPS Horizontal Dilution of Precision
+    int gpsSats;				// GPS Satellite fix count
+    float lrEncDistance;		// left rear encoder distance (calculated)
+    float rrEncDistance;		// right rear encoder distance_m (calculated)
+    float lrEncSpeed;			// left rear encoder speed (calculated)
+    float rrEncSpeed;			// right rear encoder speed (calculated)
+    float encHeading;			// estimated heading based on encoder readings
+    float estHeading;			// estimated current heading
+    float estLagHeading;		// estimated heading in degrees, lagged to sync with gps
+    double estLatitude;			// estimated latitude in fractional degrees (e.g., 39.123456)
+    double estLongitude;		// estimated longitude in fractional degrees (e.g., -104.123456)
+    float estX;					// estimated x (m) from origin
+    float estY;					// estimated y (m) from origin
+    unsigned short nextWaypoint;// integer ID of the next waypoint
+    float bearing_deg;			// estimated bearing to next waypoint in degrees
+    float distance_m;			// estimated distance_m to next waypoint in meters
+    float gbias;				// estimated gyro bias
+    float errHeading;			// estimated gyro-computed heading error
+    float steerAngle;			// computed steering angle
 } SystemState;
 
 void state_clear( SystemState *s );

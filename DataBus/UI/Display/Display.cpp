@@ -82,8 +82,8 @@ void Display::update(SystemState *state) {
 		lcd.posXY(nx - 2, ny - 3);
 	    lcd.putc('N');
 		//lcd.circle(nx, ny, 5, true);
-		int bx = 90 - 18 * sin(-3.141529 * (state->bearing-state->estHeading) / 180.0);
-		int by = 40 - 18 * cos(-3.141529 * (state->bearing-state->estHeading) / 180.0);
+		int bx = 90 - 18 * sin(-3.141529 * (state->bearing_deg - state->estHeading) / 180.0);
+		int by = 40 - 18 * cos(-3.141529 * (state->bearing_deg - state->estHeading) / 180.0);
 		lcd.circle(bx, by, 2, true);
 	}
 }

@@ -33,7 +33,8 @@ void state_clear( SystemState *s )
     s->estHeading = s->estLatitude = s->estLongitude = 0.0;
     s->estX = s->estY = 0.0;
     s->nextWaypoint = 0;
-    s->bearing = s->distance = 0.0;
+    s->bearing_deg = 0.0;
+    s->distance_m = 0.0;
 }
 
 bool fifo_init() {

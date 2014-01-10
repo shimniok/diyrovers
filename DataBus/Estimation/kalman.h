@@ -4,8 +4,8 @@
 /** Implementation of 1st order, 2-state Kalman Filter for heading estimation
  */
  
-float kfGetX(int i);
-void headingKalmanInit(float x0);
-float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro);
+float kfGetX(const int i);
+void headingKalmanInit(const float x0);
+float headingKalman(const float dt, const float Hgps, const bool gps, const float dHgyro, const bool gyro);
 
 #endif

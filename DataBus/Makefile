@@ -6,10 +6,23 @@ TOOLCHAIN=TOOLCHAIN_GCC_CS
 
 GCC_BIN = 
 PROJECT = DataBus
-OBJECTS = ./util.o ./print.o ./faulthandlers.o ./updater.o ./SystemState.o ./main.o ./Filesystem/Filesystem.o ./Config/Config.o ./Actuators/Actuators.o ./Actuators/Servo/Servo.o ./Actuators/Steering/Steering.o ./Estimation/kalman.o ./Estimation/Matrix/Matrix.o ./Estimation/Mapping/Mapping.o ./Estimation/GeoPosition/GeoPosition.o ./Estimation/CartPosition/CartPosition.o ./logging/logging.o ./SimpleFilter/SimpleFilter.o ./UI/shell.o ./UI/Display/Display.o ./UI/DigoleSerialDisp/DigoleSerialDisp.o ./UI/Buttons/Buttons.o ./UI/LCD/GPSStatus.o ./UI/LCD/Bargraph.o ./UI/Menu/Menu.o ./UI/Beep/Beep.o ./UI/SerialGraphicLCD/SerialGraphicLCD.o ./Schedule/Schedule.o ./SDFileSystem/SDFileSystem.o ./SDFileSystem/FATFileSystem/FATFileSystem.o ./SDFileSystem/FATFileSystem/FATFileHandle.o ./SDFileSystem/FATFileSystem/FATDirHandle.o ./SDFileSystem/FATFileSystem/ChaN/diskio.o ./SDFileSystem/FATFileSystem/ChaN/ff.o ./SDFileSystem/FATFileSystem/ChaN/ccsbcs.o ./Sensors/Sensors.o ./Sensors/LSM303DLM/LSM303DLM.o ./Sensors/Camera/Camera.o ./Sensors/L3G4200D/L3G4200D.o ./Sensors/IncrementalEncoder/IncrementalEncoder.o ./Sensors/GPS/Ublox6.o
-OBJECTS += ../FreeRTOS/portable/port.o ../FreeRTOS/portable/heap_4.o ../FreeRTOS/croutine.o ../FreeRTOS/list.o ../FreeRTOS/queue.o ../FreeRTOS/tasks.o ../FreeRTOS/timers.o 
-INCLUDE_PATHS = -I./Filesystem -I./Config -I./Actuators -I./Actuators/Servo -I./Actuators/Steering -I./Estimation -I./Estimation/Matrix -I./Estimation/Mapping -I./Estimation/GeoPosition -I./Estimation/CartPosition -I./logging -I./SimpleFilter -I./UI -I./UI/Display -I./UI/DigoleSerialDisp -I./UI/Buttons -I./UI/Buttons/DebounceIn -I./UI/Buttons/PinDetect -I./UI/LCD -I./UI/Menu -I./UI/Beep -I./UI/SerialGraphicLCD -I./Schedule -I./SDFileSystem -I./SDFileSystem/FATFileSystem -I./SDFileSystem/FATFileSystem/ChaN -I./MAVlink -I./MAVlink/include -I./MAVlink/include/ardupilotmega -I./MAVlink/include/pixhawk -I./MAVlink/include/common -I./MAVlink/include/ualberta -I./MAVlink/include/slugs -I./MAVlink/include/minimal -I./Sensors -I./Sensors/LSM303DLM -I./Sensors/Camera -I./Sensors/L3G4200D -I./Sensors/IncrementalEncoder -I./Sensors/HMC5843 -I./Sensors/GPS -I./Sensors/GPS/TinyGPS 
-INCLUDE_PATHS += -I. -I../FreeRTOS/include -I../FreeRTOS/portable 
+OBJECTS =  ./main.o ./util.o ./print.o ./faulthandlers.o ./updater.o ./SystemState.o ./Filesystem/Filesystem.o ./Config/Config.o ./SimpleFilter/SimpleFilter.o ./logging/logging.o ./Sensors/Sensors.o   
+OBJECTS += ./Actuators/Actuators.o ./Actuators/Servo/Servo.o ./Actuators/Steering/Steering.o  
+OBJECTS += ./Estimation/Mapping/Mapping.o ./Estimation/GeoPosition/GeoPosition.o ./Estimation/CartPosition/CartPosition.o 
+OBJECTS += ./UI/shell.o ./UI/Display/Display.o ./UI/Buttons/Buttons.o ./UI/LCD/GPSStatus.o ./UI/LCD/Bargraph.o ./UI/Menu/Menu.o ./UI/Beep/Beep.o ./UI/SerialGraphicLCD/SerialGraphicLCD.o
+#OBJECTS += ./Schedule/Schedule.o
+OBJECTS += ./SDFileSystem/SDFileSystem.o ./SDFileSystem/FATFileSystem/FATFileSystem.o ./SDFileSystem/FATFileSystem/FATFileHandle.o ./SDFileSystem/FATFileSystem/FATDirHandle.o ./SDFileSystem/FATFileSystem/ChaN/diskio.o ./SDFileSystem/FATFileSystem/ChaN/ff.o ./SDFileSystem/FATFileSystem/ChaN/ccsbcs.o
+OBJECTS += ./Estimation/kalman.o ./Estimation/Matrix/Matrix.o
+#OBJECTS += ./Fixed/Fixed.o ./Fixed/libfixmath/fix16_exp.o ./Fixed/libfixmath/fix16_sqrt.o ./Fixed/libfixmath/fix16.o ./Fixed/libfixmath/fract32.o ./Fixed/libfixmath/uint32.o
+OBJECTS += ./Sensors/LSM303DLM/LSM303DLM.o
+#OBJECTS += ./Sensors/Camera/Camera.o
+OBJECTS += ./Sensors/L3G4200D/L3G4200D.o
+OBJECTS += ./Sensors/IncrementalEncoder/IncrementalEncoder.o 
+OBJECTS += ./Sensors/GPS/Ublox6.o
+OBJECTS += ../FreeRTOS/portable/port.o ../FreeRTOS/portable/heap_4.o ../FreeRTOS/croutine.o ../FreeRTOS/list.o ../FreeRTOS/queue.o ../FreeRTOS/tasks.o ../FreeRTOS/timers.o
+INCLUDE_PATHS = -I. -I./Filesystem -I./Config -I./Actuators -I./Actuators/Servo -I./Actuators/Steering -I./Estimation -I./Estimation/Matrix -I./Estimation/Mapping -I./Estimation/GeoPosition -I./Estimation/CartPosition -I./logging -I./SimpleFilter -I./UI -I./UI/Display -I./UI/DigoleSerialDisp -I./UI/Buttons -I./UI/Buttons/DebounceIn -I./UI/Buttons/PinDetect -I./UI/LCD -I./UI/Menu -I./UI/Beep -I./UI/SerialGraphicLCD -I./Schedule -I./SDFileSystem -I./SDFileSystem/FATFileSystem -I./SDFileSystem/FATFileSystem/ChaN -I./MAVlink -I./MAVlink/include -I./MAVlink/include/ardupilotmega -I./MAVlink/include/pixhawk -I./MAVlink/include/common -I./MAVlink/include/ualberta -I./MAVlink/include/slugs -I./MAVlink/include/minimal -I./Sensors -I./Sensors/LSM303DLM -I./Sensors/Camera -I./Sensors/L3G4200D -I./Sensors/IncrementalEncoder -I./Sensors/HMC5843 -I./Sensors/GPS -I./Sensors/GPS/TinyGPS 
+INCLUDE_PATHS += -I../FreeRTOS/include -I../FreeRTOS/portable
+INCLUDE_PATHS += -I./Fixed/ -I./Fixed/libfixmath
 INCLUDE_PATHS += -I../mbed/api -I../mbed/hal -I../mbed/targets/cmsis -I../mbed/targets/cmsis/$(TARGET) -I../mbed/targets/hal/$(TARGET)
 INCLUDE_PATHS += -I/usr/local/arm/lib/gcc/arm-none-eabi/4.7.2/include
 LIBRARY_PATHS = -L../mbed/
@@ -25,7 +38,6 @@ CC_FLAGS = -c -Os -fno-common -fmessage-length=0 -Wall -fno-exceptions -mcpu=cor
 ONLY_C_FLAGS = -std=gnu99
 ONLY_CPP_FLAGS = -std=gnu++98
 CC_SYMBOLS = -DTARGET_LPC1768 -DTARGET_M3 -DTARGET_NXP -DTARGET_LPC176X -DTOOLCHAIN_GCC_CS -DTOOLCHAIN_GCC -D__CORTEX_M3 -DARM_MATH_CM3 
-
 
 AS = $(GCC_BIN)arm-none-eabi-gcc
 

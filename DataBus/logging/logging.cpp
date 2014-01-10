@@ -89,9 +89,9 @@ void logData( SystemState *s )
 		// Nav
 		printInt(logp, s->nextWaypoint);
 		fputc(',',logp);
-		printFloat(logp, s->bearing, 2);
+		printFloat(logp, s->bearing_deg, 2);
 		fputc(',',logp);
-		printFloat(logp, s->distance, 3);
+		printFloat(logp, s->distance_m, 3);
 		fputc(',',logp);
 		printFloat(logp, s->steerAngle, 3);
 		fputc(',',logp);
