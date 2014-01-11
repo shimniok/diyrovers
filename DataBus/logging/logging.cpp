@@ -17,12 +17,6 @@ Timer logtimer;
 // the big sprintf takes ~ 700-750 usec all by itself
 void logData( SystemState *s )
 {
-	//char buf[256];
-	//unsigned int t1, t2;
-	//logtimer.start();
-	//logtimer.reset();
-	//t1 = logtimer.read_us();
-
 	if (s) {
 		printInt(logp, s->millis);
 		fputc(',',logp);
@@ -99,9 +93,6 @@ void logData( SystemState *s )
 		fputc(',',logp);
 		fputc('\n',logp);
 		fflush(logp);
-
-		//t2 = logtimer.read_us();
-		//fprintf(stdout, "%d\n", t2-t1);
 	}
 
     return;
@@ -116,9 +107,9 @@ FILE *openlog(const char *prefix)
     char myname[32];
 
     fputs("Opening file...\n", stdout);
-
+	strcpy(myname, LOGDIR);
+	strcat(myname, "/test.txt");
     while (fp == 0) {
-    	sprintf(myname, "%s/test.txt", LOGDIR);
         if ((fp = fopen(myname, "w")) == 0) {
             fputs("Waiting for filesystem to come online...", stdout);
             wait(0.200);
@@ -128,13 +119,27 @@ FILE *openlog(const char *prefix)
     }
     fclose(fp);
 
-    for (int i = 0; i < 1000; i++) {
-        sprintf(myname, "%s/%s%03d.csv", LOGDIR, prefix, i);
-        if ((fp = fopen(myname, "r")) == 0) {
-            break;
-        } else {
-            fclose(fp);
+    char n[4];
+    n[3] = 0;
+
+    for (n[0] = '0'; n[0] <= '9'; n[0]++) {
+        for (n[1] = '0'; n[1] <= '9'; n[1]++) {
+            for (n[2] = '0'; n[2] <= '9'; n[2]++) {
+
+				strcpy(myname, LOGDIR);
+				strcat(myname, "/");
+				strcat(myname, prefix);
+				strcat(myname, n);
+
+				//sprintf(myname, "%s/%s%03d.csv", LOGDIR, prefix, i);
+				if ((fp = fopen(myname, "r")) == 0) {
+					break;
+				} else {
+					fclose(fp);
+				}
+            }
         }
+
     }
     fp = fopen(myname, "w");
     if (fp == 0) {
@@ -165,7 +170,6 @@ bool initLogfile()
 
     if (logp != 0) {
         status = true;
-        //fprintf(logp, "s.millis, s.current, s.voltage, s.gx, s.gy, s.gz, s.gTemp, s.ax, s.ay, s.az, s.mx, s.my, s.mz, s.gHeading, s.cHeading, s.roll, s.pitch, s.yaw, s.gpsLatitude, s.gpsLongitude, s.gpsCourse, s.gpsSpeed, s.gpsHDOP, s.lrEncDistance, s.rrEncDistance, s.lrEncSpeed, s.rrEncSpeed, s.encHeading, s.estHeading, s.estLatitude, s.estLongitude, s.estNorthing, s.estEasting, s.estX, s.estY, s.nextWaypoint, s.bearing, s.distance, s.gbias, s.errAngle, s.leftRanger, s.rightRanger, s.centerRanger, s.crossTrackErr\n");
     }
 
     return status;

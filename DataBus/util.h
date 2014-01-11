@@ -23,6 +23,9 @@ float clamp(float v, float min, float max, bool flip);
 /** Convert char to integer */
 int ctoi(const char c);
 
+/** Convert int to string */
+char *itoa(const int i);
+
 /** Convert string to floating point */
 double cvstof(const char *s);
 

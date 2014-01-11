@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "deviceconfig.h"
 #include "globals.h"
 #include "util.h"
 #include "print.h"
@@ -153,7 +154,11 @@ extern "C" size_t xPortGetFreeHeapSize(void);
 
 // TODO 2 move vApplicationStackOverflowHook to somewhere more appropriate
 extern "C" void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName ) {
-	error("%% stack overflow in %s %%\n", pcTaskName);
+	fputs("%% stack overflow in ", stdout);
+	fputs((const char *)pcTaskName, stdout);
+	fputs("%%", stdout);
+	exit(1);
+	//error("%% stack overflow in %s %%\n", pcTaskName);
 }
 
 // TODO 2 move to a more appropriate location, perhaps an lcd status task?
@@ -211,34 +216,6 @@ extern "C" void updatePanel(void *args) {
 	return;
 }
 
-/*
-extern "C" void userPanel(void *args) {
-	while (1) {
-        if (keypad.pressed) {
-            keypad.pressed = false;
-        	xSemaphoreGive(printMenu);
-            switch (keypad.which) {
-                case NEXT_BUTTON:
-                    menu.next();
-                    break;
-                case PREV_BUTTON:
-                    menu.prev();
-                    break;
-                case SELECT_BUTTON:
-                    xSemaphoreGive(printSelect);
-                    menu.select();
-                    // TODO 1 find a way to notify the shell and run the program
-                    break;
-            }//switch
-            keypad.pressed = false;
-        }// if (keypad.pressed)
-
-        vTaskDelay(50); // TODO: convert this to block waiting for keypad pressed
-	}
-	return;
-}
-*/
-
 
 int main()
 {
@@ -286,7 +263,8 @@ int main()
     confStatus = 0;
 
     if (!fifo_init()) {
-    	error("\n\n%% Error initializing SystemState fifo %%\n");
+    	fputs("\n\n%% Error initializing SystemState fifo %%\n", stdout);
+    	exit(1);
     }
 
     fputs("Loading configuration...\n", stdout);
@@ -359,8 +337,6 @@ int main()
     
     fputs("Adding menu items...\n", stdout);
 
-    // TODO 1 figure out how to launch these from both shell and menu
-    // Setup LCD Input Menu
     menu.add("Auto mode", &autonomousMode);
     menu.add("Instruments", &instrumentCheck);
     menu.add("Calibrate", &compassCalibrate);
@@ -381,7 +357,8 @@ int main()
 	xTaskCreate( updatePanel, (const signed char * ) "update", 250, NULL, (tskIDLE_PRIORITY+1), NULL );
     //checkit(__FILE__, __LINE__);
 	vTaskStartScheduler(); // should never get past this line.
-	error("%% scheduler start failure %%\n");
+	fputs("%% scheduler start failure %%\n", stdout);
+	exit(1);
 
 #if 1==0
     char cmd;
@@ -589,7 +566,7 @@ int autonomousMode()
     sensors.gps.enable();
     //gps2.enable();
 
-    fprintf(stdout, "Press select button to start.\n");
+    fputs("Press select button to start.\n", stdout);
     display.status("Select starts.");
     vTaskDelay(portTICK_RATE_MS*1000);
     
@@ -698,7 +675,7 @@ int compassCalibrate()
     int m[3];
     FILE *fp;
     
-    fprintf(stdout, "Entering compass calibration in 2 seconds.\nLaunch _3DScatter Processing app now... type e to exit\n");
+    fputs("Entering compass calibration in 2 seconds.\nLaunch _3DScatter Processing app now... type e to exit\n", stdout);
     display.status("Starting...");
 
     fp = openlog("cal");
@@ -739,8 +716,23 @@ int compassCalibrate()
                 if (abs(m[i]) > 1024) skipIt = true;
             }
             if (!skipIt) {
-                fprintf(stdout, "%c%d %d %d \r\n", 0xDE, m[0], m[1], m[2]);
-                fprintf(fp, "%d, %d, %d\n", m[0], m[1], m[2]);
+            	fputc(0xde, stdout);
+            	printInt(stdout, m[0]);
+            	fputc(' ', stdout);
+            	printInt(stdout, m[1]);
+            	fputc(' ', stdout);
+            	printInt(stdout, m[2]);
+            	fputc(' ', stdout);
+            	fputs("\r\n", stdout);
+
+            	printInt(fp, m[0]);
+            	fputs(", ", fp);
+				printInt(fp, m[1]);
+            	fputs(", ", fp);
+            	printInt(fp, m[2]);
+            	fputs("\n", fp);
+            	//fprintf(stdout, "%c%d %d %d \r\n", 0xDE, m[0], m[1], m[2]);
+                //fprintf(fp, "%d, %d, %d\n", m[0], m[1], m[2]);
             }
         }
     }
@@ -763,6 +755,7 @@ int compassCalibrate()
 //
 int gyroSwing()
 {
+#if _ENABLE_GYRO_SWING
     FILE *fp;
 
     // Timing is pretty critical so just in case, disable serial processing from GPS
@@ -819,7 +812,7 @@ int gyroSwing()
     }
     
     keypad.pressed = false;
-
+#endif
     return 0;
 }
 
@@ -833,6 +826,7 @@ int gyroSwing()
 //
 int compassSwing()
 {
+#if _ENABLE_COMPASS_SWING
     int revolutions=5;
     int heading=0;
     int leftCount = 0;
@@ -932,7 +926,7 @@ int compassSwing()
     }
     
     keypad.pressed = false;
-        
+#endif
     return 0;
 }
 
@@ -954,7 +948,7 @@ void serialBridge(Serial &serial)
     int count = 0;
     bool done=false;
 
-    fprintf(stdout, "\nEntering serial bridge in 2 seconds, +++ to escape\n\n");
+    fputs("\nEntering serial bridge in 2 seconds, +++ to escape\n\n", stdout);
     sensors.gps.enableVerbose();
     wait(2.0);
     //dev = &gps;
@@ -1001,7 +995,7 @@ void displayData(const int mode)
     // Init GPS
     sensors.gps.disableVerbose();
     sensors.gps.enable();
-    sensors.gps.reset_available();    
+    sensors.gps.reset_available();
 
     keypad.pressed = false;
 
@@ -1025,7 +1019,7 @@ void displayData(const int mode)
 
 		// update time
 		fputs("\nupdate() time = ", stdout);
-		printFloat(stdout, (getUpdateTime(7)-getUpdateTime(0))/1000.0, 3);
+		printInt(stdout, getUpdateTime(7)-getUpdateTime(0));
 		fputs(" msec\n", stdout);
 
 		// rangers
@@ -1157,7 +1151,7 @@ void displayData(const int mode)
     } // while !done
     // clear input buffer
     fflush(stdin);
-    lcd.clear();
+    //lcd.clear();
 }
 
 
@@ -1186,7 +1180,7 @@ void mavlinkMode() {
     mav_hud.groundspeed = 0.0;
     mav_hud.throttle = 0;
 
-    fprintf(stdout, "Entering MAVlink mode; reset the MCU to exit\n\n");
+    fputs("Entering MAVlink mode; reset the MCU to exit\n\n", stdout);
 
     wait(5.0);
 

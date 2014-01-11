@@ -56,7 +56,9 @@ class IncrementalEncoder
         unsigned int _lastTime;
         unsigned int _time;
         unsigned int _lastTicks;
-        unsigned int _ticks, _rise, _fall;
+        unsigned int _ticks;
+        unsigned int _rise;
+        unsigned int _fall;
         bool _new;
         InterruptIn _interrupt;
         void _increment();

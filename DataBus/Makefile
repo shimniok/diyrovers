@@ -13,11 +13,15 @@ OBJECTS += ./UI/shell.o ./UI/Display/Display.o ./UI/Buttons/Buttons.o ./UI/LCD/G
 #OBJECTS += ./Schedule/Schedule.o
 OBJECTS += ./SDFileSystem/SDFileSystem.o ./SDFileSystem/FATFileSystem/FATFileSystem.o ./SDFileSystem/FATFileSystem/FATFileHandle.o ./SDFileSystem/FATFileSystem/FATDirHandle.o ./SDFileSystem/FATFileSystem/ChaN/diskio.o ./SDFileSystem/FATFileSystem/ChaN/ff.o ./SDFileSystem/FATFileSystem/ChaN/ccsbcs.o
 OBJECTS += ./Estimation/kalman.o ./Estimation/Matrix/Matrix.o
-#OBJECTS += ./Fixed/Fixed.o ./Fixed/libfixmath/fix16_exp.o ./Fixed/libfixmath/fix16_sqrt.o ./Fixed/libfixmath/fix16.o ./Fixed/libfixmath/fract32.o ./Fixed/libfixmath/uint32.o
+#OBJECTS += ./Fixed/Fixed.o ./Fixed/libfixmath/fix16_exp.o ./Fixed/libfixmath/fix16_trig.o ./Fixed/libfixmath/fix16_sqrt.o ./Fixed/libfixmath/fix16.o ./Fixed/libfixmath/fract32.o ./Fixed/libfixmath/uint32.o
+## Accel + Magnetometer
 OBJECTS += ./Sensors/LSM303DLM/LSM303DLM.o
 #OBJECTS += ./Sensors/Camera/Camera.o
+## Gyro
 OBJECTS += ./Sensors/L3G4200D/L3G4200D.o
-OBJECTS += ./Sensors/IncrementalEncoder/IncrementalEncoder.o 
+## Encoder
+OBJECTS += ./Sensors/IncrementalEncoder/IncrementalEncoder.o
+## GPS 
 OBJECTS += ./Sensors/GPS/Ublox6.o
 OBJECTS += ../FreeRTOS/portable/port.o ../FreeRTOS/portable/heap_4.o ../FreeRTOS/croutine.o ../FreeRTOS/list.o ../FreeRTOS/queue.o ../FreeRTOS/tasks.o ../FreeRTOS/timers.o
 INCLUDE_PATHS = -I. -I./Filesystem -I./Config -I./Actuators -I./Actuators/Servo -I./Actuators/Steering -I./Estimation -I./Estimation/Matrix -I./Estimation/Mapping -I./Estimation/GeoPosition -I./Estimation/CartPosition -I./logging -I./SimpleFilter -I./UI -I./UI/Display -I./UI/DigoleSerialDisp -I./UI/Buttons -I./UI/Buttons/DebounceIn -I./UI/Buttons/PinDetect -I./UI/LCD -I./UI/Menu -I./UI/Beep -I./UI/SerialGraphicLCD -I./Schedule -I./SDFileSystem -I./SDFileSystem/FATFileSystem -I./SDFileSystem/FATFileSystem/ChaN -I./MAVlink -I./MAVlink/include -I./MAVlink/include/ardupilotmega -I./MAVlink/include/pixhawk -I./MAVlink/include/common -I./MAVlink/include/ualberta -I./MAVlink/include/slugs -I./MAVlink/include/minimal -I./Sensors -I./Sensors/LSM303DLM -I./Sensors/Camera -I./Sensors/L3G4200D -I./Sensors/IncrementalEncoder -I./Sensors/HMC5843 -I./Sensors/GPS -I./Sensors/GPS/TinyGPS 

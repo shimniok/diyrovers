@@ -42,6 +42,18 @@ Fixed Fixed::operator+(const Fixed &b) {
 	return result;
 }
 
+Fixed operator+(const Fixed &a, const float &b) {
+	Fixed result;
+	result.value = fix16_add(a.value, fix16_from_float(b));
+	return result;
+}
+
+Fixed operator+(const float &a, const Fixed &b) {
+	Fixed result;
+	result.value = fix16_add(fix16_from_float(a), b.value);
+	return result;
+}
+
 Fixed& Fixed::operator+=(const Fixed &b) {
 	value = fix16_add(value, b.value);
 	return *this;
@@ -132,6 +144,18 @@ Fixed::operator double() {
 Fixed fabs(const Fixed &a) {
 	Fixed result(a);
 	if (result.value < 0) result = -result;
+	return result;
+}
+
+Fixed sin(const Fixed &a) {
+	Fixed result;
+	result.value = fix16_sin(a.value);
+	return result;
+}
+
+Fixed cos(const Fixed &a) {
+	Fixed result;
+	result.value = fix16_cos(a.value);
 	return result;
 }
 

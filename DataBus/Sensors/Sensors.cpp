@@ -32,6 +32,7 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 #include "debug.h"
 #include "stdio.h"
 
+//TODO 2 parameterize gyro scale, sign
 #define GYRO_SCALE 14.49787 // Is the sign right here?? yes, see g_sign
 
 #define VFF 50.0 // voltage filter factor

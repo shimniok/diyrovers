@@ -64,7 +64,6 @@ int dosteer(char *arg);
 int dotimes(char *arg);
 
 // TODO 3 multiple arguments
-// TODO 1 convert all functions to parse argument(s)
 
 const cmd command[MAXCMDARR] = {
     	{ "help", dohelp, "print this help" },
@@ -133,7 +132,7 @@ void docmd(char *cmdline) {
 
     arg = split(cmd, cmdline, MAXBUF, ' ');
     if (strlen(cmd) > 0) {
-		if (debug) fprintf(stdout, "cmdline:<%s> cmd:<%s> arg:<%s>\n", cmdline, cmd, arg);
+    	//if (debug) fprintf(stdout, "cmdline:<%s> cmd:<%s> arg:<%s>\n", cmdline, cmd, arg);
 
 		for (int i=0; command[i].cmd; i++) {
 			if (!strcmp(cmd, command[i].cmd)) {
@@ -249,23 +248,23 @@ void splitName(const char *path, char *dirname, char *basename) {
     int sep;
     
     sep = 0;
-    if (debug) fprintf(stdout, "%d\n", strlen(path));
+    //if (debug) fprintf(stdout, "%d\n", strlen(path));
     for (int i=strlen(path)-1; i >= 0; i--) {
-        if (debug) fprintf(stdout, "- %c\n", path[i]);
+        //if (debug) fprintf(stdout, "- %c\n", path[i]);
         sep = i;
         if (path[i] == '/') break;
     }
     for (int j=0; j < sep; j++) {
-        if (debug) fprintf(stdout, "> %c\n", path[j]);
+        //if (debug) fprintf(stdout, "> %c\n", path[j]);
         dirname[j] = path[j];
         dirname[j+1] = 0;
     }
     for (unsigned int k=sep+1; k != strlen(path); k++) {
-        if (debug) fprintf(stdout, "* %c\n", path[k]);
+        //if (debug) fprintf(stdout, "* %c\n", path[k]);
         basename[k-(sep+1)] = path[k];
         basename[k-sep] = 0;    
     }
-    if (debug) fprintf(stdout, "d:<%s> b:<%s>\n", dirname, basename);
+    //if (debug) fprintf(stdout, "d:<%s> b:<%s>\n", dirname, basename);
 
 
 }
@@ -274,7 +273,7 @@ void splitName(const char *path, char *dirname, char *basename) {
  * lists files in the current working directory, 4 columns
  */
 int dols(char *arg) {
-    if (debug) fprintf(stdout, "%s\n", cwd);
+    //if (debug) fprintf(stdout, "%s\n", cwd);
     DIR *d;
     struct dirent *p;
 
@@ -520,7 +519,6 @@ int doautonomous(char *arg) {
 }
 
 
-
 int dospeed(char *arg) {
 	float v = cvstof(arg);
 	fputs("speed=", stdout);
@@ -529,7 +527,6 @@ int dospeed(char *arg) {
 	fputs(" servo=", stdout);
 	printFloat(stdout, getThrottle(), 4);
 	fputc('\n', stdout);
-
 	return 0;
 }
 
@@ -541,7 +538,6 @@ int dosteer(char *arg) {
 	setSteering(v);
 	printFloat(stdout, getSteering(), 4);
 	fputc('\n', stdout);
-
 	return 0;
 }
 

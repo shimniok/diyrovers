@@ -30,7 +30,9 @@ public:
     ~Fixed();
 
     Fixed  operator+(const Fixed &b);
-	Fixed& operator+=(const Fixed &b);
+    friend Fixed operator+(const Fixed &a, const float &b);
+    friend Fixed operator+(const float &a, const Fixed &b);
+    Fixed& operator+=(const Fixed &b);
 
 	Fixed  operator-(const Fixed &b);
 	Fixed& operator-=(const Fixed &b);
@@ -48,7 +50,6 @@ public:
     bool operator>(const Fixed &b);
     bool operator<(const Fixed &b);
 
-
     Fixed& operator=(const Fixed &a);
 
     bool operator==(const Fixed &b);
@@ -61,6 +62,8 @@ public:
     operator double();
 
     friend Fixed fabs(const Fixed &a);
+    friend Fixed sin(const Fixed &a);
+    friend Fixed cos(const Fixed &a);
 
     int toInt();
     double toDouble();

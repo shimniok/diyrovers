@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "mbed.h"
+#include "print.h"
 #include "util.h"
 #include "globals.h"
 #include "updater.h"
@@ -171,8 +172,6 @@ void setSpeed(const float speed)
     return;
 }
 
-#include "print.h" // FIXME
-
 // TODO 2 split update function into multiple tasks, one for reading, one for estimation, control?
 
 /** update() runs the data collection, estimation, steering control, and throttle control */
@@ -219,7 +218,7 @@ void update()
         // initial position is waypoint 0
         history[now].x = config.cwpt[0].x;
         history[now].y = config.cwpt[0].y;
-        cartHere.set(history[now].x, history[now].y);
+        cartHere.set((float) history[now].x, (float) history[now].y);
         // initialize heading to bearing between waypoint 0 and 1
         //history[now].hdg = here.bearingTo(config.wpt[nextWaypoint]);
         initialHeading = history[now].hdg = cartHere.bearingTo(config.cwpt[nextWaypoint]);
@@ -378,9 +377,11 @@ void update()
         // consistent error; that's 0.10s/0.01 = 1 sec.  0.005 is 2 sec, 0.0025 is 4 sec, etc.
         errHeading = clamp180(estLagHeading - history[lag].hdg) * 0.01;  // lopass filter error angle
 
+        float errRad = errHeading*PI/180.0;
+
         //fprintf(stdout, "%d %.2f, %.2f, %.4f %.4f\n", lag, estLagHeading, history[lag].hdg, estLagHeading - history[lag].hdg, errHeading);
-        float cosA = cos(errHeading * PI / 180.0);
-        float sinA = sin(errHeading * PI / 180.0);
+        float cosA = cos(errRad);
+        float sinA = sin(errRad);
         // Update position & heading from history[lag] through history[now]
         int i = lag;
         for (int j=0; j < sensors.gps.lag; j++) {
@@ -391,8 +392,8 @@ void update()
             //if (history[i].hdg < 0) history[i].hdg += 360.0;
             // Rotate x, y by errHeading around pivot point; no need to rotate pivot point (j=0)
             if (j > 0) {
-                float dx = history[i].x-history[lag].x;
-                float dy = history[i].y-history[lag].y;
+            	float dx = history[i].x-history[lag].x;
+            	float dy = history[i].y-history[lag].y;
                 // rotation matrix
                 history[i].x = history[lag].x + dx*cosA - dy*sinA;
                 history[i].y = history[lag].y + dx*sinA + dy*cosA;
@@ -404,7 +405,7 @@ void update()
         inc(lag);
     }
     // "here" is the current position
-    cartHere.set(history[now].x, history[now].y);
+    cartHere.set((float) history[now].x, (float) history[now].y);
 
     t[4] = timer.read_us();
 

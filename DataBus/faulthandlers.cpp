@@ -100,6 +100,7 @@ void __attribute__((naked)) HardFault_Handler(void)
  */
 void hard_fault_handler(unsigned int *hardfault_args)
 {
+#if 0
 	  unsigned int stacked_r0;
 	  unsigned int stacked_r1;
 	  unsigned int stacked_r2;
@@ -252,8 +253,12 @@ void hard_fault_handler(unsigned int *hardfault_args)
 
 	  printf("AFSR = 0x%08lx\n", SCB->AFSR);
 	  printf("SHCSR = 0x%08lx\n", SCB->SHCSR);
-
 	  while (1);
+#else
+	  fputs("%% hardfault %%\n", stdout);
+	  exit(1);
+#endif
+
 }
 
 /*
@@ -265,15 +270,18 @@ void HardFault_Handler(void) {
 */
 
 void UsageFault_Handler(void) {
-	error("\n\n%% Usage Fault %%\n");
+	fputs("\n\n%% Usage Fault %%\n", stdout);
+	exit(1);
 }
 
 void BusFault_Handler() {
-	error("\n\n%% Bus Fault %%\n");
+	fputs("\n\n%% Bus Fault %%\n", stdout);
+	exit(1);
 }
 
 void MemMang_Handler() {
-	error("\n\n%% MemMang Fault %%\n");
+	fputs("\n\n%% MemMang Fault %%\n", stdout);
+	exit(1);
 }
 
 }

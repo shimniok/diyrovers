@@ -92,7 +92,6 @@ int L3G4200D::read(int axis)
 		addr = L3G4200D_OUT_Z_L;
 		break;
 	}
-	// FIXME
 	data[0] = addr|(1<<7);
 	_device.write(GYR_ADDRESS, data, 1);
     _device.read(GYR_ADDRESS, data, 2);
@@ -100,18 +99,6 @@ int L3G4200D::read(int axis)
 	uint8_t ha = data[1];
     result = (short) (ha << 8 | la);
 	return result;
-	/*
-	_device.start();
-	_device.write(GYR_ADDRESSW);
-	// Set MSB to indicate multiple bytes will be read
-	_device.write(addr|(1<<7));
-	_device.start();
-	_device.write(GYR_ADDRESSR);
-	uint8_t la  = _device.read(1);
-	uint8_t ha  = _device.read(0);
-	_device.stop();
-    return (ha << 8 | la);
-    */
 }
 
 // Reads the 3 gyro channels and stores them in vector g

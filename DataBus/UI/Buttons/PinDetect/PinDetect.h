@@ -168,7 +168,7 @@ public:
 
     friend class Ticker;
     
-    PinDetect() { error("You must supply a PinName"); }
+    PinDetect() { fputs("You must supply a PinName", stdout); exit(1); } //error("You must supply a PinName"); }
 
     /** PinDetect constructor
      *

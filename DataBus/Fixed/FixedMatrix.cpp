@@ -153,8 +153,6 @@ FixedMatrix& FixedMatrix::operator*=(const FixedMatrix& b) {
 
 // inversion
 FixedMatrix FixedMatrix::operator!() {
-	//FIXME
-
     // A = input matrix AND result matrix
     // n = number of rows = number of columns in A (n x n)
     int pivrow=0;   // keeps track of current pivot row

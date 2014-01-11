@@ -53,7 +53,9 @@ FATFileSystem::FATFileSystem(const char* n) : FileSystemLike(n) {
             return;
         }
     }
-    error("Couldn't create %s in FATFileSystem::FATFileSystem\n", n);
+    fputs("Couldn't create ", stdout);
+    fputs(n, stdout);
+    fputs(" in FATFileSystem::FATFileSystem\n", stdout);
 }
 
 FATFileSystem::~FATFileSystem() {
@@ -65,10 +67,16 @@ FATFileSystem::~FATFileSystem() {
     }
 }
 
+// Attempt to get rid of sprintf
+#include "util.h"
+
 FileHandle *FATFileSystem::open(const char* name, int flags) {
     debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%d]\n", name, _name, _fsid);
     char n[64];
-    sprintf(n, "%d:/%s", _fsid, name);
+    //sprintf(n, "%d:/%s", _fsid, name);
+    strcpy(n, itoa(_fsid));
+    strcat(n, ":/");
+    strcat(n, name);
     
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
@@ -109,11 +117,13 @@ int FATFileSystem::remove(const char *filename) {
 }
 
 int FATFileSystem::format() {
+#if _USE_MKFS && !_FS_READONLY
     FRESULT res = f_mkfs(_fsid, 0, 512); // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     if (res) {
         debug_if(FFS_DBG, "f_mkfs() failed: %d\n", res);
         return -1;
     }
+#endif
     return 0;
 }
 

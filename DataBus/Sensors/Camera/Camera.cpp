@@ -1,6 +1,8 @@
 #include "mbed.h"
 #include "Camera.h"
 
+#if _USE_CAMERA
+
 Camera::Camera(PinName tx, PinName rx):
     serial(tx, rx)
 {
@@ -53,4 +55,6 @@ void Camera::parse(char c)
 
     return;
 }
+
+#endif
 

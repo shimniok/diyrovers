@@ -1,6 +1,15 @@
 #include "IncrementalEncoder.h"
 
-IncrementalEncoder::IncrementalEncoder(PinName pin):  _lastTicks(0),  _ticks(0), _new(false), _interrupt(pin) {
+IncrementalEncoder::IncrementalEncoder(PinName pin):
+	_lastTime(0)
+,	_time(0)
+,	_lastTicks(0)
+,	_ticks(0)
+,	_rise(0)
+,	_fall(0)
+,	_new(false)
+,	_interrupt(pin)
+{
     _interrupt.mode(PullNone); // default is pulldown but my encoder board uses a pull-up and that just don't work
     _interrupt.rise(this, &IncrementalEncoder::_incRise); 
     _interrupt.fall(this, &IncrementalEncoder::_incFall); 
