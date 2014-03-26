@@ -315,13 +315,6 @@ int main()
     fputs("Timer done, enter loop...\n", stdout);
 
     while (1) {
-    	confStatus = 1;
-    	wait(0.1);
-    	confStatus = 0;
-    	wait(0.1);
-    }
-
-    while (1) {
 
         /*
         if (timer.read_ms() > hdgUpdate) {
