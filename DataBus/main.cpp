@@ -8,8 +8,6 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "FreeRTOS.h"
-#include "task.h"
 #include "mbed.h"
 #include "globals.h"
 #include "Filesystem.h"
@@ -23,10 +21,8 @@
 #include "shell.h"
 #include "Sensors.h"
 #include "kalman.h"
-#include "Venus638flpx.h"
 #include "Ublox6.h"
-#include "Camera.h"
-#include "PinDetect.h"
+#include "PinDetect.h" // TODO this should be broken into .h, .cpp
 #include "Actuators.h"
 #include "IncrementalEncoder.h"
 #include "Steering.h"
@@ -89,7 +85,6 @@ Steering steerCalc(TRACK, WHEELBASE);   // steering calculator
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
 SerialGraphicLCD lcd(p17, p18, SD_FW);  // Graphic LCD with summoningdark firmware
-//Serial *debug = &pc;
 
 // SENSORS
 Sensors sensors;                        // Abstraction of sensor drivers
@@ -138,7 +133,6 @@ int setBacklight(void);
 int reverseScreen(void);
 float irDistance(const unsigned int adc);
 extern "C" void mbed_reset();
-//extern unsigned int matrix_error;
 
 // If we don't close the log file, when we restart, all the written data
 // will be lost.  So we have to use a button to force mbed to close the
@@ -158,30 +152,19 @@ int resetMe()
     return 0;
 }
 
-extern "C" size_t xPortGetFreeHeapSize(void);
-
-#include "FATFileSystem.h"
-extern "C" void checkit(const char *s, const int l) {
-	FATFileSystem **w1 = FATFileSystem::_ffs;
-	FATFileSystem *w2 = w1[0];
-	fprintf(stdout, "WATCH %s:%d: %04x %04x %d\n", s, l, (unsigned int) w1, (unsigned int) w2, xPortGetFreeHeapSize());
-	return;
-}
 
 int main()
 {
 	//checkit(__FILE__, __LINE__);
-	xTaskCreate( shell, (const signed char * ) "shell", 128, NULL, (tskIDLE_PRIORITY+3), NULL );
+	//xTaskCreate( shell, (const signed char * ) "shell", 128, NULL, (tskIDLE_PRIORITY+3), NULL );
     //checkit(__FILE__, __LINE__);
-	vTaskStartScheduler(); // should never get past this line.
-	while(1);
+	//vTaskStartScheduler(); // should never get past this line.
+	//while(1);
 
 	// Send data back to the PC
     pc.baud(115200);
     fprintf(stdout, "Data Bus 2014\n");
     fflush(stdin);
-
-    checkit(__FILE__, __LINE__);
 
     // Let's try setting priorities...
     //NVIC_SetPriority(DMA_IRQn, 0);
@@ -202,8 +185,6 @@ int main()
     NVIC_SetPriority(TIMER0_IRQn, 10); 	// unused(?)
     NVIC_SetPriority(TIMER1_IRQn, 10); 	// unused(?)
     NVIC_SetPriority(TIMER2_IRQn, 10); 	// unused(?)
-
-    checkit(__FILE__, __LINE__);
 
     // Something here is jacking up the I2C stuff
     // Also when initializing with ESC powered, it causes motor to run which
@@ -263,12 +244,19 @@ int main()
     pc.printf("Brake distance: %.1f\n", config.brakeDist);
     pc.printf("Min turn radius: %.3f\n", config.minRadius);
 
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
+    //
+    // REENABLE !!!
+    /*
     fprintf(stdout, "Calculating offsets...\n");
     display.status("Offset calculation  ");
     wait(0.2);
     // TODO 3 Really need to give the gyro more time to settle
     sensors.gps.disable();
     sensors.Calculate_Offsets();
+
 
     fprintf(stdout, "Starting GPS...\n");
     display.status("Start GPS           "); // TODO 3: would be nice not to have to pad at this level
@@ -282,6 +270,12 @@ int main()
     // Startup sensor/AHRS ticker; update every UPDATE_PERIOD
     restartNav();
     startUpdater();
+
+    */
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
 
 /*
     fprintf(stdout, "Starting Camera...\n");
@@ -307,22 +301,25 @@ int main()
     menu.add("Reverse", &reverseScreen);
     menu.add("Reset", &resetMe);
 
-
-
-    char cmd;
-    bool printMenu = true;
-    bool printLCDMenu = true;
-
-    fprintf(stdout, "Starting main timer...\n");
+    fputs("Starting main timer...\n", stdout);
 
     timer.start();
     timer.reset();
 
-    fprintf(stdout, "Timer done, enter loop...\n");
-
     int thisUpdate = timer.read_ms();    
     int nextUpdate = thisUpdate;
-    //int hdgUpdate = nextUpdate;
+    char cmd;
+    bool printMenu = true;
+    bool printLCDMenu = true;
+
+    fputs("Timer done, enter loop...\n", stdout);
+
+    while (1) {
+    	confStatus = 1;
+    	wait(0.1);
+    	confStatus = 0;
+    	wait(0.1);
+    }
 
     while (1) {
 
@@ -392,8 +389,6 @@ int main()
             fflush(stdout);
             printMenu = false;
         }
-
-        checkit(__FILE__, __LINE__);
 
         // Basic functional architecture
         // SENSORS -> FILTERS -> AHRS -> POSITION -> NAVIGATION -> CONTROL | INPUT/OUTPUT | LOGGING
@@ -478,8 +473,7 @@ int main()
                     break;
             } // switch        
 
-            checkit(__FILE__, __LINE__);
-        } // if (pc.readable())
+		} // if (pc.readable())
 
         wait(0.1);
 

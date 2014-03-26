@@ -32,12 +32,9 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 /** Sensor interface library abstracts sensor drivers, next step to a pluggable architecture */
 
-#include "Sirf3.h"
 #include "Ublox6.h"
-#include "Venus638flpx.h"
 #include "L3G4200D.h"
 #include "LSM303DLM.h"
-//#include "HMC5843.h"
 #include "IncrementalEncoder.h"
 #include "Matrix.h"
 

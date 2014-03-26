@@ -6,7 +6,6 @@
 #include "Actuators.h"
 #include "Sensors.h"
 #include "SystemState.h"
-#include "Venus638flpx.h"
 #include "Steering.h"
 #include "Servo.h"
 #include "Mapping.h"

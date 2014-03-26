@@ -1,3 +1,4 @@
+#include <string.h>
 #include "mbed.h"
 #include "DirHandle.h"
 #include "SDFileSystem.h"
@@ -73,20 +74,14 @@ const cmd command[MAXCMDARR] = {
     	{ 0, 0, 0 }
 };
 
-extern void checkit(const char *s, const int l);
-extern "C" size_t xPortGetFreeHeapSize(void);
-
 void shell(void *args) {
     char cmdline[MAXBUF];
 
     pc.baud(115200);
 
-    checkit(__FILE__, __LINE__);
-    fprintf(stdout, "%d bytes free.\nType help for assistance.\n", xPortGetFreeHeapSize());
-    checkit(__FILE__, __LINE__);
+    //fprintf(stdout, "%d bytes free.\nType help for assistance.\n", xPortGetFreeHeapSize());
 
     strncpy(cwd, "/log", MAXBUF-1);
-    checkit(__FILE__, __LINE__);
 
     status=0;
     done=false;
@@ -118,15 +113,11 @@ void docmd(char *cmdline) {
 	char newpath[MAXBUF];
 	bool found = false;
 
-    checkit(__FILE__, __LINE__);
     arg = split(cmd, cmdline, MAXBUF, ' ');
-    checkit(__FILE__, __LINE__);
 
     if (strlen(cmd) > 0) {
 
-        checkit(__FILE__, __LINE__);
 		resolveDirectory(newpath, arg);
-        checkit(__FILE__, __LINE__);
 
 		if (debug) fprintf(stdout, "cmdline:<%s> cmd:<%s> arg:<%s> newpath:<%s>\n", cmdline, cmd, arg, newpath);
 
@@ -142,8 +133,6 @@ void docmd(char *cmdline) {
 		}
 
     }
-
-    checkit(__FILE__, __LINE__);
 
 	return;
 }
@@ -161,11 +150,8 @@ void termInput(char *cmd) {
     
     fprintf(stdout, "(%s)# ", cwd);
     do {
-        checkit(__FILE__, __LINE__);
     	cmd[i] = 0;
-        checkit(__FILE__, __LINE__);
-        c = pc.getc();
-        checkit(__FILE__, __LINE__);
+        c = fgetc(stdin);
         if (c == '\r') { // if return is hit, we're done, don't add \r to cmd
             done = true;
         } else if (i < MAXBUF-1) {
@@ -173,18 +159,15 @@ void termInput(char *cmd) {
                 if (i > 0) { // if we're at the beginning, do nothing
                     i--;
                     fprintf(stdout, "\b \b");
-                    checkit(__FILE__, __LINE__);
                 }
             } else {
                 fprintf(stdout, "%c", c);
                 cmd[i++] = c;
-                checkit(__FILE__, __LINE__);
             }
         }
     } while (!done);
     fprintf(stdout, "\n");
 
-    checkit(__FILE__, __LINE__);
 } 
 
 /** resolveDirectory
@@ -236,8 +219,6 @@ char *splitCmd(char *s, char *t, int max)
   }
   *s = 0;
 
-  checkit(__FILE__, __LINE__);
-
   return t;
 }
 
@@ -265,8 +246,6 @@ void splitName(const char *path, char *dirname, char *basename) {
         basename[k-sep] = 0;    
     }
     if (debug) fprintf(stdout, "d:<%s> b:<%s>\n", dirname, basename);
-
-    checkit(__FILE__, __LINE__);
 }
 
 /** ls
@@ -276,8 +255,6 @@ int dols(const char *path) {
     if (debug) fprintf(stdout, "%s\n", cwd);
     DIR *d;
     struct dirent *p;
-
-    checkit(__FILE__, __LINE__);
 
     int count=0;
     if ((d = opendir(path)) != NULL) {
