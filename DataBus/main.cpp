@@ -926,10 +926,9 @@ void displayData(const int mode)
                 fprintf(stdout, "estHdg=%.2f lagHdg=%.2f\n", s->estHeading, s->estLagHeading);
                 //fprintf(stdout, "roll=%.2f pitch=%.2f yaw=%.2f\n", ToDeg(ahrs.roll), ToDeg(ahrs.pitch), ToDeg(ahrs.yaw));
                 fprintf(stdout, "speed: left=%.3f  right=%.3f\n", sensors.lrEncSpeed, sensors.rrEncSpeed);
-                fprintf(stdout, "gps=(%.6f, %.6f, %.1f, %.1f, %.1f, %d) %02x\n", 
+                fprintf(stdout, "gps=(%.6f, %.6f, h=%.1f, s=%.1f, hdop=%.1f, sat=%d)\n",
                     sensors.gps.latitude(), sensors.gps.longitude(), sensors.gps.heading_deg(), 
-                    sensors.gps.speed_mps(), sensors.gps.hdop(), sensors.gps.sat_count(),
-                    (unsigned char) sensors.gps.getAvailable() );
+                    sensors.gps.speed_mps(), sensors.gps.hdop(), sensors.gps.sat_count());
                 fprintf(stdout, "brg=%6.2f d=%8.4f sa=%6.2f\n", s->bearing, s->distance, s->steerAngle);
                 /*
                 fprintf(stdout, "gps2=(%.6f, %.6f, %.1f, %.1f, %.1f, %d) %02x\n", 
