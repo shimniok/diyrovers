@@ -28,9 +28,10 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <stdio.h>
+#include "boards.h"
 #include "Sensors.h"
 #include "debug.h"
-#include <stdio.h>
 
 #define GYRO_SCALE 14.49787 // Is the sign right here?? yes, see g_sign
 
@@ -55,15 +56,15 @@ Sensors::Sensors():
 	rrEncSpeed(0.0),
 	encDistance(0.0),
 	encSpeed(0.0),
-    gps(p26, p25),
+    gps(UART2TX, UART2RX),
     _voltage(p19),               // Voltage from sensor board
     _current(p20),               // Current from sensor board
-    _left(p30),                  // left wheel encoder
-    _right(p29),                 // Right wheel encoder
-    _gyro(p28, p27),             // MinIMU-9 gyro
-    _compass(p28, p27),          // MinIMU-9 compass/accelerometer
-    _rangers(p28, p27),          // Arduino ADC to I2C
-    _cam(p28, p27)
+    _left(ENCALEFT),                  // left wheel encoder
+    _right(ENCARIGHT),                 // Right wheel encoder
+    _gyro(I2CSDA, I2CSCL),       // MinIMU-9 gyro
+    _compass(I2CSDA, I2CSCL),    // MinIMU-9 compass/accelerometer
+    _rangers(I2CSDA, I2CSCL),    // Arduino ADC to I2C
+    _cam(I2CSDA, I2CSCL)
 {
     for (int i=0; i < 3; i++) {
         m_offset[i] = 0;

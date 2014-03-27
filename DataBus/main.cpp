@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "mbed.h"
+#include "boards.h"
 #include "globals.h"
 #include "Filesystem.h"
 #include "Config.h"
@@ -84,7 +85,7 @@ Steering steerCalc(TRACK, WHEELBASE);   // steering calculator
 
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
-SerialGraphicLCD lcd(p17, p18, SD_FW);  // Graphic LCD with summoningdark firmware
+SerialGraphicLCD lcd(UART3TX, UART3RX, SD_FW);  // Graphic LCD with summoningdark firmware
 
 // SENSORS
 Sensors sensors;                        // Abstraction of sensor drivers
@@ -249,32 +250,31 @@ int main()
     ///////////////////////////////////////////////////////////////////////////////////
     //
     // REENABLE !!!
-    /*
-    fprintf(stdout, "Calculating offsets...\n");
+    fputs("Calculating offsets...\n", stdout);
     display.status("Offset calculation  ");
     wait(0.2);
     // TODO 3 Really need to give the gyro more time to settle
     sensors.gps.disable();
-    sensors.Calculate_Offsets();
+    // TODO 1 sensors.Calculate_Offsets();
 
-
-    fprintf(stdout, "Starting GPS...\n");
+    fputs("Starting GPS...\n", stdout);
     display.status("Start GPS           "); // TODO 3: would be nice not to have to pad at this level
     wait(0.2);
     sensors.gps.setUpdateRate(10);
     sensors.gps.enable();
 
-    fprintf(stdout, "Starting Scheduler...\n");
+    // TODO Running this seems to prevent the main loop from running ?!
+    fputs("Starting Scheduler...\n", stdout);
     display.status("Start scheduler     ");
     wait(0.2);
     // Startup sensor/AHRS ticker; update every UPDATE_PERIOD
     restartNav();
     startUpdater();
 
-    */
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
+
 
 
 /*

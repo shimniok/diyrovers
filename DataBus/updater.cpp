@@ -101,7 +101,7 @@ struct history_rec {
     float gyro;     // heading rate
     //float ghdg;   // uncorrected gyro heading
     float dt;       // delta time
-} history[MAXHIST]; // fifo for sensor data, position, heading, dt
+} history[MAXHIST] __attribute__ ((section("AHBSRAM0"))); // fifo for sensor data, position, heading, dt
 
 int hCount;         // history counter; we can go back in time to reference gyro history
 int now = 0;        // fifo input index, latest entry
@@ -174,10 +174,11 @@ void setSpeed(const float speed)
 /** update() runs the data collection, estimation, steering control, and throttle control */
 void update()
 {
-    tReal = timer.read_us();
+	tReal = timer.read_us();
     bool useGps=false;
 
-    ahrsStatus = 0;
+    ahrsStatus = !ahrsStatus;
+
     thisTime = timer.read_ms();
     dt = (lastTime < 0) ? 0 : ((float) thisTime - (float) lastTime) / 1000.0; // first pass let dt=0
     lastTime = thisTime;
@@ -234,6 +235,8 @@ void update()
     // TODO 3 really need to do some filtering on the speed
     //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
     nowSpeed = sensors.encSpeed;
+
+#if 0
     sensors.Read_Gyro(); 
     sensors.Read_Rangers();
     sensors.Read_Accel();
@@ -553,4 +556,5 @@ void update()
     tReal = timer.read_us() - tReal;
 
     ahrsStatus = 1;
+#endif
 }
