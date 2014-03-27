@@ -236,10 +236,9 @@ void update()
     //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
     nowSpeed = sensors.encSpeed;
 
-#if 0
     sensors.Read_Gyro(); 
-    sensors.Read_Rangers();
-    sensors.Read_Accel();
+    //sensors.Read_Rangers();
+    //sensors.Read_Accel();
     //sensors.Read_Camera();
 
     //////////////////////////////////////////////////////////////////////////////
@@ -556,5 +555,4 @@ void update()
     tReal = timer.read_us() - tReal;
 
     ahrsStatus = 1;
-#endif
 }
