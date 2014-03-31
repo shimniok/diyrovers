@@ -14,6 +14,8 @@ OBJECTS += \
 	./Actuators/Actuators.o \
 	./Actuators/Servo/Servo.o \
 	./Actuators/Steering/Steering.o \
+	./Channel/Channel.o \
+	./Channel/SerialMux.o \
 	./Config/Config.o \
 	./Estimation/CartPosition/CartPosition.o \
 	./Estimation/GeoPosition/GeoPosition.o \
@@ -47,10 +49,12 @@ OBJECTS += \
 	./logging/logging.o
 SYS_OBJECTS = ./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/cmsis_nvic.o ./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/system_LPC17xx.o ./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/startup_LPC17xx.o ./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/retarget.o 
 INCLUDE_PATHS  = -I. -I./mbed-rtos -I./mbed-rtos/rtx -I./mbed-rtos/rtx/TARGET_M3 -I./mbed-rtos/rtx/TARGET_M3/TOOLCHAIN_GCC -I./mbed-rtos/rtos -I./mbed -I./mbed/TARGET_LPC1768 -I./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM
-INCLUDE_PATHS += -I/usr/local/arm/arm-none-eabi/include \
+INCLUDE_PATHS += -I/usr/local/arm/arm-none-eabi/include -I/usr/local/arm/lib/gcc/arm-none-eabi/4.7.3/include
+INCLUDE_PATHS += \
 	-I./Actuators \
 	-I./Actuators/Servo \
 	-I./Actuators/Steering \
+	-I./Channel \
 	-I./Config \
 	-I./Estimation \
 	-I./Estimation/CartPosition \

@@ -276,8 +276,8 @@ int dols(char *arg) {
     int count=0;
     if ((d = opendir(path)) != NULL) {
         while ((p = readdir(d)) != NULL) {
-        	int pad = 14 - strlen(p->d_name);
-        	while (pad--) fputc(' ', stdout);
+        	int pad = 20 - strlen(p->d_name);
+        	while (pad-- > 0) fputc(' ', stdout);
         	fputs(p->d_name, stdout);
             if (count++ >= 3) {
                 count = 0;

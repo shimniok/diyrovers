@@ -12,6 +12,7 @@
 #include "boards.h"
 #include "globals.h"
 #include "Filesystem.h"
+#include "SerialMux.h"
 #include "Config.h"
 #include "Buttons.h"
 #include "Display.h"
@@ -85,6 +86,7 @@ Steering steerCalc(TRACK, WHEELBASE);   // steering calculator
 
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
+SerialMux mux(&pc);
 SerialGraphicLCD lcd(UART3TX, UART3RX, SD_FW);  // Graphic LCD with summoningdark firmware
 
 // SENSORS
@@ -122,6 +124,7 @@ Mapping mapper;
 void initFlasher(void);
 //void initDR(void);
 int autonomousMode(void);
+void telemetryMode(void);
 void mavlinkMode(void);
 void servoCalibrate(void);
 void serialBridge(Serial &gps);
@@ -355,19 +358,19 @@ int main()
         
         // TODO 2 move to UI area
         if (printMenu) {
-            int i=0;
             fprintf(stdout, "\n==============\nData Bus Menu\n==============\n");
-            fprintf(stdout, "%d) Autonomous mode\n", i++);
-            fprintf(stdout, "%d) Bridge serial to GPS\n", i++);
-            fprintf(stdout, "%d) Calibrate compass\n", i++);
-            fprintf(stdout, "%d) Swing compass\n", i++);
-            fprintf(stdout, "%d) Gyro calibrate\n", i++);
-            fprintf(stdout, "%d) Instrument check\n", i++);
-            fprintf(stdout, "%d) Display AHRS\n", i++);
-            fprintf(stdout, "%d) Mavlink mode\n", i++);
-            fprintf(stdout, "%d) Shell\n", i++);
-            fprintf(stdout, "R) Reset\n");
-            fprintf(stdout, "\nSelect from the above: ");
+            fputs("0) Autonomous mode\n", stdout);
+            fputs("1) Bridge serial to GPS\n", stdout);
+            fputs("2) Calibrate compass\n", stdout);
+            fputs("3) Swing compass\n", stdout);
+            fputs("4) Gyro calibrate\n", stdout);
+            fputs("5) Instrument check\n", stdout);
+            fputs("6) Display AHRS\n", stdout);
+            fputs("7) Mavlink mode\n", stdout);
+            fputs("8) Telemetry mode\n", stdout);
+            fputs("9) Shell\n", stdout);
+            fputs("R) Reset\n", stdout);
+            fputs("\nSelect from the above: ", stdout);
             fflush(stdout);
             printMenu = false;
         }
@@ -441,17 +444,24 @@ int main()
                     mavlinkMode();
                     break;
                 case '8' :
+                    display.select("Mavlink mode");
+                    display.status("Standby.");
+                    telemetryMode();
+                    break;
+                case '9' :
                     display.select("Shell");
                     display.status("Standby.");
                     shell(0);
                     break;
-                case '9' :
+                /*
+                case 'A' :
                     display.select("Serial bridge 2");
                     display.status("Standby.");
                     //gps2.enableVerbose();
                     //serialBridge( *(gps2.getSerial()) );
                     //gps2.disableVerbose();
                     break;
+                */
                 default :
                     break;
             } // switch        
@@ -969,6 +979,54 @@ void displayData(const int mode)
 }
 
 
+void telemetryMode() {
+	RawSerial pc(USBTX, USBRX);
+	bool done=false;
+
+	pc.baud(115200);
+
+	// FIXME - escape from telemetry mode
+	pc.puts("Entering telemetry mode; press e to exit\n\n");
+
+    timer.reset();
+    timer.start();
+
+    while (!done) {
+
+        if (keypad.pressed) {
+            keypad.pressed = false;
+            done=true;
+        }
+
+        while (pc.readable()) {
+            if (pc.getc() == 'e') {
+                done = true;
+                break;
+            }
+        }
+
+
+        int millis = timer.read_ms();
+
+		if ((millis % 1000) == 0) {
+			confStatus = 1;
+
+			SystemState *s = fifo_first();
+
+			pc.printf("%01	0d, ", millis);
+			pc.printf("%.2f, %.2f", sensors.voltage, sensors.current);
+			pc.printf("%.2f, %.7f, %.7f, %.1f, %d, ",
+					s->estHeading,
+					sensors.gps.latitude(), sensors.gps.longitude(),
+					sensors.gps.hdop(), sensors.gps.sat_count() );
+			pc.printf("%.1f, ", (sensors.lrEncSpeed + sensors.rrEncSpeed)/2.0);
+			pc.printf("%.2f, %.5f, %.2f\n", s->bearing, s->distance, s->steerAngle);
+	        confStatus = 0;
+		}
+    }
+	return;
+}
+
 // TODO: 3 move Mavlink into main (non-interrupt) loop along with logging
 // possibly also buffered if necessary
 
@@ -994,7 +1052,7 @@ void mavlinkMode() {
     mav_hud.groundspeed = 0.0;
     mav_hud.throttle = 0;
 
-    fprintf(stdout, "Entering MAVlink mode; reset the MCU to exit\n\n");
+    fputs("Entering MAVlink mode; reset the MCU to exit\n\n", stdout);
 
     wait(5.0);
 
