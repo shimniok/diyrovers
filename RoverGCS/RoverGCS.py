@@ -12,9 +12,11 @@
 
 import wxversion
 
-wxversion.select("3.0")
-import wx, wx.html
+wxversion.select("2.8")
+import wx
+import wx.html
 import sys
+from math import pi
 
 aboutText = """<p>Sorry, there is no information about this program. It is
 running on version %(wxpy)s of <b>wxPython</b> and %(python)s of <b>Python</b>.
@@ -58,79 +60,93 @@ class AboutBox(wx.Dialog):
 # refresh
 
 
-class ImagePanel(wx.Panel):
-    def __init__(self, parent, imagepath, pos=(0, 0), size=(100,100)):
+class GaugePanel(wx.Panel):
+    def __init__(self, parent, imagepath, width=100, height=100):
         wx.Panel.__init__(self, parent)
-        image = wx.Image(imagepath)
-        image = image.Scale(size[0], size[1])
-        wx.StaticBitmap(self, -1, wx.BitmapFromImage(image), (0,0))
+        self.image = wx.Image(imagepath)
+        self.width = width
+        self.height = height
+        self.image = self.image.Scale(width, height)
+        wx.StaticBitmap(self, -1, wx.BitmapFromImage(self.image))
+        self.needle = {}
 
+    def AddNeedle(self, imagepath, name=0):
+        self.needle[name] = wx.Image(imagepath)
+        self.needle[name] = self.needle[name].Scale(self.width, self.height)
+        self.SetAngle(angle=0, name=name)
+
+    def SetAngle(self, angle, name=0):
+        n = self.needle[name]
+        width = n.GetWidth()
+        height = n.GetHeight()
+        n = n.Rotate(-angle*pi/180.0, None, False, None)
+        dw = n.GetWidth() - width
+        dh = n.GetHeight() - height
+        rect = wx.Rect(dw/2, dh/2, width-dw/2, height-dh/2)
+        n = n.GetSubImage(rect)
+        wx.StaticBitmap(self, -1, wx.BitmapFromImage(self.image))
+        wx.StaticBitmap(self, -1, wx.BitmapFromImage(n))
+        self.Refresh()
 
 class Frame(wx.Frame):
     def __init__(self, title):
         wx.Frame.__init__(self, None, title=title, pos=(150, 150), size=(955, 400))
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
-        menuBar = wx.MenuBar()
+        menubar = wx.MenuBar()
         menu = wx.Menu()
         m_exit = menu.Append(wx.ID_EXIT, "E&xit\tAlt-X", "Close window and exit program.")
         self.Bind(wx.EVT_MENU, self.OnClose, m_exit)
-        menuBar.Append(menu, "&File")
+        menubar.Append(menu, "&File")
         menu = wx.Menu()
         m_about = menu.Append(wx.ID_ABOUT, "&About", "Information about this program")
         self.Bind(wx.EVT_MENU, self.OnAbout, m_about)
-        menuBar.Append(menu, "&Help")
-        self.SetMenuBar(menuBar)
+        menubar.Append(menu, "&Help")
+        self.SetMenuBar(menubar)
 
         self.statusbar = self.CreateStatusBar()
 
         panel = wx.Panel(self)
-        box = wx.BoxSizer(wx.VERTICAL)
+        # bmp = wx.Image("resources/maple.jpg", wx.BITMAP_TYPE_ANY).ConvertToBitmap()
+        # self.bitmap1 = wx.StaticBitmap(panel, -1, bmp, (0, 0))
+        sizer = wx.GridBagSizer(5, 5)
 
-        m_text = wx.StaticText(panel, -1, "Hello World!")
-        m_text.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-        m_text.SetSize(m_text.GetBestSize())
-        box.Add(m_text, 0, wx.ALL, 10)
+        speedo_panel = GaugePanel(panel, "resources/speedometer1.png", 300, 300)
+        speedo_panel.SetBackgroundColour("#990000")
+        speedo_panel.AddNeedle("resources/speedometerneedle1.png")
+        # speedo_panel.SetAngle(100)
+        # speedo_panel.SetAngle(10)
+        sizer.Add(speedo_panel, pos=(0, 0), span=(2, 2), flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
 
-        m_close = wx.Button(panel, wx.ID_CLOSE, "Close")
-        m_close.Bind(wx.EVT_BUTTON, self.OnClose)
-        box.Add(m_close, 0, wx.ALL, 10)
+        volt_panel = GaugePanel(panel, "resources/voltmeter1.png", 150, 150)
+        volt_panel.AddNeedle("resources/voltmeterneedle1.png")
+        sizer.Add(volt_panel, pos=(0, 2), span=(1, 1), flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
 
-        bmp = wx.Image("resources/maple.jpg", wx.BITMAP_TYPE_ANY).ConvertToBitmap()
-        self.bitmap1 = wx.StaticBitmap(self, -1, bmp, (0, 0))
+        ammeter_panel = GaugePanel(panel, "resources/ammeter2.gif", 150, 150)
+        ammeter_panel.AddNeedle("resources/ammeterneedle2.gif")
+        sizer.Add(ammeter_panel, pos=(0, 3), span=(1, 1), flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
 
-        self.add_image("resources/speedometer1.png", 300, 300, (5, 5))
-        self.add_image("resources/speedometerneedle1.png", 300, 300, (5, 5))
-        #        img = bitmap.ConvertToImage()
-        #    img_centre = wx.Point( img.GetWidth()/2, img.GetHeight()/2 )
-        #    img = img.Rotate( angle, img_centre )
-        #    dc.WriteBitmap( img.ConvertToBitmap(), 0, 0 )
+        fuel_panel = GaugePanel(panel, "resources/fuel1.png", 150, 150)
+        fuel_panel.AddNeedle("resources/fuelneedle1.png")
+        sizer.Add(fuel_panel, pos=(1, 2), span=(1, 1), flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
 
-        self.add_image("resources/voltmeter1.png", 150, 150, (320, 5))
-        self.add_image("resources/voltmeterneedle1.png", 150, 150, (320, 5))
-        self.add_image("resources/ammeter2.gif", 150, 150, (480, 5))
-        self.add_image("resources/ammeterneedle2.gif", 150, 150, (480, 5))
-        self.add_image("resources/fuel1.png", 150, 150, (320, 160))
-        self.add_image("resources/fuelneedle1.png", 150, 150, (320, 160))
-        self.add_image("resources/clock.png", 150, 150, (480, 160))
-        self.add_image("resources/clockhour.png", 150, 150, (480, 160))
-        self.add_image("resources/clockminute.png", 150, 150, (480, 160))
-        self.add_image("resources/clocksecond.png", 150, 150, (480, 160))
-        self.add_image("resources/compass.png", 300, 300, (650, 5))
-        #self.add_image("resources/compassneedle.png", 300, 300, (650, 5))
-        ipanel = ImagePanel(self, "resources/compassneedle.png", (650, 5), (300,300))
-        self.add_image("resources/compassbearing.png", 300, 300, (650, 5))
+        clock_panel = GaugePanel(panel, "resources/clock.png", 150, 150)
+        clock_panel.AddNeedle("resources/clockhour.png", "hour")
+        clock_panel.AddNeedle("resources/clockminute.png", "minute")
+        clock_panel.AddNeedle("resources/clocksecond.png", "second")
+        sizer.Add(clock_panel, pos=(1, 3), span=(1, 1), flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
 
-        #ll self.Refresh() from your OnKeyArrow and OnMotion events. Update your scene data in those methods and set some
-        #  flag e.g. self.repaint_needed = True. Then in OnIdle repaint the scene if self.repaint_needed is True.
+        compass_panel = GaugePanel(panel, "resources/compass.png", 300, 300)
+        compass_panel.AddNeedle("resources/compassneedle.png", "heading")
+        compass_panel.AddNeedle("resources/compassbearing.png", "bearing")
+        sizer.Add(compass_panel, pos=(0, 4), span=(2, 2), flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
 
-        panel.SetSizer(box)
+        panel.SetSizer(sizer)
         panel.Layout()
 
-    def add_image(self, path, width, height, pos):
-        image = wx.Image(path)
-        image = image.Scale(width, height)
-        wx.StaticBitmap(self, -1, wx.BitmapFromImage(image), pos)
+        #call self.Refresh() from your OnKeyArrow and OnMotion events. Update your scene data in those methods and set some
+        #  flag e.g. self.repaint_needed = True. Then in OnIdle repaint the scene if self.repaint_needed is True.
+
 
     def OnClose(self, event):
         self.Destroy()
