@@ -444,7 +444,7 @@ int main()
                     mavlinkMode();
                     break;
                 case '8' :
-                    display.select("Mavlink mode");
+                    display.select("Telemetry mode");
                     display.status("Standby.");
                     telemetryMode();
                     break;
@@ -1006,14 +1006,14 @@ void telemetryMode() {
         }
 
 
-        int millis = timer.read_ms();
+        unsigned int millis = timer.read_ms();
 
 		if ((millis % 1000) == 0) {
 			confStatus = 1;
 
 			SystemState *s = fifo_first();
 
-			pc.printf("%01	0d, ", millis);
+			pc.printf("^%u, ", millis);
 			pc.printf("%.2f, %.2f", sensors.voltage, sensors.current);
 			pc.printf("%.2f, %.7f, %.7f, %.1f, %d, ",
 					s->estHeading,
