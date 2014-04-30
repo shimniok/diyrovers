@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdint.h>
 #include "mbed.h"
 #include "boards.h"
 #include "globals.h"
@@ -72,8 +73,8 @@
 DigitalOut confStatus(LED1);            // Config file status LED
 DigitalOut logStatus(LED2);             // Log file status LED
 DigitalOut gpsStatus(LED3);             // GPS fix status LED
-DigitalOut ahrsStatus(LED4);            // AHRS status LED
-//DigitalOut sonarStart(p18);             // Sends signal to start sonar array pings
+DigitalOut updaterStatus(LED4);         // update loop status LED
+//DigitalOut sonarStart(p18);           // Sends signal to start sonar array pings
 Display display;                        // UI display
 //Beep speaker(p24);                      // Piezo speaker
 
@@ -172,12 +173,12 @@ int main()
 
     // Let's try setting priorities...
     //NVIC_SetPriority(DMA_IRQn, 0);
+    NVIC_SetPriority(TIMER3_IRQn, 2);   // updater running off Ticker
     NVIC_SetPriority(EINT0_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(EINT1_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(EINT2_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(EINT3_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(SPI_IRQn, 7);    	// uSD card, logging
-    NVIC_SetPriority(TIMER3_IRQn, 8);   // updater running off Ticker
     NVIC_SetPriority(UART0_IRQn, 10);   // USB
     NVIC_SetPriority(UART1_IRQn, 10);
     NVIC_SetPriority(UART2_IRQn, 10);
@@ -205,7 +206,7 @@ int main()
     wait(0.2);
     
     // Initialize status LEDs
-    ahrsStatus = 0;
+    updaterStatus = 0;
     gpsStatus = 0;
     logStatus = 0;
     confStatus = 0;
@@ -595,7 +596,7 @@ int autonomousMode()
     display.status("Completed. Saved.");
     wait(2.0);
 
-    ahrsStatus = 0;
+    updaterStatus = 0;
     gpsStatus = 0;
     //confStatus = 0;
     //flasher = 0;
@@ -906,7 +907,7 @@ void displayData(const int mode)
         }
         
         while (pc.readable()) {
-            if (pc.getc() == 'e') {
+            if (pc.getc(stdin) == 'e') {
                 done = true;
                 break;
             }
@@ -974,7 +975,7 @@ void displayData(const int mode)
     // clear input buffer
     while (pc.readable()) pc.getc();
     lcd.clear();
-    ahrsStatus = 0;
+    updaterStatus = 0;
     gpsStatus = 0;
 }
 
@@ -982,6 +983,7 @@ void displayData(const int mode)
 void telemetryMode() {
 	RawSerial pc(USBTX, USBRX);
 	bool done=false;
+	static int skip = 0;
 
 	pc.baud(115200);
 
@@ -990,6 +992,8 @@ void telemetryMode() {
 
     timer.reset();
     timer.start();
+
+    beginRun();
 
     while (!done) {
 
@@ -1005,25 +1009,29 @@ void telemetryMode() {
             }
         }
 
-
         unsigned int millis = timer.read_ms();
 
-		if ((millis % 1000) == 0) {
+        pc.printf("fifo in:%d out:%d\n", fifo_getInState(), fifo_getOutState());
+
+		SystemState *s = fifo_pull();
+
+		if (s && ++skip > 5) {
+			skip = 0;
+
 			confStatus = 1;
-
-			SystemState *s = fifo_first();
-
 			pc.printf("^%u, ", millis);
-			pc.printf("%.2f, %.2f", sensors.voltage, sensors.current);
+			pc.printf("%.2f, %.2f, ", s->voltage, s->current);
 			pc.printf("%.2f, %.7f, %.7f, %.1f, %d, ",
 					s->estHeading,
-					sensors.gps.latitude(), sensors.gps.longitude(),
-					sensors.gps.hdop(), sensors.gps.sat_count() );
-			pc.printf("%.1f, ", (sensors.lrEncSpeed + sensors.rrEncSpeed)/2.0);
+					s->gpsLatitude, s->gpsLongitude,
+					s->gpsHDOP, s->gpsSats );
+			pc.printf("%.1f, ", (s->lrEncSpeed + s->rrEncSpeed)/2.0);
 			pc.printf("%.2f, %.5f, %.2f\n", s->bearing, s->distance, s->steerAngle);
-	        confStatus = 0;
+			confStatus = 0;
 		}
     }
+    endRun();
+
 	return;
 }
 
@@ -1031,6 +1039,7 @@ void telemetryMode() {
 // possibly also buffered if necessary
 
 void mavlinkMode() {
+#if 0
     uint8_t system_type = MAV_FIXED_WING;
     uint8_t autopilot_type = MAV_AUTOPILOT_GENERIC;
     //int count = 0;
@@ -1183,6 +1192,7 @@ void mavlinkMode() {
     fprintf(stdout, "\n");
     
     return;
+#endif
 }
 
 // TODO 2 move to display

@@ -23,6 +23,7 @@
 // Useful C libraries
 #include <math.h>
 #include <time.h>
+#include <stdint.h>
 
 // mbed Debug libraries
 #include "error.h"

@@ -95,5 +95,7 @@ bool fifo_push(SystemState *s);
 SystemState *fifo_first(void);
 SystemState *fifo_last(void);
 SystemState *fifo_pull(void);
+int fifo_getInState(void);
+int fifo_getOutState(void);
 
 #endif

@@ -31,6 +31,7 @@ SystemState nowState;
 //#define LOG_SKIP 1  // 50ms, 20hz, log entry entered into fifo
 
 // The following is for main loop at 10ms = 100hz
+#define LED_SKIP 20
 #define CTRL_SKIP 5     // 50ms control update
 #define MAG_SKIP 2      // 20ms magnetometer update
 #define LOG_SKIP 2
@@ -38,6 +39,7 @@ SystemState nowState;
 
 Ticker sched;                           // scheduler for interrupt driven routines
 
+int led_count=LED_SKIP;					// blink led slower as heartbeat
 int control_count=CTRL_SKIP;			// update control outputs every so often
 int update_count=MAG_SKIP;              // call Update_mag() every update_count calls to schedHandler()
 int power_count=PWR_SKIP;				// read power sensors every so often
@@ -55,7 +57,7 @@ extern Sensors sensors;
 extern Mapping mapper;
 extern Steering steerCalc;              // steering calculator
 extern Timer timer;
-extern DigitalOut ahrsStatus;           // AHRS status LED
+extern DigitalOut updaterStatus;           // AHRS status LED
 
 // Navigation
 extern Config config;
@@ -177,7 +179,10 @@ void update()
 	tReal = timer.read_us();
     bool useGps=false;
 
-    ahrsStatus = !ahrsStatus;
+    if (led_count-- <= 0) {
+    	updaterStatus = !updaterStatus;
+    	led_count = LED_SKIP;
+    }
 
     thisTime = timer.read_ms();
     dt = (lastTime < 0) ? 0 : ((float) thisTime - (float) lastTime) / 1000.0; // first pass let dt=0
@@ -539,13 +544,13 @@ void update()
     // Periodically, we enter a new SystemState into the FIFO buffer
     // The main loop handles logging and will catch up to us provided
     // we feed in new log entries slowly enough.
-    if (go) {
+//    if (go) {
     	if (--log_count == 0) {
 			fifo_push(&nowState);
 			state_clear(&nowState);
 			log_count = LOG_SKIP;       // reset counter
     	}
-    }
+//    }
 
     // increment history fifo pointers with wrap-around
     prev = now;
@@ -553,6 +558,4 @@ void update()
 
     // timing
     tReal = timer.read_us() - tReal;
-
-    ahrsStatus = 1;
 }

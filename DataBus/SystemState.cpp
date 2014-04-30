@@ -86,3 +86,10 @@ SystemState *fifo_last() {
 	return &state[outState];
 }
 
+int fifo_getInState() {
+	return inState;
+}
+
+int fifo_getOutState() {
+	return outState;
+}
