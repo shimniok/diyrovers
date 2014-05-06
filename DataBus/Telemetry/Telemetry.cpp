@@ -18,6 +18,7 @@ void Telemetry::sendPacket() {
 	SystemState *s = fifo_pull();
 
 	if (s) {
+		// Bearing is given as absolute; we want to send relative bearing
 		float bearing = s->bearing - s->estHeading;
 		while (bearing >= 360.0) {
 			bearing -= 360.0;
@@ -29,17 +30,29 @@ void Telemetry::sendPacket() {
 		// TODO: get rid of printf
 		_uart->puts("^");
 		_uart->puts(cvntos(s->millis));
-		_uart->puts(",");
+		_uart->puts(", ");
 		_uart->puts(cvftos(s->voltage, 2));
-		_uart->puts(",");
+		_uart->puts(", ");
 		_uart->puts(cvftos(s->current, 2));
-		_uart->puts(",");
-		_uart->printf("%.2f, %.7f, %.7f, %.1f, %d, ",
-				s->estHeading,
-				s->gpsLatitude, s->gpsLongitude,
-				s->gpsHDOP, s->gpsSats );
-		_uart->printf("%.1f, ", (s->lrEncSpeed + s->rrEncSpeed)/2.0);
-		_uart->printf("%.2f, %.5f, %.2f\n", bearing, s->distance, s->steerAngle);
+		_uart->puts(", ");
+		_uart->puts(cvftos(s->estHeading, 2));
+		_uart->puts(", ");
+		_uart->puts(cvftos(s->gpsLatitude, 7));
+		_uart->puts(", ");
+		_uart->puts(cvftos(s->gpsLongitude, 7));
+		_uart->puts(", ");
+		_uart->puts(cvftos(s->gpsHDOP, 1));
+		_uart->puts(", ");
+		_uart->puts(cvitos(s->gpsSats));
+		_uart->puts(", ");
+		_uart->puts(cvftos((s->lrEncSpeed + s->rrEncSpeed)/2.0, 1));
+		_uart->puts(", ");
+		_uart->puts(cvftos(bearing, 2));
+		_uart->puts(", ");
+		_uart->puts(cvftos(s->distance, 5));
+		_uart->puts(", ");
+		_uart->puts(cvftos(s->steerAngle, 2));
+		_uart->puts("\n");
 	}
 }
 
