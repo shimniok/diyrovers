@@ -8,6 +8,7 @@
 #include "mbed.h"
 #include "Telemetry.h"
 #include "SystemState.h"
+#include "util.h"
 
 Telemetry::Telemetry(Serial &uart) {
 	_uart = &uart;
@@ -26,8 +27,13 @@ void Telemetry::sendPacket() {
 		}
 
 		// TODO: get rid of printf
-		_uart->printf("^%u, ", s->millis);
-		_uart->printf("%.2f, %.2f, ", s->voltage, s->current);
+		_uart->puts("^");
+		_uart->puts(cvntos(s->millis));
+		_uart->puts(",");
+		_uart->puts(cvftos(s->voltage, 2));
+		_uart->puts(",");
+		_uart->puts(cvftos(s->current, 2));
+		_uart->puts(",");
 		_uart->printf("%.2f, %.7f, %.7f, %.1f, %d, ",
 				s->estHeading,
 				s->gpsLatitude, s->gpsLongitude,

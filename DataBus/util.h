@@ -26,6 +26,28 @@ int ctoi(char c);
 /** Convert string to floating point */
 double cvstof(char *s);
 
+/** Convert unsigned long to string
+ *
+ * @param n is the unsigned long to convert
+ * @returns char * to static char array
+ */
+char *cvntos(unsigned long n);
+
+/** Convert signed long to string
+ *
+ * @param n is the signed long to convert
+ * @returns char * to static char array
+ */
+char *cvitos(long n);
+
+/** Convert float/double to string
+ *
+ * @param number is the floating point number to convert
+ * @param digits is the number of digits after the decimal point
+ * @return char * to static char array
+ */
+char *cvftos(double number, int digits);
+
 /** Tokenize a string 
  * @param s is the string to tokenize
  * @param max is the maximum number of characters
