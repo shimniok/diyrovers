@@ -892,7 +892,7 @@ void serialBridge(Serial &serial)
     int count = 0;
     bool done=false;
 
-    fprintf(stdout, "\nEntering serial bridge in 2 seconds, +++ to escape\n\n");
+    fputs("\nEntering serial bridge in 2 seconds, +++ to escape\n\n", stdout);
     sensors.gps.enableVerbose();
     wait(2.0);
     //dev = &gps;
@@ -930,6 +930,7 @@ int instrumentCheck(void) {
  
 void displayData(const int mode)
 {
+#if 0
     bool done = false;
 
     lcd.clear();
@@ -947,8 +948,8 @@ void displayData(const int mode)
     
     timer.reset();
     timer.start();
-      
-    fprintf(stdout, "press e to exit\n");
+
+    fputs("press e to exit\n", stdout);
     while (!done) {
         int millis = timer.read_ms();
 
@@ -1028,6 +1029,7 @@ void displayData(const int mode)
     lcd.clear();
     updaterStatus = 0;
     gpsStatus = 0;
+#endif
 }
 
 
