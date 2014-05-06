@@ -276,10 +276,18 @@ int main()
 
     display.status("Nav configuration   ");
     steerCalc.setIntercept(config.interceptDist);               // Setup steering calculator based on intercept distance
-    pc.printf("Intercept distance: %.1f\n", config.interceptDist);
-    pc.printf("Waypoint distance: %.1f\n", config.waypointDist);
-    pc.printf("Brake distance: %.1f\n", config.brakeDist);
-    pc.printf("Min turn radius: %.3f\n", config.minRadius);
+    pc.puts("Intercept distance: ");
+    pc.puts(cvftos(config.interceptDist, 1));
+    pc.puts("\n");
+    pc.puts("Waypoint distance: ");
+    pc.puts(cvftos(config.waypointDist, 1));
+    pc.puts("\n");
+	pc.puts("Brake distance: ");
+    pc.puts(cvftos(config.brakeDist, 1));
+    pc.puts("\n");
+    pc.puts("Min turn radius: ");
+	pc.puts(cvftos(config.minRadius, 3));
+    pc.puts("\n");
 
     fputs("Calculating offsets...\n", stdout);
     display.status("Offset calculation  ");
