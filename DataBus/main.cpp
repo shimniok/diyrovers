@@ -253,9 +253,21 @@ int main()
     mapper.init(config.wptCount, config.wpt);
     for (unsigned int w = 0; w < MAXWPT && w < config.wptCount; w++) {
         mapper.geoToCart(config.wpt[w], &(config.cwpt[w]));
-        pc.printf("Waypoint #%d (%.4f, %.4f) lat: %.6f lon: %.6f, topspeed: %.1f, turnspeed: %.1f\n",
-                    w, config.cwpt[w].x, config.cwpt[w].y, config.wpt[w].latitude(), config.wpt[w].longitude(),
-                    config.topSpeed + config.wptTopSpeedAdj[w], config.turnSpeed + config.wptTurnSpeedAdj[w]);
+        pc.puts("Waypoint #");
+        pc.puts(cvntos(w));
+        pc.puts(" (");
+        pc.puts(cvftos(config.cwpt[w].x, 4));
+        pc.puts(", ");
+        pc.puts(cvftos(config.cwpt[w].y, 4));
+        pc.puts(") lat: ");
+        pc.puts(cvftos(config.wpt[w].latitude(), 6));
+        pc.puts(" lon: ");
+        pc.puts(cvftos(config.wpt[w].longitude(), 6));
+        pc.puts(", topspeed: ");
+        pc.puts(cvftos(config.topSpeed + config.wptTopSpeedAdj[w], 1));
+        pc.puts(", turnspeed: ");
+        pc.puts(cvftos(config.turnSpeed + config.wptTurnSpeedAdj[w], 1));
+        pc.puts("\n");
     }
 
     // TODO 3 print mag and gyro calibrations
