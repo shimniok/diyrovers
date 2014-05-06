@@ -127,12 +127,12 @@ Mapping mapper;
 
 void initFlasher(void);
 //void initDR(void);
+void displayData(const int mode);
 int autonomousMode(void);
 void telemetryMode(void);
 void servoCalibrate(void);
 void serialBridge(Serial &gps);
 int instrumentCheck(void);
-void displayData(int mode);
 int compassCalibrate(void);
 int compassSwing(void);
 int gyroSwing(void);
@@ -392,9 +392,9 @@ int main()
             fputs("2) Calibrate compass\n", stdout);
             fputs("3) Swing compass\n", stdout);
             fputs("4) Gyro calibrate\n", stdout);
-            fputs("5) Instrument check\n", stdout);
-            fputs("6) Telemetry mode\n", stdout);
-            fputs("7) Shell\n", stdout);
+            //fputs("5) Instrument check\n", stdout);
+            fputs("5) Telemetry mode\n", stdout);
+            fputs("6) Shell\n", stdout);
             fputs("R) Reset\n", stdout);
             fputs("\nSelect from the above: ", stdout);
             fflush(stdout);
@@ -454,17 +454,19 @@ int main()
                     display.select(menu.getItemName(2));
                     gyroSwing();
                     break;
+				/*
                 case '5' :
                     display.select("Instruments");
                     display.status("Standby.");
                     displayData(INSTRUMENT_CHECK);
                     break;
-                case '6' :
+                */
+                case '5' :
                 	display.select("Telemetry");
                 	display.status("Standby.");
                 	telemetryMode();
                 	break;
-                case '7' :
+                case '6' :
                     display.select("Shell");
                     display.status("Standby.");
                     shell(0);
