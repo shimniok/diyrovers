@@ -170,7 +170,7 @@ int main()
 
 	// Send data back to the PC
     pc.baud(115200);
-    fprintf(stdout, "Data Bus 2014\n");
+    fputs("Data Bus 2014\n", stdout);
     fflush(stdin);
 
     // Let's try setting priorities...
@@ -203,7 +203,7 @@ int main()
     display.init();
     display.status("Data Bus 2014");
 
-    fprintf(stdout, "Initializing...\n");
+    fputs("Initializing...\n", stdout);
     display.status("Initializing");
     wait(0.2);
     
@@ -217,7 +217,7 @@ int main()
     	error("\n\n%% Error initializing SystemState fifo %%\n");
     }
 
-    fprintf(stdout, "Loading configuration...\n");
+    fputs("Loading configuration...\n", stdout);
     display.status("Load config");
     wait(0.2);
     if (config.load())                          // Load various configurable parameters, e.g., waypoints, declination, etc.
@@ -1111,7 +1111,7 @@ int setBacklight(void) {
         if (printUpdate) {
             printUpdate = false;
             lcd.pos(0,1);
-            lcd.printf("%3d%%%-16s", backlight, "");
+            //FIXME lcd.printf("%3d%%%-16s", backlight, "");
         }
     }
     
