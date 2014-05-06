@@ -125,8 +125,8 @@ Mapping mapper;
 void initFlasher(void);
 //void initDR(void);
 int autonomousMode(void);
+void sendTelemetryPacket(void);
 void telemetryMode(void);
-void mavlinkMode(void);
 void servoCalibrate(void);
 void serialBridge(Serial &gps);
 int instrumentCheck(void);
@@ -173,7 +173,7 @@ int main()
 
     // Let's try setting priorities...
     //NVIC_SetPriority(DMA_IRQn, 0);
-    NVIC_SetPriority(TIMER3_IRQn, 2);   // updater running off Ticker
+    NVIC_SetPriority(TIMER3_IRQn, 2);   // updater running off Ticker, must be highest priority!!
     NVIC_SetPriority(EINT0_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(EINT1_IRQn, 5);    // wheel encoders
     NVIC_SetPriority(EINT2_IRQn, 5);    // wheel encoders
@@ -309,12 +309,6 @@ int main()
 
     while (1) {
 
-        /*
-        if (timer.read_ms() > hdgUpdate) {
-            fprintf(stdout, "He=%.3f %.5f\n", kfGetX(0), kfGetX(1));
-            hdgUpdate = timer.read_ms() + 100;
-        }*/
-
         if ((thisUpdate = timer.read_ms()) > nextUpdate) {
             // Pulling out current state so we get the most current
             SystemState *s = fifo_first();
@@ -366,10 +360,7 @@ int main()
             fputs("3) Swing compass\n", stdout);
             fputs("4) Gyro calibrate\n", stdout);
             fputs("5) Instrument check\n", stdout);
-            fputs("6) Display AHRS\n", stdout);
-            fputs("7) Mavlink mode\n", stdout);
-            fputs("8) Telemetry mode\n", stdout);
-            fputs("9) Shell\n", stdout);
+            fputs("6) Shell\n", stdout);
             fputs("R) Reset\n", stdout);
             fputs("\nSelect from the above: ", stdout);
             fflush(stdout);
@@ -435,21 +426,6 @@ int main()
                     displayData(INSTRUMENT_CHECK);
                     break;
                 case '6' :
-                    display.select("AHRS Visual'n");
-                    display.status("Standby.");
-                    displayData(AHRS_VISUALIZATION);
-                    break;
-                case '7' :
-                    display.select("Mavlink mode");
-                    display.status("Standby.");
-                    mavlinkMode();
-                    break;
-                case '8' :
-                    display.select("Telemetry mode");
-                    display.status("Standby.");
-                    telemetryMode();
-                    break;
-                case '9' :
                     display.select("Shell");
                     display.status("Standby.");
                     shell(0);
@@ -584,6 +560,7 @@ int autonomousMode()
         // 150ms, we run it opportunistically and use a buffer. That way
         // the sensor updates, calculation, and control can continue to happen
         if (fifo_available()) {
+			sendTelemetryPacket();
             logStatus = !logStatus;         // log indicator LED
             logData( fifo_pull() );         // log state data to file
             logStatus = !logStatus;         // log indicator LED
@@ -907,7 +884,7 @@ void displayData(const int mode)
         }
         
         while (pc.readable()) {
-            if (pc.getc(stdin) == 'e') {
+            if (pc.getc() == 'e') {
                 done = true;
                 break;
             }
@@ -980,6 +957,33 @@ void displayData(const int mode)
 }
 
 
+void sendTelemetryPacket() {
+	unsigned int millis = timer.read_ms();
+	SystemState *s = fifo_pull();
+
+	if (s) {
+		float bearing = s->bearing - s->estHeading;
+		while (bearing >= 360.0) {
+			bearing -= 360.0;
+		}
+		while (bearing < 0) {
+			bearing += 360.0;
+		}
+
+		confStatus = 1;
+		pc.printf("^%u, ", millis);
+		pc.printf("%.2f, %.2f, ", s->voltage, s->current);
+		pc.printf("%.2f, %.7f, %.7f, %.1f, %d, ",
+				s->estHeading,
+				s->gpsLatitude, s->gpsLongitude,
+				s->gpsHDOP, s->gpsSats );
+		pc.printf("%.1f, ", (s->lrEncSpeed + s->rrEncSpeed)/2.0);
+		pc.printf("%.2f, %.5f, %.2f\n", bearing, s->distance, s->steerAngle);
+		confStatus = 0;
+	}
+}
+
+
 void telemetryMode() {
 	RawSerial pc(USBTX, USBRX);
 	bool done=false;
@@ -1009,191 +1013,20 @@ void telemetryMode() {
             }
         }
 
-        unsigned int millis = timer.read_ms();
+//        pc.printf("fifo in:%d out:%d\n", fifo_getInState(), fifo_getOutState());
 
-        pc.printf("fifo in:%d out:%d\n", fifo_getInState(), fifo_getOutState());
+        if (++skip > 2) {
+    		skip = 0;
+    		sendTelemetryPacket();
+        }
 
-		SystemState *s = fifo_pull();
 
-		if (s && ++skip > 5) {
-			skip = 0;
-
-			confStatus = 1;
-			pc.printf("^%u, ", millis);
-			pc.printf("%.2f, %.2f, ", s->voltage, s->current);
-			pc.printf("%.2f, %.7f, %.7f, %.1f, %d, ",
-					s->estHeading,
-					s->gpsLatitude, s->gpsLongitude,
-					s->gpsHDOP, s->gpsSats );
-			pc.printf("%.1f, ", (s->lrEncSpeed + s->rrEncSpeed)/2.0);
-			pc.printf("%.2f, %.5f, %.2f\n", s->bearing, s->distance, s->steerAngle);
-			confStatus = 0;
-		}
     }
     endRun();
 
 	return;
 }
 
-// TODO: 3 move Mavlink into main (non-interrupt) loop along with logging
-// possibly also buffered if necessary
-
-void mavlinkMode() {
-#if 0
-    uint8_t system_type = MAV_FIXED_WING;
-    uint8_t autopilot_type = MAV_AUTOPILOT_GENERIC;
-    //int count = 0;
-    bool done = false;
-    
-    mavlink_system.sysid = 100; // System ID, 1-255
-    mavlink_system.compid = 200; // Component/Subsystem ID, 1-255
-
-    //mavlink_attitude_t mav_attitude;
-    //mavlink_sys_status_t mav_stat;
-    mavlink_vfr_hud_t mav_hud;
- 
-    //mav_stat.mode = MAV_MODE_MANUAL;
-    //mav_stat.status = MAV_STATE_STANDBY;
-    //mav_stat.vbat = 8400;
-    //mav_stat.battery_remaining = 1000;
-
-    mav_hud.airspeed = 0.0;
-    mav_hud.groundspeed = 0.0;
-    mav_hud.throttle = 0;
-
-    fputs("Entering MAVlink mode; reset the MCU to exit\n\n", stdout);
-
-    wait(5.0);
-
-    //gps.gsvMessage(true);
-    //gps.gsaMessage(true);
-    //gps.serial.attach(gpsRecv, Serial::RxIrq);
-    
-    timer.start();
-    timer.reset();
-    
-    while (done == false) {
-
-        if (keypad.pressed == true) { // && started
-            keypad.pressed = false;
-            done = true;
-        }
-
-        int millis = timer.read_ms();
-      
-        if ((millis % 1000) == 0) {
-            SystemState *s = fifo_first();
-        /*
-        s.millis,
-        s.current, s.voltage,
-        s.g[0], s.g[1], s.g[2],
-        s.gTemp,
-        s.a[0], s.a[1], s.a[2],
-        s.m[0], s.m[1], s.m[2],
-        s.gHeading, //s.cHeading,
-        //s.roll, s.pitch, s.yaw,
-        s.gpsLatitude, s.gpsLongitude, s.gpsCourse, s.gpsSpeed*0.44704, s.gpsHDOP, s.gpsSats, // convert gps speed to m/s
-        s.lrEncDistance, s.rrEncDistance, s.lrEncSpeed, s.rrEncSpeed, s.encHeading,
-        s.estHeading, s.estLatitude, s.estLongitude,
-        // s.estNorthing, s.estEasting, 
-        s.estX, s.estY,
-        s.nextWaypoint, s.bearing, s.distance, s.gbias, s.errAngle,
-        s.leftRanger, s.rightRanger, s.centerRanger,
-        s.crossTrackErr
-        */
-
-            float groundspeed = (s->lrEncSpeed + s->rrEncSpeed)/2.0;
-            //mav_hud.groundspeed *= 2.237; // convert to mph
-            //mav_hud.heading = compassHeading();
-
-            mav_hud.heading = 0.0; //ahrs.parser.yaw;
-            
-            mavlink_msg_attitude_send(MAVLINK_COMM_0, millis*1000, 
-                0.0, //ToDeg(ahrs.roll),
-                0.0, //ToDeg(ahrs.pitch),
-                s->estHeading,
-                0.0, // rollspeed
-                0.0, // pitchspeed
-                0.0  // yawspeed
-            );
-
-
-            mavlink_msg_vfr_hud_send(MAVLINK_COMM_0, 
-                    groundspeed, 
-                    groundspeed, 
-                    s->estHeading,
-                    mav_hud.throttle, 
-                    0.0, // altitude
-                    0.0  // climb
-            );
-
-            mavlink_msg_heartbeat_send(MAVLINK_COMM_0, system_type, autopilot_type);
-            mavlink_msg_sys_status_send(MAVLINK_COMM_0,
-                    MAV_MODE_MANUAL,
-                    MAV_NAV_GROUNDED,
-                    MAV_STATE_STANDBY,
-                    0.0, // load
-                    (uint16_t) (sensors.voltage * 1000),
-                    1000, // TODO: 3 fix batt remaining
-                    0 // packet drop
-            );
-            
-            
-            mavlink_msg_gps_raw_send(MAVLINK_COMM_0, millis*1000, 3, 
-                sensors.gps.latitude(), 
-                sensors.gps.longitude(), 
-                0.0, // altitude
-                sensors.gps.hdop()*100.0, 
-                0.0, // VDOP
-                groundspeed, 
-                s->estHeading
-            );
-                
-            mavlink_msg_gps_status_send(MAVLINK_COMM_0, sensors.gps.sat_count(), 0, 0, 0, 0, 0);
-
-            wait(0.001);
-        } // millis % 1000
-
-        /*
-        if (gps.nmea.rmc_ready() &&sensors.gps.nmea.gga_ready()) {
-            char gpsdate[32], gpstime[32];
-
-           sensors.gps.process(gps_here, gpsdate, gpstime);
-            gpsStatus = (gps.hdop > 0.0 && sensors.gps.hdop < 3.0) ? 1 : 0;
-
-            mavlink_msg_gps_raw_send(MAVLINK_COMM_0, millis*1000, 3, 
-                gps_here.latitude(), 
-                gps_here.longitude(), 
-                0.0, // altitude
-                sensors.gps.nmea.f_hdop()*100.0, 
-                0.0, // VDOP
-                mav_hud.groundspeed, 
-                mav_hud.heading
-            );
-                
-            mavlink_msg_gps_status_send(MAVLINK_COMM_0, sensors.gps.nmea.sat_count(), 0, 0, 0, 0, 0);
-
-            sensors.gps.nmea.reset_ready();
-                
-        } //gps
-
-        //mavlink_msg_attitude_send(MAVLINK_COMM_0, millis*1000, mav_attitude.roll, mav_attitude.pitch, mav_attitude.yaw, 0.0, 0.0, 0.0);
-        //mavlink_msg_sys_status_send(MAVLINK_COMM_0, mav_stat.mode, mav_stat.nav_mode, mav_stat.status, mav_stat.load,
-        //                            mav_stat.vbat, mav_stat.battery_remaining, 0);
-
-        */
-
-    }
-
-    //gps.serial.attach(NULL, Serial::RxIrq);
-    //gps.gsvMessage(false);
-    //gps.gsaMessage(false);
-    
-    fprintf(stdout, "\n");
-    
-    return;
-#endif
-}
 
 // TODO 2 move to display
 int setBacklight(void) {

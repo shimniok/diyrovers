@@ -96,8 +96,11 @@ CPU = -mcpu=cortex-m3 -mthumb
 CC_FLAGS = $(CPU) -c -Os -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections 
 CC_SYMBOLS = -DTARGET_LPC1768 -DTARGET_M3 -DTARGET_NXP -DTARGET_LPC176X -DTARGET_MBED_LPC1768 -DTOOLCHAIN_GCC_ARM -DTOOLCHAIN_GCC -D__CORTEX_M3 -DARM_MATH_CM3 -DMBED_BUILD_TIMESTAMP=1395844260.84 -D__MBED__=1 
 
-LD_FLAGS = -mcpu=cortex-m3 -mthumb -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float
-LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+LD_FLAGS = -mcpu=cortex-m3 -mthumb -Wl,--gc-sections -u _printf_float -u _scanf_float
+LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc
+# ARM GCC
+LD_FLAGS += --specs=nano.specs 
+LD_SYS_LIBS += -lnosys
 
 all: $(PROJECT).bin
 	arm-none-eabi-size $(PROJECT).elf
