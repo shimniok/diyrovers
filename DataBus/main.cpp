@@ -20,6 +20,7 @@
 #include "Menu.h"
 #include "GPSStatus.h"
 #include "logging.h"
+#include "Telemetry.h"
 #include "SystemState.h"
 #include "shell.h"
 #include "Sensors.h"
@@ -87,8 +88,10 @@ Steering steerCalc(TRACK, WHEELBASE);   // steering calculator
 
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
-SerialMux mux(&pc);
+SerialMux mux(&pc);						// Multiplexed output
 SerialGraphicLCD lcd(UART3TX, UART3RX, SD_FW);  // Graphic LCD with summoningdark firmware
+Serial tuart(UART1TX, UART1RX);			// UART for telemetry
+Telemetry telem(pc);					// Setup telemetry system
 
 // SENSORS
 Sensors sensors;                        // Abstraction of sensor drivers
@@ -125,7 +128,6 @@ Mapping mapper;
 void initFlasher(void);
 //void initDR(void);
 int autonomousMode(void);
-void sendTelemetryPacket(void);
 void telemetryMode(void);
 void servoCalibrate(void);
 void serialBridge(Serial &gps);
@@ -566,7 +568,7 @@ int autonomousMode()
         // 150ms, we run it opportunistically and use a buffer. That way
         // the sensor updates, calculation, and control can continue to happen
         if (fifo_available()) {
-			sendTelemetryPacket();
+			telem.sendPacket();
             logStatus = !logStatus;         // log indicator LED
             logData( fifo_pull() );         // log state data to file
             logStatus = !logStatus;         // log indicator LED
@@ -963,33 +965,6 @@ void displayData(const int mode)
 }
 
 
-void sendTelemetryPacket() {
-	unsigned int millis = timer.read_ms();
-	SystemState *s = fifo_pull();
-
-	if (s) {
-		float bearing = s->bearing - s->estHeading;
-		while (bearing >= 360.0) {
-			bearing -= 360.0;
-		}
-		while (bearing < 0) {
-			bearing += 360.0;
-		}
-
-		confStatus = 1;
-		pc.printf("^%u, ", millis);
-		pc.printf("%.2f, %.2f, ", s->voltage, s->current);
-		pc.printf("%.2f, %.7f, %.7f, %.1f, %d, ",
-				s->estHeading,
-				s->gpsLatitude, s->gpsLongitude,
-				s->gpsHDOP, s->gpsSats );
-		pc.printf("%.1f, ", (s->lrEncSpeed + s->rrEncSpeed)/2.0);
-		pc.printf("%.2f, %.5f, %.2f\n", bearing, s->distance, s->steerAngle);
-		confStatus = 0;
-	}
-}
-
-
 void telemetryMode() {
 	RawSerial pc(USBTX, USBRX);
 	bool done=false;
@@ -1023,7 +998,7 @@ void telemetryMode() {
 
         if (++skip > 2) {
     		skip = 0;
-    		sendTelemetryPacket();
+    		telem.sendPacket();
         }
 
 

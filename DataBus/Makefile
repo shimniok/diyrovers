@@ -36,6 +36,7 @@ OBJECTS += \
 	./Sensors/L3G4200D/L3G4200D.o \
 	./Sensors/LSM303DLM/LSM303DLM.o \
 	./Sensors/GPS/Ublox6.o \
+	./Telemetry/Telemetry.o \
 	./UI/Beep/Beep.o \
 	./UI/Buttons/Buttons.o \
 	./UI/DigoleSerialDisp/DigoleSerialDisp.o \
@@ -69,9 +70,10 @@ INCLUDE_PATHS += \
 	-I./Sensors \
 	-I./Sensors/IncrementalEncoder \
 	-I./Sensors/L3G4200D \
-	-I./Sensors/LSM303DLM \
-	-I./Sensors/GPS \
-	-I./SimpleFilter \
+    -I./Sensors/LSM303DLM \
+    -I./Sensors/GPS \
+    -I./SimpleFilter \
+    -I./Telemetry \
 	-I./UI \
 	-I./UI/Beep \
 	-I./UI/Buttons \
