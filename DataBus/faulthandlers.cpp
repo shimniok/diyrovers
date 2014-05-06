@@ -122,7 +122,9 @@ void hard_fault_handler(unsigned int *hardfault_args)
 	  stacked_psr = ((unsigned long) hardfault_args[7]);
 	  //control = __get_CONTROL();
 
-	  printf("\n\n[Hard fault]\n");
+	  // TODO: Eliminate printf
+
+	  puts("\n\n[Hard fault]\n");
 	  printf("R0 = 0x%08x\n", stacked_r0);
 	  printf("R1 = 0x%08x\n", stacked_r1);
 	  printf("R2 = 0x%08x\n", stacked_r2);
@@ -138,38 +140,38 @@ void hard_fault_handler(unsigned int *hardfault_args)
 	  if (stacked_psr & CFLG) printf("C");
 	  if (stacked_psr & VFLG) printf("V");
 	  if (stacked_psr & QFLG) printf("Q");
-	  printf(" ");
+	  puts(" ");
 	  unsigned int isrnum = (stacked_psr & 0xff);
 	  switch (isrnum) {
 	  case ISR_THREADMODE:
-		  printf("Thread mode ");
+		  puts("Thread mode ");
 		  break;
 	  case ISR_NMI:
-		  printf("NMI ");
+		  puts("NMI ");
 		  break;
 	  case ISR_HARDFAULT:
-		  printf("HardFault ");
+		  puts("HardFault ");
 		  break;
 	  case ISR_MEMMANAGE:
-		  printf("MemManage ");
+		  puts("MemManage ");
 		  break;
 	  case ISR_BUSFAULT:
-		  printf("BusFault ");
+		  puts("BusFault ");
 		  break;
 	  case ISR_USAGEFAULT:
-		  printf("UsageFault ");
+		  puts("UsageFault ");
 		  break;
 	  case ISR_SVCALL:
-		  printf("SVCall ");
+		  puts("SVCall ");
 		  break;
 	  case ISR_PENDSV:
-		  printf("PendSV ");
+		  puts("PendSV ");
 		  break;
 	  case ISR_SYSTICK:
-		  printf("SysTick ");
+		  puts("SysTick ");
 		  break;
 	  case ISR_IRQ0:
-		  printf("IRQ0 ");
+		  puts("IRQ0 ");
 		  break;
 	  }
 	  printf(" ");
@@ -177,7 +179,7 @@ void hard_fault_handler(unsigned int *hardfault_args)
 		  printf("thumb");
 	  else
 		  printf("non-thumb");
-	  printf("\n");
+	  puts("\n");
 
 	  // CONTROL (not sure this works...)
 	  //printf("CONTROL = 0x%04x ", control);
@@ -188,7 +190,7 @@ void hard_fault_handler(unsigned int *hardfault_args)
 	  if (SCB->HFSR & DEBUGEVT) printf("DEBUGEVT ");
 	  if (SCB->HFSR & FORCED) printf("FORCED ");
 	  if (SCB->HFSR & VECTTBL) printf("VECTTBL ");
-	  printf("\n");
+	  puts("\n");
 	  // CFSR
 	  printf("CFSR = 0x%08lx\n", SCB->CFSR);
 	  cfsr = SCB->CFSR;
@@ -200,7 +202,7 @@ void hard_fault_handler(unsigned int *hardfault_args)
 	  if (ufsr & INVPC) printf("Invalid PC load UsageFault ");
 	  if (ufsr & INVSTATE) printf("Invalid state UsageFault ");
 	  if (ufsr & UNDEFINSTR) printf("Undefined instruction UsageFault ");
-	  printf("\n");
+	  puts("\n");
 
 	  // BFSR
 	  bfsr = ((cfsr >> 8) & 0xff);
@@ -215,11 +217,11 @@ void hard_fault_handler(unsigned int *hardfault_args)
 	  // BFAR
 	  //The value of SCB->BFAR indicates the memory address that caused a Bus Fault and is valid if the bit BFARVALID in the
 	  //SCB->CFSR register is set.
-	  printf("BFAR = ");
+	  puts("BFAR = ");
 	  if (bfsr & BFARVALID) {
 		  printf("0x%08lx\n", SCB->BFAR);
 	  } else {
-		  printf("invalid\n");
+		  puts("invalid\n");
 	  }
 
 	  // MMFSR
@@ -230,11 +232,11 @@ void hard_fault_handler(unsigned int *hardfault_args)
 	  if (mmfsr & MUNSTKERR) printf("MUNSTKERR ");
 	  if (mmfsr & MSTKERR) printf("MSTKERR ");
 	  if (mmfsr & MMARVALID) printf("MMARVALID ");
-	  printf("\n");
+	  puts("\n");
 	  // MMFAR
 	  // The value of SCB->MMFAR indicates the memory address that caused a Memory Management Fault and is valid if the bit
 	  // MMARVALID in the SCB->CFSR register is set.
-	  printf("MMFAR = ");
+	  puts("MMFAR = ");
 	  if (mmfsr & MMARVALID) {
 		  printf("0x%08lx ", SCB->MMFAR);
 	  } else {
@@ -248,7 +250,7 @@ void hard_fault_handler(unsigned int *hardfault_args)
 	  if (SCB->DFSR & DWTTRAP) printf("DWTTRAP ");
 	  if (SCB->DFSR & BKPT) printf("BKPT ");
 	  if (SCB->DFSR & HALTED) printf("HALTED ");
-	  printf("\n");
+	  puts("\n");
 
 	  printf("AFSR = 0x%08lx\n", SCB->AFSR);
 	  printf("SHCSR = 0x%08lx\n", SCB->SHCSR);

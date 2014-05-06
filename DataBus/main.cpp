@@ -225,11 +225,29 @@ int main()
 
     sensors.Compass_Calibrate(config.magOffset, config.magScale);
     //pc.printf("Declination: %.1f\n", config.declination);
-    pc.printf("Speed: escZero=%d escMax=%d top=%.1f turn=%.1f Kp=%.4f Ki=%.4f Kd=%.4f\n", 
-        config.escZero, config.escMax, config.topSpeed, config.turnSpeed, 
-        config.speedKp, config.speedKi, config.speedKd);
-    pc.printf("Steering: steerZero=%0.2f steerGain=%.1f gainAngle=%.1f\n",
-        config.steerZero, config.steerGain, config.steerGainAngle);
+    pc.puts("Speed: escZero=");
+    pc.puts(cvitos(config.escZero));
+    pc.puts(" escMax=");
+    pc.puts(cvitos(config.escMax));
+    pc.puts(" top=");
+    pc.puts(cvftos(config.topSpeed, 1));
+    pc.puts(" turn=");
+    pc.puts(cvftos(config.turnSpeed, 1));
+    pc.puts(" Kp=");
+    pc.puts(cvftos(config.speedKp, 4));
+    pc.puts(" Ki=");
+    pc.puts(cvftos(config.speedKi, 4));
+    pc.puts(" Kd=");
+    pc.puts(cvftos(config.speedKd, 4));
+    pc.puts("\n");
+
+    pc.puts("Steering: steerZero=");
+    pc.puts(cvftos(config.steerZero, 2));
+    pc.puts(" steerGain=");
+    pc.puts(cvftos(config.steerGain, 1));
+    pc.puts(" gainAngle=");
+    pc.puts(cvftos(config.steerGainAngle, 2));
+    pc.puts("\n");
 
     // Convert lat/lon waypoints to cartesian
     mapper.init(config.wptCount, config.wpt);
