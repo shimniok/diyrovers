@@ -310,18 +310,11 @@ int main()
     restartNav();
     startUpdater();
 
-/*
-    fprintf(stdout, "Starting Camera...\n");
-    display.status("Start Camera        ");
-    wait(0.5);
-    cam.start();
-*/
-
-    fprintf(stdout, "Starting keypad...\n");
+    fputs("Starting keypad...\n", stdout);
 
     keypad.init();
     
-    fprintf(stdout, "Adding menu items...\n");
+    fputs("Adding menu items...\n", stdout);
 
     // Setup LCD Input Menu
     menu.add("Auto mode", &autonomousMode);
@@ -393,7 +386,7 @@ int main()
         
         // TODO 2 move to UI area
         if (printMenu) {
-            fprintf(stdout, "\n==============\nData Bus Menu\n==============\n");
+            fputs("\n==============\nData Bus Menu\n==============\n", stdout);
             fputs("0) Autonomous mode\n", stdout);
             fputs("1) Bridge serial to GPS\n", stdout);
             fputs("2) Calibrate compass\n", stdout);
@@ -541,7 +534,7 @@ int autonomousMode()
     sensors.gps.enable();
     //gps2.enable();
 
-    fprintf(stdout, "Press select button to start.\n");
+    fputs("Press select button to start.\n", stdout);
     display.status("Select starts.");
     wait(1.0);
     
@@ -571,7 +564,7 @@ int autonomousMode()
             // the HALT button is armed
             
             if (keypad.pressed == true) { // && started
-                fprintf(stdout, ">>>>>>>>>>>>>>>>>>>>>>> HALT\n");
+                fputs(">>>>>>>>>>>>>>>>>>>>>>> HALT\n", stdout);
                 display.status("HALT.");
                 navDone = true;
                 goGoGo = false;
@@ -580,7 +573,7 @@ int autonomousMode()
             }
         } else {
             if (keypad.pressed == true) {
-                fprintf(stdout, ">>>>>>>>>>>>>>>>>>>>>>> GO GO GO\n");
+                fputs(">>>>>>>>>>>>>>>>>>>>>>> GO GO GO\n", stdout);
                 display.status("GO GO GO!");
                 goGoGo = true;
                 keypad.pressed = false;
@@ -591,7 +584,7 @@ int autonomousMode()
         // Are we at the last waypoint?
         // 
         if (fifo_first()->nextWaypoint == config.wptCount) {
-            fprintf(stdout, "Arrived at final destination.\n");
+            fputs("Arrived at final destination.\n", stdout);
             display.status("Arrived at end.");
             navDone = true;
             endRun();
@@ -641,7 +634,7 @@ int compassCalibrate()
     int m[3];
     FILE *fp;
     
-    fprintf(stdout, "Entering compass calibration in 2 seconds.\nLaunch _3DScatter Processing app now... type e to exit\n");
+    fputs("Entering compass calibration in 2 seconds.\nLaunch _3DScatter Processing app now... type e to exit\n", stdout);
     display.status("Starting...");
 
     fp = openlog("cal");
@@ -681,8 +674,21 @@ int compassCalibrate()
                 if (abs(m[i]) > 1024) skipIt = true;
             }
             if (!skipIt) {
-                fprintf(stdout, "%c%d %d %d \r\n", 0xDE, m[0], m[1], m[2]);
-                fprintf(fp, "%d, %d, %d\n", m[0], m[1], m[2]);
+            	static char buf[2] = { 0xde, 0 }; // Start of transmission character
+            	fputs(buf, stdout);
+            	fputs(cvitos(m[0]), stdout);
+            	fputs(" ", stdout);
+            	fputs(cvitos(m[1]), stdout);
+            	fputs(" ", stdout);
+            	fputs(cvitos(m[2]), stdout);
+            	fputs(" \r\n", stdout);
+
+            	fputs(cvitos(m[0]), fp);
+            	fputs(", ", stdout);
+            	fputs(cvitos(m[1]), fp);
+            	fputs(", ", stdout);
+            	fputs(cvitos(m[2]), fp);
+            	fputs("\n", fp);
             }
         }
     }
@@ -710,14 +716,14 @@ int gyroSwing()
     // Timing is pretty critical so just in case, disable serial processing from GPS
     sensors.gps.disable();
 
-    fprintf(stdout, "Entering gyro swing...\n");
+    fputs("Entering gyro swing...\n", stdout);
     display.status("Starting...");
     wait(2);
     fp = openlog("gy");
     wait(2);
     display.status("Begin. Select exits.");
 
-    fprintf(stdout, "Begin clockwise rotation, varying rpm... press select to exit\n");
+    fputs("Begin clockwise rotation, varying rpm... press select to exit\n", stdout);
 
     timer.reset();
     timer.start();
@@ -735,13 +741,26 @@ int gyroSwing()
         // fprintf(stdout, "%d,%d,%d,%d,%d\n", timer.read_ms(), heading, sensors.g[0], sensors.g[1], sensors.g[2]);
         // sensors.rightTotal gives us each tick of the machine, multiply by 2 for cumulative heading, which is easiest
         // to compare with cumulative integration of gyro (rather than dealing with 0-360 degree range and modulus and whatnot
-        if (fp) fprintf(fp, "%d,%d,%d,%d,%d,%d\n", timer.read_ms(), 2*sensors.rightTotal, sensors.g[0], sensors.g[1], sensors.g[2], sensors.gTemp);
+        if (fp) {
+        	fputs(cvitos(timer.read_ms()), fp);
+        	fputs(",", fp);
+        	fputs(cvitos(2*sensors.rightTotal), fp);
+        	fputs(",", fp);
+        	fputs(cvitos(sensors.g[0]), fp);
+        	fputs(",", fp);
+        	fputs(cvitos(sensors.g[1]), fp);
+        	fputs(",", fp);
+        	fputs(cvitos(sensors.g[2]), fp);
+        	fputs(",", fp);
+        	fputs(cvitos(sensors.gTemp), fp);
+        	fputs("\n", fp);
+        }
         wait(0.200);
     }    
     if (fp) {
         fclose(fp);
         display.status("Done. Saved.");
-        fprintf(stdout, "Data collection complete.\n");
+        fputs("Data collection complete.\n", stdout);
         wait(2);
     }
     
@@ -767,14 +786,16 @@ int compassSwing()
     // left is index track
     // right is encoder track
 
-    fprintf(stdout, "Entering compass swing...\n");
+    fputs("Entering compass swing...\n", stdout);
     display.status("Starting...");
     wait(2);
     fp = openlog("sw");
     wait(2);
     display.status("Ok. Begin.");
 
-    fprintf(stdout, "Begin clockwise rotation... exit after %d revolutions\n", revolutions);
+    fputs("Begin clockwise rotation... exit after ", stdout);
+    fputs(cvntos(revolutions), stdout);
+	fputs(" revolutions\n", stdout);
 
     timer.reset();
     timer.start();
@@ -786,11 +807,11 @@ int compassSwing()
             break;    
         }
     }
-    fprintf(stdout, ">>>> Index detected. Starting data collection\n");
+    fputs(">>>> Index detected. Starting data collection\n", stdout);
     leftCount = 0;
     // TODO 3 how to parameterize status?
     lcd.pos(0,1);
-    lcd.printf("%1d %-14s", revolutions, "revs left");
+    //FIXME lcd.printf("%1d %-14s", revolutions, "revs left");
 
     sensors._right.read(); // easiest way to reset the heading counter
     
@@ -819,26 +840,33 @@ int compassSwing()
             // check for error in heading?
             leftCount = 0;
             revolutions--;
-            fprintf(stdout, ">>>>> %d left\n", revolutions); // we sense the rising and falling of the index so /2
+            fputs(">>>>> ", stdout);
+            fputs(cvitos(revolutions), stdout);
+            fputs(" left\n", stdout); // we sense the rising and falling of the index so /2
             lcd.pos(0,1);
-            lcd.printf("%1d %-14s", revolutions, "revs left");
+            //FIXME lcd.printf("%1d %-14s", revolutions, "revs left");
         }
         
         float heading2d = 180 * atan2((float) sensors.mag[1], (float) sensors.mag[0]) / PI;
         // Print out data
-        //getRawMag(m);
-        fprintf(stdout, "%d %.4f\n", heading, heading2d);
+        fputs(cvitos(heading), stdout);
+        fputs(cvftos(heading2d, 4), stdout);
 
-//        int t1=t.read_us();
-        if (fp) fprintf(fp, "%d, %d, %.2f, %.4f, %.4f, %.4f\n", 
-                            timer.read_ms(), heading, heading2d, sensors.mag[0], sensors.mag[1], sensors.mag[2]);
-//        int t2=t.read_us();
-//        fprintf(stdout, "dt=%d\n", t2-t1);
+        if (fp) {
+        	fputs(cvitos(timer.read_ms()), stdout);
+        	fputs(cvitos(heading), stdout);
+        	fputs(cvftos(heading2d, 2), stdout);
+        	fputs(cvftos(sensors.mag[0], 4), stdout);
+        	fputs(cvftos(sensors.mag[1], 4), stdout);
+        	fputs(cvftos(sensors.mag[2], 4), stdout);
+        	fputs("\n", stdout);
+        }
+
     }    
     if (fp) {
         fclose(fp);
         display.status("Done. Saved.");
-        fprintf(stdout, "Data collection complete.\n");
+        fputs("Data collection complete.\n", stdout);
         wait(2);
     }
     
