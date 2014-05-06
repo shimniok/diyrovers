@@ -22,7 +22,7 @@ Display::Display(void):
 void Display::init()
 {
     lcd.baud(115200);
-    lcd.printf("test\n"); // hopefully force 115200 on powerup
+    lcd.puts("test\n"); // hopefully force 115200 on powerup
     lcd.clear();
     wait(0.3);
     
@@ -40,19 +40,23 @@ void Display::init()
 void Display::status(const char *st)
 {
     lcd.pos(0,1);
-    lcd.printf(LCD_FMT, st);
+    lcd.puts(st);
+    //FIXME add padding/erase chars to Display::status
 }
 
 void Display::menu(const char *itemName)
 {
     lcd.pos(0,0);
-    lcd.printf("< %-14s >", itemName);
+    lcd.puts("< ");
+    lcd.puts(itemName);
+    lcd.puts(" >");
 }
 
 void Display::select(const char *itemName)
 {
     lcd.pos(0,0);
-    lcd.printf(">>%-14s", itemName);
+    lcd.puts(">>");
+	lcd.puts(itemName);
 }
 
 // display gauge at a given position (slot) along the bottom

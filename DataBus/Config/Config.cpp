@@ -66,7 +66,9 @@ bool Config::load()
     
     fp = fopen(CONFIGFILE, "r");
     if (fp == 0) {
-        pc.printf("Could not open %s\n", CONFIGFILE);
+        pc.puts("Could not open ");
+        pc.puts(CONFIGFILE);
+        pc.puts(" \n");
     } else {
         wptCount = 0;
         while (!feof(fp)) {
