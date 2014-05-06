@@ -360,7 +360,8 @@ int main()
             fputs("3) Swing compass\n", stdout);
             fputs("4) Gyro calibrate\n", stdout);
             fputs("5) Instrument check\n", stdout);
-            fputs("6) Shell\n", stdout);
+            fputs("6) Telemetry mode\n", stdout);
+            fputs("7) Shell\n", stdout);
             fputs("R) Reset\n", stdout);
             fputs("\nSelect from the above: ", stdout);
             fflush(stdout);
@@ -426,6 +427,11 @@ int main()
                     displayData(INSTRUMENT_CHECK);
                     break;
                 case '6' :
+                	display.select("Telemetry");
+                	display.status("Standby.");
+                	telemetryMode();
+                	break;
+                case '7' :
                     display.select("Shell");
                     display.status("Standby.");
                     shell(0);
