@@ -19,21 +19,21 @@
 #define UART2RX 	p27
 #define UART3TX 	p17
 #define UART3RX 	p18
-#define ENCAL 		p30
-#define ENCAR 		p29
-#define ENCBL 		/** unavailable for mbed */
-#define ENCBL 		/** unavailable for mbed */
-#define D0 p11
-#define D1 p12
-#define D2			/** unavailable for mbed */
-#define D7			/** unavailable for mbed */
-#define D8			/** unavailable for mbed */
-#define D9			/** unavailable for mbed */
-#define P1 			p26
-#define P2 			p25
-#define A0 			p15
-#define A1 			p16
-#define A2 			p19
-#define A3 			p20
+#define ENCALEFT	p30
+#define ENCARIGHT	p29
+#define ENCBLEFT	/** unavailable for mbed */
+#define ENCBRIGHT	/** unavailable for mbed */
+#define _D0 p11
+#define _D1 p12
+#define _D2			/** unavailable for mbed */
+#define _D7			/** unavailable for mbed */
+#define _D8			/** unavailable for mbed */
+#define _D9			/** unavailable for mbed */
+#define _P1 		p26
+#define _P2 		p25
+#define _A0 		p15
+#define _A1 		p16
+#define _A2 		p19
+#define _A3 		p20
 
 #endif /* BOARDS_H_ */

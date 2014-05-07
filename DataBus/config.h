@@ -25,8 +25,8 @@
 #define LCDRX			UART3RX
 
 /** UI Buttons */
-#define BUTTONLEFT		P1
-#define BUTTONRIGHT		D1
-#define BUTTONSELECT	D0
+#define BUTTONNEXT		_D1
+#define BUTTONPREV		_P1
+#define BUTTONSELECT	_D0
 
 #endif /* CONFIG_H_ */

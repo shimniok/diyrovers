@@ -592,6 +592,12 @@ int autonomousMode()
             endRun();
         }
 
+
+        //////////////////////////////////////////////////////////////////////////////
+        // TELEMETRY
+        //////////////////////////////////////////////////////////////////////////////
+        //			telem.sendPacket(s);
+
         //////////////////////////////////////////////////////////////////////////////
         // LOGGING
         //////////////////////////////////////////////////////////////////////////////
@@ -601,7 +607,6 @@ int autonomousMode()
         // 150ms, we run it opportunistically and use a buffer. That way
         // the sensor updates, calculation, and control can continue to happen
         if (fifo_available()) {
-			telem.sendPacket();
             logStatus = !logStatus;         // log indicator LED
             logData( fifo_pull() );         // log state data to file
             logStatus = !logStatus;         // log indicator LED
@@ -1038,7 +1043,7 @@ void displayData(const int mode)
 void telemetryMode() {
 	RawSerial pc(USBTX, USBRX);
 	bool done=false;
-	static int skip = 0;
+	int nextUpdate = 0;
 
 	pc.baud(115200);
 
@@ -1047,6 +1052,7 @@ void telemetryMode() {
 
     timer.reset();
     timer.start();
+    nextUpdate = timer.read_ms();
 
     beginRun();
 
@@ -1066,11 +1072,11 @@ void telemetryMode() {
 
 //        pc.printf("fifo in:%d out:%d\n", fifo_getInState(), fifo_getOutState());
 
-        if (++skip > 2) {
-    		skip = 0;
-    		telem.sendPacket();
+        if (timer.read_ms() > nextUpdate) {
+			SystemState *s = fifo_first();
+			telem.sendPacket(s);
+			nextUpdate += 100;
         }
-
 
     }
     endRun();

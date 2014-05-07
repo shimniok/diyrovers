@@ -1,9 +1,10 @@
+#include "config.h"
 #include "Buttons.h"
 #include "PinDetect.h"
 
-PinDetect nextButton(p14);
-PinDetect selectButton(p16);            // Input selectButton
-PinDetect prevButton(p15);
+PinDetect nextButton(BUTTONNEXT);
+PinDetect selectButton(BUTTONSELECT);            // Input selectButton
+PinDetect prevButton(BUTTONPREV);
 
 Buttons::Buttons(void): which(0), pressed(false)
 {

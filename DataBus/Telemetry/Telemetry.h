@@ -9,11 +9,12 @@
 #define TELEMETRY_H_
 
 #include "mbed.h"
+#include "SystemState.h"
 
 class Telemetry {
 public:
 	Telemetry(Serial &uart);
-	void sendPacket();
+	void sendPacket(SystemState *s);
 private:
 	Serial *_uart;
 };

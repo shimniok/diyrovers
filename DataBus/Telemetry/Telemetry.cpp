@@ -7,16 +7,13 @@
 
 #include "mbed.h"
 #include "Telemetry.h"
-#include "SystemState.h"
 #include "util.h"
 
 Telemetry::Telemetry(Serial &uart) {
 	_uart = &uart;
 }
 
-void Telemetry::sendPacket() {
-	SystemState *s = fifo_pull();
-
+void Telemetry::sendPacket(SystemState *s) {
 	if (s) {
 		// Bearing is given as absolute; we want to send relative bearing
 		float bearing = s->bearing - s->estHeading;
@@ -28,7 +25,7 @@ void Telemetry::sendPacket() {
 		}
 
 		// TODO: get rid of printf
-		_uart->puts("^");
+		_uart->puts("`");
 		_uart->puts(cvntos(s->millis));
 		_uart->puts(", ");
 		_uart->puts(cvftos(s->voltage, 2));
