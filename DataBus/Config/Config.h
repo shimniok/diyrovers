@@ -20,9 +20,9 @@ class Config {
         float wptTopSpeedAdj[MAX_WPT];	// Speed approaching waypoint
         float wptTurnSpeedAdj[MAX_WPT];
         unsigned int wptCount;  	// number of active waypoints
-        int escMin;             	// minimum ESC value; brake
-        int escZero;            	// zero throttle
-        int escMax;             	// max throttle
+        float escMin;             	// minimum ESC value; brake
+        float escZero;            	// zero throttle
+        float escMax;             	// max throttle
         float topSpeed;         	// default top speed to achieve on the straights
         float turnSpeed;        	// default speed for turns
         float startSpeed;       	// speed for start

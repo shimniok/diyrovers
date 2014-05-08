@@ -29,7 +29,7 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
-#include "config.h"
+#include "devices.h"
 #include "Sensors.h"
 #include "debug.h"
 

@@ -1,4 +1,4 @@
-#include "config.h"
+#include "devices.h"
 #include "Buttons.h"
 #include "PinDetect.h"
 

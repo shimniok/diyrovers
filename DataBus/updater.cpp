@@ -486,10 +486,10 @@ void update()
             float derivative = (error - lastError) / speedDt; 
             // calculate how much to drive the output in order to get to the 
             // desired setpoint. 
-            int output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
+            float output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
             if (output > config.escMax) output = config.escMax;
             if (output < config.escMin) output = config.escMin;
-            //fprintf(stdout, "s=%.1f d=%.1f o=%d\n", nowSpeed, desiredSpeed, output);
+//            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
             setThrottle( output );
             // remember the error for the next time around.
             lastError = error; 

@@ -10,7 +10,7 @@
 #include <math.h>
 #include <stdint.h>
 #include "mbed.h"
-#include "config.h"
+#include "devices.h"
 #include "globals.h"
 #include "Filesystem.h"
 #include "SerialMux.h"
@@ -226,9 +226,11 @@ int main()
     sensors.Compass_Calibrate(config.magOffset, config.magScale);
     //pc.printf("Declination: %.1f\n", config.declination);
     pc.puts("Speed: escZero=");
-    pc.puts(cvitos(config.escZero));
+    pc.puts(cvftos(config.escZero, 3));
+    pc.puts(" escMin=");
+    pc.puts(cvftos(config.escMin, 3));
     pc.puts(" escMax=");
-    pc.puts(cvitos(config.escMax));
+    pc.puts(cvftos(config.escMax, 3));
     pc.puts(" top=");
     pc.puts(cvftos(config.topSpeed, 1));
     pc.puts(" turn=");

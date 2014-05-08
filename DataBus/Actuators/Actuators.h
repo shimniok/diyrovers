@@ -7,7 +7,7 @@
 
 void initSteering(void);
 void initThrottle(void);
-void setThrottle(int value);
+void setThrottle(float value);
 void setSteering(float steerAngle);
 
 #endif

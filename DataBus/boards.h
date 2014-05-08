@@ -19,6 +19,8 @@
 #define UART2RX 	p27
 #define UART3TX 	p17
 #define UART3RX 	p18
+#define THROTTLE	p22
+#define STEERING	p21
 #define ENCALEFT	p30
 #define ENCARIGHT	p29
 #define ENCBLEFT	/** unavailable for mbed */

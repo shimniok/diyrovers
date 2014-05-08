@@ -122,11 +122,11 @@ bool Config::load()
             } else if (!strcmp(tmp, SPEED)) {
 
             	p = split(tmp, p, MAXBUF, ',');
-				escMin = atoi(tmp);                 		// minimum esc (brake) setting
+				escMin = cvstof(tmp);                 		// minimum esc (brake) setting
 				p = split(tmp, p, MAXBUF, ',');
-				escZero = atoi(tmp);                		// esc center/zero setting
+				escZero = cvstof(tmp);                		// esc center/zero setting
 				p = split(tmp, p, MAXBUF, ',');
-				escMax = atoi(tmp);                 		// maximum esc setting
+				escMax = cvstof(tmp);                 		// maximum esc setting
 				p = split(tmp, p, MAXBUF, ',');
 				topSpeed = cvstof(tmp);             		// desired top speed
 				p = split(tmp, p, MAXBUF, ',');

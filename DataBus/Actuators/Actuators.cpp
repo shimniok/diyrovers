@@ -1,11 +1,12 @@
 #include "mbed.h"
 #include "Servo.h"
 #include "Config.h"
+#include "devices.h"
 
 extern Config config;
 
-Servo steering(p21);                    // Steering Servo
-Servo throttle(p22);                    // ESC
+Servo steering(STEERING);               // Steering Servo
+Servo throttle(THROTTLE);               // ESC
 int escMax=520;                         // Servo setting for max speed
 
 #define THROTTLE_CENTER 0.4
@@ -26,7 +27,7 @@ void initSteering()
 void initThrottle()
 {
     if (config.loaded) {
-        throttle = (float)config.escZero/1000.0;
+        throttle = config.escZero;
     } else {
         throttle = 0.410;
     }
@@ -34,10 +35,12 @@ void initThrottle()
     throttle.calibrate(0.001, 45.0); 
 }
 
-void setThrottle(int value)
+
+void setThrottle(float value)
 {
-    throttle = ((float)value)/1000.0;
+	throttle = value;
 }
+
 
 void setSteering(float steerAngle)
 {
