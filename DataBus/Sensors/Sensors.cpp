@@ -29,7 +29,7 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
-#include "boards.h"
+#include "config.h"
 #include "Sensors.h"
 #include "debug.h"
 
@@ -56,7 +56,7 @@ Sensors::Sensors():
 	rrEncSpeed(0.0),
 	encDistance(0.0),
 	encSpeed(0.0),
-    gps(UART2TX, UART2RX),
+    gps(GPSTX, GPSRX),
     _voltage(p19),               // Voltage from sensor board
     _current(p20),               // Current from sensor board
     _left(ENCALEFT),                  // left wheel encoder

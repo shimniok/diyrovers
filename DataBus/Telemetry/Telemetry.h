@@ -14,6 +14,7 @@
 class Telemetry {
 public:
 	Telemetry(Serial &uart);
+	void baud(int baud);
 	void sendPacket(SystemState *s);
 private:
 	Serial *_uart;

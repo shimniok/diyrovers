@@ -14,7 +14,7 @@
 
 /** GPS */
 #define GPSTX			UART1TX
-#define GPXRX			UART1RX
+#define GPSRX			UART1RX
 
 /** Telemetry */
 #define TELEMTX			UART2TX

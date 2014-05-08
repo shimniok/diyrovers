@@ -10,7 +10,7 @@
 #include <math.h>
 #include <stdint.h>
 #include "mbed.h"
-#include "boards.h"
+#include "config.h"
 #include "globals.h"
 #include "Filesystem.h"
 #include "SerialMux.h"
@@ -89,9 +89,9 @@ Steering steerCalc(TRACK, WHEELBASE);   // steering calculator
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
 SerialMux mux(&pc);						// Multiplexed output
-SerialGraphicLCD lcd(UART3TX, UART3RX, SD_FW);  // Graphic LCD with summoningdark firmware
-Serial tuart(UART1TX, UART1RX);			// UART for telemetry
-Telemetry telem(pc);					// Setup telemetry system
+SerialGraphicLCD lcd(LCDTX, LCDRX, SD_FW);  // Graphic LCD with summoningdark firmware
+Serial tel(TELEMTX, TELEMRX);			// UART for telemetry
+Telemetry telem(tel);					// Setup telemetry system
 
 // SENSORS
 Sensors sensors;                        // Abstraction of sensor drivers
@@ -349,9 +349,10 @@ int main()
             s->gpsHDOP = sensors.gps.hdop();
             s->gpsSats = sensors.gps.sat_count();
             display.update(s);
-            nextUpdate = thisUpdate + 2000;
+            nextUpdate = thisUpdate + 1000;
             // TODO 3 move this statistic into display class
             //fprintf(stdout, "update time: %d\n", getUpdateTime());
+            telem.sendPacket(s);
         }
         
         if (keypad.pressed) {

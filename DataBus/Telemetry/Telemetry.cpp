@@ -13,6 +13,10 @@ Telemetry::Telemetry(Serial &uart) {
 	_uart = &uart;
 }
 
+void Telemetry::baud(int baud) {
+    _uart->baud(115200);
+}
+
 void Telemetry::sendPacket(SystemState *s) {
 	if (s) {
 		// Bearing is given as absolute; we want to send relative bearing
