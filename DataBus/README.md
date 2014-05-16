@@ -23,23 +23,26 @@ I2C
 Encoders
 --------
  * A (Outermost)
-    * LEFT = p30 
-    * RIGHT = p29
- * B (Innermost) unavilable
+    * ALEFT = p30
+    * ARIGHT = p29
+ * B (Innermost)
+    * LEFT = unavailable
+    * RIGHT = unavailable
 
 
 GPIO
 ----
  * Digital
-    * D0 = p11 
-    * D1 = p12
-    * D2-D9 = unavailable
+    * IO0 = D0 = p11 
+    * IO1 = D1 = p12
+    * IO2 = D2 = P0.21 unavailable
+    * IO3 = D7 = P2.12 unavailable
+    * IO4 = D8 = P2.13 unavailable
  * PWM 
-    * P1 = p26 
-    * P2 = p25
+    * PW0 P2 = p25
+    * PW1 P1 = p26 
  * Analog
-    * A0 = p15
-    * A1 = p16
-    * A2 = p19
-    * A3 = p20
-
+    * AN0 = A0 = p15
+    * AN1 = A1 = p16
+    * AN2 = A2 = p19
+    * AN3 = A3 = p20
