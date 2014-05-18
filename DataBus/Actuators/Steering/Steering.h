@@ -60,12 +60,11 @@ class Steering
      */
     float crossTrack(float Bx, float By, float Ax, float Ay, float Cx, float Cy);
     
-  private:
-
+    // Temporarily making these public so I can use in updater() to instrument steering calcs
     inline static float angle_radians(float deg) {return (PI/180.0)*deg;}
-
     inline static float angle_degrees(float rad) {return (180/PI)*rad;}
 
+  private:
     float _wheelbase;
     float _track;
     float _intercept;

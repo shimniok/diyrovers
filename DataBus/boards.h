@@ -22,11 +22,16 @@
 #define THROTTLE	p22
 #define STEERING	p21
 #define ENCALEFT	p30
+#define ALEFT		ENCALEFT
 #define ENCARIGHT	p29
+#define ARIGHT		ENCARIGHT
 #define ENCBLEFT	/** unavailable for mbed */
+#define BLEFT		ENCBLEFT
 #define ENCBRIGHT	/** unavailable for mbed */
-#define _D0 p11
-#define _D1 p12
+#define BRIGHT		ENCBRIGHT
+// REV 0.5
+#define _D0			p11
+#define _D1			p12
 #define _D2			/** unavailable for mbed */
 #define _D7			/** unavailable for mbed */
 #define _D8			/** unavailable for mbed */
@@ -37,5 +42,14 @@
 #define _A1 		p16
 #define _A2 		p19
 #define _A3 		p20
+// REV 0.6
+#define IO0			p11
+#define IO1			p12
+#define PW0			p25
+#define PW1			p26
+#define AN0 		p15
+#define AN1 		p16
+#define AN2 		p19
+#define AN3 		p20
 
 #endif /* BOARDS_H_ */

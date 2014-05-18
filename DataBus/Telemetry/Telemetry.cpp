@@ -53,6 +53,8 @@ void Telemetry::sendPacket(SystemState *s) {
 		_uart->puts(cvftos(s->distance, 5));
 		_uart->puts(", ");
 		_uart->puts(cvftos(s->steerAngle, 2));
+		_uart->puts(", ");
+		_uart->puts(cvftos(s->LABrg, 2));
 		_uart->puts("\n");
 	}
 }

@@ -85,6 +85,9 @@ typedef struct {
     float gbias;
     float errHeading;
     float steerAngle;
+    float LABrg;
+    float LAx;
+    float LAy;
 } SystemState;
 
 void state_clear( SystemState *s );
