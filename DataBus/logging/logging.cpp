@@ -147,7 +147,6 @@ void logData( SystemState *s )
 		printFloat(logp, s->gHeading, 2);
 		fputc(',',logp);
 
-		/*
 		// GPS 1
 		fprintf(logp, "%.7f,%.7f,", s->gpsLatitude, s->gpsLongitude);
 		//printFloat(logp, s->gpsLatitude, 7);
@@ -197,7 +196,11 @@ void logData( SystemState *s )
 		fputc(',',logp);
 		printFloat(logp, s->errHeading, 3);
 		fputc(',',logp);
-		*/
+		printFloat(logp, s->LABrg, 2);
+		fputc(',',logp);
+		printFloat(logp, s->LAx, 4);
+		fputc(',',logp);
+		printFloat(logp, s->LAy, 4);
 		fputc('\n',logp);
 		fflush(logp);
 
