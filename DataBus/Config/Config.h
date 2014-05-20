@@ -41,6 +41,8 @@ class Config {
         float magScale[3];
         // float accelOffset[3];
         // float accelScale[3];
+        float wheelbase;			// Vehicle wheelbase, front to rear axle
+        float track;				// Vehicle track width, left to right contact patch
 };
 
 #endif

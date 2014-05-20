@@ -19,6 +19,7 @@
 #define NAVIGATION		"nav"
 #define STEER			"steer"
 #define SPEED			"speed"
+#define VEHICLE			"veh"
 
 extern Serial pc;
 
@@ -140,7 +141,12 @@ bool Config::load()
 				p = split(tmp, p, MAXBUF, ',');
 				speedKd = cvstof(tmp);              		// speed PID: derivative gain
 
-            }//if-else
+            } else if (!strcmp(tmp, VEHICLE)) {
+            	p = split(tmp, p, MAXBUF, ',');
+				wheelbase = cvstof(tmp);              		// vehicle wheelbase (front to rear axle)
+				p = split(tmp, p, MAXBUF, ',');
+				track = cvstof(tmp);                		// vehicle track width (left to right)
+            } //if-else
             /*
 			} else if (!strcmp(tmp, GYRO)) {
 				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
