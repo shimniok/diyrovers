@@ -4,13 +4,17 @@
 #include "GPS.h"
 #include "TinyGPS.h"
 
-class Venus638flpx
-{
+class Venus638flpx: public GPS {
 public:
     /**
      * create a new interface for Venus638flpx
      */
     Venus638flpx(PinName tx, PinName rx);
+
+    /**
+     * delete interface to Venus638flpx
+     */
+    ~Venus638flpx(void) {}
 
     /**
      * Initalize everything necessary for the GPS to collect the required data
