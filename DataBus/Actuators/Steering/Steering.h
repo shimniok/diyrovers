@@ -11,13 +11,20 @@
 class Steering
 {
   public:
-    /** create a new steering calculator
+    /** create a new steering calculator */
+	Steering();
+
+    /** Set the track width (left to right contact patch distance)
      *
-     * @param wheelbase vehicle wheelbase
-     * @param track vehicle track width
-     * @param intercept new course intercept distance
+     * @param track is the vehicle track width
      */
-    Steering(float wheelbase, float track);
+    void setTrack(float track);
+
+    /** Set the wheelbase (front to rear axle distance)
+     *
+     * @param wheelbase is the vehicle wheelbase
+     */
+    void setWheelbase(float wheelbase);
 
     /** set intercept distance
      * @param intercept distance along new course at which turn arc will intercept

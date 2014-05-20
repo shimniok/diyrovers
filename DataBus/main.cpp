@@ -56,12 +56,6 @@
 #define TEMP_CHAN        4
 #define GYRO_CHAN        5
 
-// Chassis specific parameters
-// TODO 1 put WHEEL_CIRC, WHEELBASE, and TRACK in config.txt
-#define WHEEL_CIRC 0.321537             // m; calibrated with 4 12.236m runs. Measured 13.125" or 0.333375m circumference
-#define WHEELBASE  0.290
-#define TRACK      0.280
-
 #define INSTRUMENT_CHECK    0
 #define AHRS_VISUALIZATION  1
 #define DISPLAY_PANEL       2
@@ -84,7 +78,7 @@ Menu menu;
 Buttons keypad;
 
 // VEHICLE
-Steering steerCalc(TRACK, WHEELBASE);   // steering calculator
+Steering steerCalc;   // steering calculator
 
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
@@ -223,7 +217,6 @@ int main()
     if (config.load())                          // Load various configurable parameters, e.g., waypoints, declination, etc.
         confStatus = 1;
 
-    sensors.Compass_Calibrate(config.magOffset, config.magScale);
     //pc.printf("Declination: %.1f\n", config.declination);
     pc.puts("Speed: escZero=");
     pc.puts(cvftos(config.escZero, 3));
@@ -276,6 +269,25 @@ int main()
 
     // TODO 3 remove GPS configuration, all config will be in object itself I think
 
+    display.status("Vehicle config      ");
+    pc.puts("Wheelbase: ");
+    pc.puts(cvftos(config.wheelbase, 3));
+    pc.puts("\n");
+    pc.puts("Track Width: ");
+    pc.puts(cvftos(config.track, 3));
+    pc.puts("\n");
+    steerCalc.setWheelbase(config.wheelbase);
+    steerCalc.setTrack(config.track);
+
+    display.status("Encoder config      ");
+    pc.puts("Tire Circumference: ");
+    pc.puts(cvftos(config.tireCirc, 5));
+    pc.puts("\n");
+    pc.puts("Ticks per revolution: ");
+    pc.puts(cvftos(config.encStripes, 5));
+    pc.puts("\n");
+    sensors.configureEncoders(config.tireCirc, config.encStripes);
+
     display.status("Nav configuration   ");
     steerCalc.setIntercept(config.interceptDist);               // Setup steering calculator based on intercept distance
     pc.puts("Intercept distance: ");
@@ -291,32 +303,32 @@ int main()
 	pc.puts(cvftos(config.minRadius, 3));
     pc.puts("\n");
 
-    fputs("Calculating offsets...\n", stdout);
+    pc.puts("Calculating offsets...\n");
     display.status("Offset calculation  ");
     wait(0.2);
     // TODO 3 Really need to give the gyro more time to settle
     sensors.gps.disable();
     // TODO 1 sensors.Calculate_Offsets();
 
-    fputs("Starting GPS...\n", stdout);
+    pc.puts("Starting GPS...\n");
     display.status("Start GPS           "); // TODO 3: would be nice not to have to pad at this level
     wait(0.2);
     sensors.gps.setUpdateRate(10);
     sensors.gps.enable();
 
     // TODO Running this seems to prevent the main loop from running ?!
-    fputs("Starting Scheduler...\n", stdout);
+    pc.puts("Starting Scheduler...\n");
     display.status("Start scheduler     ");
     wait(0.2);
     // Startup sensor/AHRS ticker; update every UPDATE_PERIOD
     restartNav();
     startUpdater();
 
-    fputs("Starting keypad...\n", stdout);
+    pc.puts("Starting keypad...\n");
 
     keypad.init();
     
-    fputs("Adding menu items...\n", stdout);
+    pc.puts("Adding menu items...\n");
 
     // Setup LCD Input Menu
     menu.add("Auto mode", &autonomousMode);
@@ -329,34 +341,44 @@ int main()
     menu.add("Reverse", &reverseScreen);
     menu.add("Reset", &resetMe);
 
-    fputs("Starting main timer...\n", stdout);
+    pc.puts("Starting main timer...\n");
 
     timer.start();
     timer.reset();
 
     int thisUpdate = timer.read_ms();    
-    int nextUpdate = thisUpdate;
+    int nextDisplayUpdate = thisUpdate;
+    int nextWaypointUpdate = thisUpdate;
     char cmd;
     bool printMenu = true;
     bool printLCDMenu = true;
 
-    fputs("Timer done, enter loop...\n", stdout);
+    pc.puts("Timer done, enter loop...\n");
 
     while (1) {
 
-        if ((thisUpdate = timer.read_ms()) > nextUpdate) {
+        thisUpdate = timer.read_ms();
+        if (thisUpdate > nextDisplayUpdate) {
             // Pulling out current state so we get the most current
             SystemState *s = fifo_first();
             // Now populate in the current GPS data
             s->gpsHDOP = sensors.gps.hdop();
             s->gpsSats = sensors.gps.sat_count();
+
+            telem.sendPacket(s);
             display.update(s);
-            nextUpdate = thisUpdate + 1000;
+            nextDisplayUpdate = thisUpdate + 1000;
             // TODO 3 move this statistic into display class
             //fprintf(stdout, "update time: %d\n", getUpdateTime());
-            telem.sendPacket(s);
         }
-        
+
+        // every so often, send the currently configured waypoints
+        if (thisUpdate > nextWaypointUpdate) {
+        	telem.sendPacket(config.cwpt, config.wptCount);
+        	nextWaypointUpdate = thisUpdate + 10000;
+        	// TODO 1: make this a request/response, Telemetry has to receive packets, decode, etc.
+        }
+
         if (keypad.pressed) {
             keypad.pressed = false;
             printLCDMenu = true;
@@ -898,6 +920,7 @@ void bridgeRecv()
 
 void serialBridge(Serial &serial)
 {
+#if 0
     char x;
     int count = 0;
     bool done=false;
@@ -920,9 +943,10 @@ void serialBridge(Serial &serial)
             }
         }
         if (serial.readable()) {
-            pc.putc(serial.getc());
+            fputc(serial.getc(), stdout);
         }
     }
+#endif
 }
 
 /* to be called from panel menu
@@ -1046,7 +1070,7 @@ void displayData(const int mode)
 void telemetryMode() {
 	RawSerial pc(USBTX, USBRX);
 	bool done=false;
-	int nextUpdate = 0;
+	int nextDisplayUpdate = 0;
 
 	pc.baud(115200);
 
@@ -1055,7 +1079,7 @@ void telemetryMode() {
 
     timer.reset();
     timer.start();
-    nextUpdate = timer.read_ms();
+    nextDisplayUpdate = timer.read_ms();
 
     beginRun();
 
@@ -1075,10 +1099,10 @@ void telemetryMode() {
 
 //        pc.printf("fifo in:%d out:%d\n", fifo_getInState(), fifo_getOutState());
 
-        if (timer.read_ms() > nextUpdate) {
+        if (timer.read_ms() > nextDisplayUpdate) {
 			SystemState *s = fifo_first();
 			telem.sendPacket(s);
-			nextUpdate += 100;
+			nextDisplayUpdate += 100;
         }
 
     }

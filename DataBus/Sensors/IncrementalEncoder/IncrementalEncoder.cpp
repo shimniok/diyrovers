@@ -60,7 +60,7 @@ void IncrementalEncoder::_incRise() {
     // compute time between ticks; only do this for rise
     // to eliminate jitter
     int now = _t.read_us();
-    _time = A*_time + (1-A)*(now - _lastTime);
+    _time = A*_time + (1-A)*(now - _lastTime); // FIXME bug with speed after stopping
     // Dead band: if _time > xxxx then turn off and wait until next tick
     // to start up again
     _lastTime = now;

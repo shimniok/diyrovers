@@ -20,6 +20,7 @@
 #define STEER			"steer"
 #define SPEED			"speed"
 #define VEHICLE			"veh"
+#define ENCODER			"enc"
 
 extern Serial pc;
 
@@ -149,8 +150,11 @@ bool Config::load()
 				wheelbase = cvstof(tmp);              		// vehicle wheelbase (front to rear axle)
 				p = split(tmp, p, MAXBUF, ',');
 				track = cvstof(tmp);                		// vehicle track width (left to right)
+            } else if (!strcmp(tmp, ENCODER)) {
 				p = split(tmp, p, MAXBUF, ',');
-				tireCirc = cvstof(tmp);                		// vehicle track width (left to right)
+				tireCirc = cvstof(tmp);                		// tire circumference
+				p = split(tmp, p, MAXBUF, ',');
+				encStripes = cvstof(tmp);                	// ticks per revolution
             } //if-else
             /*
 			} else if (!strcmp(tmp, GYRO)) {

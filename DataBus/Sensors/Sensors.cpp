@@ -108,6 +108,12 @@ void Sensors::Compass_Calibrate(float offset[3], float scale[3])
     return;
 }
 
+void Sensors::configureEncoders(float tireCirc, float encStripes)
+{
+	_tireCirc = tireCirc;
+	_encStripes = encStripes;
+}
+
 
 void Sensors::Read_Encoders()
 {
@@ -116,6 +122,9 @@ void Sensors::Read_Encoders()
     rightCount = _right.read();
     leftTotal += leftCount;
     rightTotal += rightCount;
+
+    float ticksPerDist = _tireCirc / _encStripes;
+
             
     // TODO 2 sanity check on encoders; if difference between them
     //  is huge, what do we do?  Slipping wheel?  Skidding wheel?  Broken encoder?
@@ -125,8 +134,8 @@ void Sensors::Read_Encoders()
     
     // TODO 2 how do we track distance, should we only check distance everytime we do a nav/pos update?
     // TODO 3 get rid of state variable
-    lrEncDistance  = (WHEEL_CIRC / WHEEL_STRIPES) * (double) leftCount;
-    rrEncDistance = (WHEEL_CIRC / WHEEL_STRIPES) * (double) rightCount;
+    lrEncDistance  = ticksPerDist * (double) leftCount; // TODO 0: parameterize
+    rrEncDistance = ticksPerDist * (double) rightCount; // TODO 0: parameterize
     //encDistance = (lrEncDistance + rrEncDistance) / 2.0;
     // compute speed from time between ticks
     int leftTime = _left.readTime();
@@ -140,13 +149,13 @@ void Sensors::Read_Encoders()
     if (leftTime <= 0) {
         lrEncSpeed = 0;
     } else {
-        lrEncSpeed = (2.0 * WHEEL_CIRC / WHEEL_STRIPES) / ((float) leftTime * 1e-6);
+        lrEncSpeed = (2.0 * ticksPerDist) / ((float) leftTime * 1e-6); // TODO 0: parameterize
     }
     
     if (rightTime <= 0) {
         rrEncSpeed = 0;
     } else {
-        rrEncSpeed = (2.0 * WHEEL_CIRC / WHEEL_STRIPES) / ((float) rightTime * 1e-6);
+        rrEncSpeed = (2.0 * ticksPerDist) / ((float) rightTime * 1e-6); // TODO 0: parameterize
     }
         
     // Dead band

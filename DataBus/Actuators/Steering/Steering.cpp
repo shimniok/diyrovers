@@ -3,14 +3,21 @@
 #include "math.h"
 #include "util.h"
 
-/** create a new steering calculator for a particular vehicle
- *
- */
-Steering::Steering(float wheelbase, float track):
-    _wheelbase(wheelbase),
-    _track(track),
-    _intercept(2.0)
+Steering::Steering()
+: _wheelbase(0)
+, _track(0)
+, _intercept(0)
 {
+}
+
+void Steering::setWheelbase(float wheelbase)
+{
+	_wheelbase = wheelbase;
+}
+
+void Steering::setTrack(float track)
+{
+	_track = track;
 }
 
 void Steering::setIntercept(float intercept)

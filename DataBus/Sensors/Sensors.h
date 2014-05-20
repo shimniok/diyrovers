@@ -61,16 +61,11 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 //#define M_Z_MIN -573
 //#define M_Z_MAX 464
 
-// Chassis specific parameters
-#define WHEEL_STRIPES 32
-#define WHEEL_CIRC    0.321537 // m; calibrated with 4 12.236m runs. Wheel circumference measured 13.125" or 0.333375m
-#define WHEELBASE     0.290
-#define TRACK         0.280
-
 class Sensors {
 public:
     Sensors(void);
     void Compass_Calibrate(float offset[3], float scale[3]);
+    void configureEncoders(float tireCirc, float encStripes);
     void Read_Encoders(void);
     void Read_Gyro(void);
     void Read_Accel(void);
@@ -114,7 +109,6 @@ public:
     float rrEncSpeed;                       // right rear encoder speed
     float encDistance;                      // encoder distance since last check
     float encSpeed;                         // encoder calculated speed
-
     //Sirf3 gps;                              // Pharos SiRF III GPS
     //Venus638flpx gps;                       // Venus GPS
     Ublox6 gps;                             // Ublox6 GPS
@@ -130,6 +124,8 @@ public:
 
 private:
     void BubbleSort(float *num, int numLength);
+    float _tireCirc;						// tire circumference
+    float _encStripes;    					// encoder ticks per revolution
 };
 
 #endif

@@ -447,7 +447,7 @@ void update()
     // TODO 2 add ranger obstacle detection and filtering/fusion with vision
 
     // For Steering Angle Computation below
-    float LAx, LAy, relBrg;
+    static float LAx, LAy, relBrg;
 
     //////////////////////////////////////////////////////////////////////////////
     // CONTROL UPDATE
@@ -465,6 +465,7 @@ void update()
     	float hdg;
     	float Bx, By, Ax, Ay, Cx, Cy;
 
+    	hdg = history[now].hdg;
     	Bx = history[now].x;
     	By = history[now].y;
     	Ax = config.cwpt[lastWaypoint].x;
@@ -484,15 +485,17 @@ void update()
         // along the path by the lookahead distance
         float legLength = sqrtf(Lx*Lx + Ly*Ly); // ||L||
         float proj = (Lx*Rx + Ly*Ry)/legLength; // R dot L/||L||, projection magnitude, bot vector onto leg vector
-        LAx = (proj + config.interceptDist)*Lx/legLength; // find projection point + lookahead, along leg, relative to Bx
-        LAy = (proj + config.interceptDist)*Ly/legLength;
+        LAx = Bx + (proj + config.interceptDist)*Lx/legLength; // find projection point + lookahead, along leg, relative to Bx
+        LAy = By + (proj + config.interceptDist)*Ly/legLength;
+        //
         // Compute a circle that is tangential to bot heading and intercepts bot
         // and goal point (LAx,LAy), the intercept circle. Then compute the steering
-        // angle to trace that circle. (x,y because 0 deg points up not right)
-        float brg = clamp360( Steering::angle_degrees(atan2(LAx-Rx,LAy-Ry)) );
-        //if (brg >= 360.0) brg -= 360.0;
-        //if (brg < 0) brg += 360.0;
-        // would be nice to add in some noise to heading info
+        // angle to trace that circle.
+        //
+        // First, compute absolute bearing to lookahead point (LA) from robot (B);
+        // Note that trig 0* is 90* off from compass 0*
+        float brg = clamp360( Steering::angle_degrees(atan2(By-LAy, Bx-LAx))-90 );
+        // Now, compute relative bearing to the lookahead. Relative to bot hdg.
         relBrg = clamp180(brg - hdg);
         // The steering angle equation actually peaks at relBrg == 90 so just clamp to this
         if (relBrg > 89.5) {
@@ -500,7 +503,7 @@ void update()
         } else if (relBrg < -89.5) {
             relBrg = -89.5;
         }
-        // Compute radius based on intercept distance and specified angle
+        // Compute turn radius based on intercept distance and specified angle
         // The sin equation will produce a negative radius, which causes problems
         // when subtracting track/2.0, so just take absolute value and multiply sign
         // later on
@@ -509,8 +512,7 @@ void update()
         // optionally, limit radius min/max
         // Now compute the steering angle to achieve the circle of
         // Steering angle is based on wheelbase and track width
-        steerAngle = sign * Steering::angle_degrees(asin(0.290 / (radius - 0.280/2.0)));
-        // For WHEELBASE=0.290, TRACK=0.280 see main.cpp
+        steerAngle = sign * Steering::angle_degrees(asin(config.wheelbase / (radius - config.track/2.0)));
         //
         //////////////////////////////////////////////////////////////////////////////////////
         

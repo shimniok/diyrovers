@@ -44,6 +44,7 @@ class Config {
         float wheelbase;			// Vehicle wheelbase, front to rear axle
         float track;				// Vehicle track width, left to right contact patch
         float tireCirc;				// tire circumference
+        float encStripes;			// Number of ticks per revolution
 };
 
 #endif
