@@ -25,8 +25,8 @@ extern Serial pc;
 
 // TODO: 3: mod waypoints to include speed after waypoint
 
-Config::Config():
-    loaded(false)
+Config::Config()
+:   loaded(false)
 ,	interceptDist(0.0)
 ,	waypointDist(0.0)
 ,	brakeDist(0.0)
@@ -47,8 +47,11 @@ Config::Config():
 ,	curbThreshold(0.0)
 ,	curbGain(0.0)
 ,	gyroBias(0.0)
+,	wheelbase(0.290)		// original Data Bus defaults
+,	track(0.280)			// original Data Bus defaults
+,	tireCirc(0.321537)		// original Data Bus defaults
 {
-    // not much to do here, yet.
+    // not much to do here.
 }
 
 // load configuration from filesystem
@@ -146,6 +149,8 @@ bool Config::load()
 				wheelbase = cvstof(tmp);              		// vehicle wheelbase (front to rear axle)
 				p = split(tmp, p, MAXBUF, ',');
 				track = cvstof(tmp);                		// vehicle track width (left to right)
+				p = split(tmp, p, MAXBUF, ',');
+				tireCirc = cvstof(tmp);                		// vehicle track width (left to right)
             } //if-else
             /*
 			} else if (!strcmp(tmp, GYRO)) {
