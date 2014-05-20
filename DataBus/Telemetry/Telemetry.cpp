@@ -32,7 +32,7 @@ void Telemetry::baud(int baud) {
  */
 void Telemetry::sendPacket(CartPosition wpt[], int wptCount) {
 	if (wpt) {
-		_uart->puts("`01,"); // waypoint message
+		_uart->puts("`01, "); // waypoint message
 		_uart->puts(cvitos(wptCount));
 		_uart->puts(",");
 		for (int i=0; i < wptCount; i++) {
@@ -60,7 +60,7 @@ void Telemetry::sendPacket(SystemState *s) {
 			bearing += 360.0;
 		}
 
-		_uart->puts("`00,"); // standard status message
+		_uart->puts("`00, "); // standard status message
 		_uart->puts(cvntos(s->millis));
 		_uart->puts(", ");
 		_uart->puts(cvftos(s->voltage, 2));
@@ -81,13 +81,15 @@ void Telemetry::sendPacket(SystemState *s) {
 		_uart->puts(", ");
 		_uart->puts(cvftos((s->lrEncSpeed + s->rrEncSpeed)/2.0, 1));
 		_uart->puts(", ");
+		_uart->puts(cvitos(s->nextWaypoint));
+		_uart->puts(", ");
 		_uart->puts(cvftos(bearing, 2));
 		_uart->puts(", ");
 		_uart->puts(cvftos(s->distance, 5));
 		_uart->puts(", ");
 		_uart->puts(cvftos(s->steerAngle, 2));
 		_uart->puts(", ");
-		_uart->puts(cvftos(s->LABrg, 2));
+		_uart->puts(cvftos(s->LABrg, 1));
 		_uart->puts(", ");
 		_uart->puts(cvftos(s->LAx, 2));
 		_uart->puts(", ");

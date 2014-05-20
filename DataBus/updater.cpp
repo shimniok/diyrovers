@@ -485,8 +485,9 @@ void update()
         // along the path by the lookahead distance
         float legLength = sqrtf(Lx*Lx + Ly*Ly); // ||L||
         float proj = (Lx*Rx + Ly*Ry)/legLength; // R dot L/||L||, projection magnitude, bot vector onto leg vector
-        LAx = Bx + (proj + config.interceptDist)*Lx/legLength; // find projection point + lookahead, along leg, relative to Bx
-        LAy = By + (proj + config.interceptDist)*Ly/legLength;
+        // find projection point + lookahead, along leg, relative to A
+        LAx = Ax + (proj + config.interceptDist)*Lx/legLength;
+        LAy = Ay + (proj + config.interceptDist)*Ly/legLength;
         //
         // Compute a circle that is tangential to bot heading and intercepts bot
         // and goal point (LAx,LAy), the intercept circle. Then compute the steering
