@@ -32,6 +32,7 @@ void state_clear( SystemState *s )
     s->estX = s->estY = 0.0;
     s->nextWaypoint = 0;
     s->bearing = s->distance = 0.0;
+    s->LABrg = s->LAx = s->LAy = 0.0;
 }
 
 bool fifo_init() {

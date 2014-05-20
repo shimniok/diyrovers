@@ -65,7 +65,7 @@ class Sensors {
 public:
     Sensors(void);
     void Compass_Calibrate(float offset[3], float scale[3]);
-    void configureEncoders(float tireCirc, float encStripes);
+    void configureEncoders(float tireCirc, int encStripes);
     void Read_Encoders(void);
     void Read_Gyro(void);
     void Read_Accel(void);
@@ -125,7 +125,7 @@ public:
 private:
     void BubbleSort(float *num, int numLength);
     float _tireCirc;						// tire circumference
-    float _encStripes;    					// encoder ticks per revolution
+    int _encStripes;    					// encoder ticks per revolution
 };
 
 #endif

@@ -519,7 +519,7 @@ int dospeed(char *arg) {
 	printFloat(stdout, v, 4);
 	setThrottle(v);
 	fputs(" servo=", stdout);
-	// TODO printFloat(stdout, getThrottle(), 4);
+	// TODO 4 printFloat(stdout, getThrottle(), 4);
 	fputc('\n', stdout);
 	return 0;
 }
@@ -530,7 +530,7 @@ int dosteer(char *arg) {
 	printFloat(stdout, v, 4);
 	fputs(" servo=", stdout);
 	setSteering(v);
-	// TODO printFloat(stdout, getSteering(), 4);
+	// TODO 4 printFloat(stdout, getSteering(), 4);
 	fputc('\n', stdout);
 	return 0;
 }
@@ -540,11 +540,11 @@ int dotimes(char *arg) {
 	for (i = 1; i < 8; i++) {
 		printInt(stdout, i);
 		fputc(':', stdout);
-		// TODO printInt(stdout, getUpdateTime(i)-getUpdateTime(i-1));
+		// TODO 4 printInt(stdout, getUpdateTime(i)-getUpdateTime(i-1));
 		fputc('\n', stdout);
 	}
 	fputs("total:", stdout);
-	// TODO printInt(stdout, getUpdateTime(7)-getUpdateTime(0));
+	// TODO 4 printInt(stdout, getUpdateTime(7)-getUpdateTime(0));
 	fputc('\n', stdout);
 	return 0;
 }

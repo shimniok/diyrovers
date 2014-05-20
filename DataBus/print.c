@@ -88,7 +88,7 @@ size_t printHex(FILE *f, long n, uint8_t digits) {
 
 	while (mask) {
 		c = (n & mask);
-		// TODO finish this
+		// TODO 3: finish this
 		switch (c) {
 		case 0:
 		case 1:

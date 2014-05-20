@@ -26,7 +26,7 @@
 #include "Sensors.h"
 #include "kalman.h"
 #include "Ublox6.h"
-#include "PinDetect.h" // TODO this should be broken into .h, .cpp
+#include "PinDetect.h" // TODO 3 this should be broken into .h, .cpp
 #include "Actuators.h"
 #include "IncrementalEncoder.h"
 #include "Steering.h"
@@ -316,7 +316,6 @@ int main()
     sensors.gps.setUpdateRate(10);
     sensors.gps.enable();
 
-    // TODO Running this seems to prevent the main loop from running ?!
     pc.puts("Starting Scheduler...\n");
     display.status("Start scheduler     ");
     wait(0.2);
@@ -843,7 +842,7 @@ int compassSwing()
     leftCount = 0;
     // TODO 3 how to parameterize status?
     lcd.pos(0,1);
-    //FIXME lcd.printf("%1d %-14s", revolutions, "revs left");
+    // TODO 3 lcd.printf("%1d %-14s", revolutions, "revs left");
 
     sensors._right.read(); // easiest way to reset the heading counter
     
@@ -876,7 +875,7 @@ int compassSwing()
             fputs(cvitos(revolutions), stdout);
             fputs(" left\n", stdout); // we sense the rising and falling of the index so /2
             lcd.pos(0,1);
-            //FIXME lcd.printf("%1d %-14s", revolutions, "revs left");
+            // TODO 4 lcd.printf("%1d %-14s", revolutions, "revs left");
         }
         
         float heading2d = 180 * atan2((float) sensors.mag[1], (float) sensors.mag[0]) / PI;
@@ -1074,7 +1073,6 @@ void telemetryMode() {
 
 	pc.baud(115200);
 
-	// FIXME - escape from telemetry mode
 	pc.puts("Entering telemetry mode; press e to exit\n\n");
 
     timer.reset();
@@ -1144,7 +1142,7 @@ int setBacklight(void) {
         if (printUpdate) {
             printUpdate = false;
             lcd.pos(0,1);
-            //FIXME lcd.printf("%3d%%%-16s", backlight, "");
+            // TODO 3 lcd.printf("%3d%%%-16s", backlight, "");
         }
     }
     

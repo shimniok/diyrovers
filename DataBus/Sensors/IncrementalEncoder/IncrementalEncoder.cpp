@@ -1,5 +1,7 @@
 #include "IncrementalEncoder.h"
 
+// TODO 2: incorporate distance calcs and config setting
+
 IncrementalEncoder::IncrementalEncoder(PinName pin)
 :	_lastTicks(0)
 ,	_ticks(0)

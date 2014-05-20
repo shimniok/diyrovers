@@ -41,7 +41,7 @@ void Display::status(const char *st)
 {
     lcd.pos(0,1);
     lcd.puts(st);
-    //FIXME add padding/erase chars to Display::status
+    // TODO 2 add padding/erase chars to Display::status
 }
 
 void Display::menu(const char *itemName)

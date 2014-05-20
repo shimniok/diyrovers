@@ -96,7 +96,7 @@ public:
      */
     virtual int mkdir(const char *name, mode_t mode) { return -1; }
 
-    // TODO other filesystem functions (mkdir, rm, rn, ls etc)
+    // TODO 4: other filesystem functions (mkdir, rm, rn, ls etc)
 };
 
 } // namespace mbed

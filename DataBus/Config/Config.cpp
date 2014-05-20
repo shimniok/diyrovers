@@ -51,6 +51,7 @@ Config::Config()
 ,	wheelbase(0.290)		// original Data Bus defaults
 ,	track(0.280)			// original Data Bus defaults
 ,	tireCirc(0.321537)		// original Data Bus defaults
+,	encStripes(32)			// original Data Bus defaults
 {
     // not much to do here.
 }
@@ -154,7 +155,7 @@ bool Config::load()
 				p = split(tmp, p, MAXBUF, ',');
 				tireCirc = cvstof(tmp);                		// tire circumference
 				p = split(tmp, p, MAXBUF, ',');
-				encStripes = cvstof(tmp);                	// ticks per revolution
+				encStripes = atoi(tmp);                	// ticks per revolution
             } //if-else
             /*
 			} else if (!strcmp(tmp, GYRO)) {

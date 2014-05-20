@@ -65,6 +65,8 @@ Sensors::Sensors():
     _compass(I2CSDA, I2CSCL),    // MinIMU-9 compass/accelerometer
     _rangers(I2CSDA, I2CSCL),    // Arduino ADC to I2C
     _cam(I2CSDA, I2CSCL)
+,	_tireCirc(0)
+, 	_encStripes(0)
 {
     for (int i=0; i < 3; i++) {
         m_offset[i] = 0;
@@ -108,7 +110,7 @@ void Sensors::Compass_Calibrate(float offset[3], float scale[3])
     return;
 }
 
-void Sensors::configureEncoders(float tireCirc, float encStripes)
+void Sensors::configureEncoders(float tireCirc, int encStripes)
 {
 	_tireCirc = tireCirc;
 	_encStripes = encStripes;
@@ -134,8 +136,8 @@ void Sensors::Read_Encoders()
     
     // TODO 2 how do we track distance, should we only check distance everytime we do a nav/pos update?
     // TODO 3 get rid of state variable
-    lrEncDistance  = ticksPerDist * (double) leftCount; // TODO 0: parameterize
-    rrEncDistance = ticksPerDist * (double) rightCount; // TODO 0: parameterize
+    lrEncDistance  = ticksPerDist * (double) leftCount;
+    rrEncDistance = ticksPerDist * (double) rightCount;
     //encDistance = (lrEncDistance + rrEncDistance) / 2.0;
     // compute speed from time between ticks
     int leftTime = _left.readTime();
@@ -149,13 +151,13 @@ void Sensors::Read_Encoders()
     if (leftTime <= 0) {
         lrEncSpeed = 0;
     } else {
-        lrEncSpeed = (2.0 * ticksPerDist) / ((float) leftTime * 1e-6); // TODO 0: parameterize
+        lrEncSpeed = (2.0 * ticksPerDist) / ((float) leftTime * 1e-6);
     }
     
     if (rightTime <= 0) {
         rrEncSpeed = 0;
     } else {
-        rrEncSpeed = (2.0 * ticksPerDist) / ((float) rightTime * 1e-6); // TODO 0: parameterize
+        rrEncSpeed = (2.0 * ticksPerDist) / ((float) rightTime * 1e-6);
     }
         
     // Dead band
