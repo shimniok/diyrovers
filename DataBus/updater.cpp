@@ -526,7 +526,7 @@ void update()
         
         // Apply gain factor for near straight line
         // TODO 3 figure out a better, continuous way to deal with steering gain
-        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
+//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 
         // Curb avoidance
         /*
@@ -542,7 +542,6 @@ void update()
         // TODO: 3 probably should do KF or something for speed/dist; need to address GPS lag, too
         // if nothing else, at least average the encoder speed over mult. samples
 		if (desiredSpeed <= 0.1 ) {
-			//setThrottle( config.escMin );
 			esc = config.escMin;
 		} else {
 			// PID loop for throttle control
@@ -557,10 +556,9 @@ void update()
 			float output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
 			if (output > config.escMax) output = config.escMax;
 			if (output < config.escZero) output = config.escZero;
-            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
-//			setThrottle( output );
+//            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
 			esc = (int) output;
-			// remember the error for the next time around.
+			// remember the error for the next time around so we can compute delta error.
 			lastError = error;
 		}
 
