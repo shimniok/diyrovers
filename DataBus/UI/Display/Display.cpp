@@ -39,9 +39,16 @@ void Display::init()
 
 void Display::status(const char *st)
 {
+	int pad;
+	char *s = (char *) st;
+	for (pad=20; pad > 0; pad--) {
+		if (*s++ == '\0') break;
+	}
     lcd.pos(0,1);
     lcd.puts(st);
-    // TODO 2 add padding/erase chars to Display::status
+    while (pad--) {
+    	lcd.puts(" ");
+    }
 }
 
 void Display::menu(const char *itemName)
