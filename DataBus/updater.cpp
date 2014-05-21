@@ -55,7 +55,7 @@ extern Sensors sensors;
 //extern volatile unsigned char outState;
 //extern bool ssBufOverrun;
 extern Mapping mapper;
-extern Steering steerCalc;              // steering calculator
+//extern Steering steerCalc;              // steering calculator
 extern Timer timer;
 extern DigitalOut updaterStatus;           // AHRS status LED
 
