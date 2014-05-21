@@ -539,8 +539,9 @@ void initFlasher()
 
 int autonomousMode()
 {
-    bool goGoGo = false;                    // signal to start moving
-    bool navDone;                      // signal that we're done navigating
+	bool goGoGo = false;               	// signal to start moving
+    bool navDone;                      	// signal that we're done navigating
+    int nextTelemUpdate;				// keeps track of teletry update periods
     //extern int tSensor, tGPS, tAHRS, tLog;
 
     sensors.gps.reset_available();
@@ -566,6 +567,7 @@ int autonomousMode()
     
     timer.reset();
     timer.start();
+    nextTelemUpdate = timer.read_ms();
     wait(0.1);
     
     // Tell the navigation / position estimation stuff to reset to starting waypoint
@@ -586,8 +588,7 @@ int autonomousMode()
         //
         // set throttle only if goGoGo set
         if (goGoGo) {
-            // TODO: 1 Add additional condition of travel for N meters before
-            // the HALT button is armed
+            // TODO: 1 Add additional condition of travel for N meters before the HALT button is armed
             
             if (keypad.pressed == true) { // && started
                 fputs(">>>>>>>>>>>>>>>>>>>>>>> HALT\n", stdout);
@@ -616,11 +617,14 @@ int autonomousMode()
             endRun();
         }
 
-
         //////////////////////////////////////////////////////////////////////////////
         // TELEMETRY
         //////////////////////////////////////////////////////////////////////////////
-        //			telem.sendPacket(s);
+        if (timer.read_ms() > nextTelemUpdate) {
+			SystemState *s = fifo_first();
+			telem.sendPacket(s);
+			nextTelemUpdate += 200;
+        }
 
         //////////////////////////////////////////////////////////////////////////////
         // LOGGING
