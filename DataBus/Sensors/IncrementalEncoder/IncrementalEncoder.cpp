@@ -1,7 +1,5 @@
 #include "IncrementalEncoder.h"
 
-// TODO 2: incorporate distance calcs and config setting
-
 IncrementalEncoder::IncrementalEncoder(PinName pin)
 :	_new(false)
 ,	_lastTime(0)
@@ -21,7 +19,6 @@ IncrementalEncoder::IncrementalEncoder(PinName pin)
 }
 
 unsigned int IncrementalEncoder::read() {
-// disable interrupts?
     unsigned int ticks = _ticks - _lastTicks;
     _lastTicks = _ticks;
     _new=false;
