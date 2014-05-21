@@ -35,6 +35,9 @@ void initThrottle()
     throttle.calibrate(0.001, 45.0); 
 }
 
+float getThrottle() {
+	return throttle;
+}
 
 void setThrottle(float value)
 {
