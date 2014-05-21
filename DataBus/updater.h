@@ -5,6 +5,9 @@
  * called at 100Hz by a timer interrupt
  */
 
+/** initialize throttle to center position */
+void initThrottle(void);
+
 /** attach the update routine to Ticker interrupt */
 void startUpdater(void);
 
@@ -19,6 +22,9 @@ void endRun(void);
 
 /** Tells the updater to re-initialize the navigation state */
 void restartNav(void);
+
+/** Commands the desired speed of the rover */
+void setSpeed(float speed);
 
 /** The function that is called at 100Hz. It reads sensors, performs estimation, and controls the robot */
 void update(void);

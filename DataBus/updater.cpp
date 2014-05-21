@@ -117,7 +117,7 @@ int logCounter = 0;
 
 void initThrottle()
 {
-	esc = 1500;
+	esc = config.escMin;
 }
 
 /** attach update to Ticker */
@@ -557,9 +557,9 @@ void update()
 			float output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
 			if (output > config.escMax) output = config.escMax;
 			if (output < config.escZero) output = config.escZero;
-//            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
+            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
 //			setThrottle( output );
-			esc = output;
+			esc = (int) output;
 			// remember the error for the next time around.
 			lastError = error;
 		}

@@ -162,11 +162,6 @@ int main()
 	//vTaskStartScheduler(); // should never get past this line.
 	//while(1);
 
-	// Send data back to the PC
-    pc.baud(115200);
-    fputs("Data Bus 2014\n", stdout);
-    fflush(stdin);
-
     // Let's try setting priorities...
     //NVIC_SetPriority(DMA_IRQn, 0);
     NVIC_SetPriority(TIMER3_IRQn, 2);   // updater running off Ticker, must be highest priority!!
@@ -191,15 +186,18 @@ int main()
     // Also when initializing with ESC powered, it causes motor to run which
     // totally jacks up everything (noise?)
     initSteering();
-//    initThrottle();
-    // initFlasher();                       // Initialize autonomous mode flasher
+    initThrottle();
 
     display.init();
     display.status("Data Bus 2014");
 
+    // Send data back to the PC
+    pc.baud(115200);
+    fputs("Data Bus 2014\n", stdout);
+    fflush(stdin);
+
     fputs("Initializing...\n", stdout);
     display.status("Initializing");
-    wait(0.2);
     
     // Initialize status LEDs
     updaterStatus = 0;
@@ -213,9 +211,10 @@ int main()
 
     fputs("Loading configuration...\n", stdout);
     display.status("Load config");
-    wait(0.2);
     if (config.load())                          // Load various configurable parameters, e.g., waypoints, declination, etc.
         confStatus = 1;
+
+    initThrottle();
 
     //pc.printf("Declination: %.1f\n", config.declination);
     pc.puts("Speed: escZero=");
