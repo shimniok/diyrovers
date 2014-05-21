@@ -415,7 +415,7 @@ void update()
         // if we're within brakeDist of next or previous waypoint, run @ turn speed
         // This would normally mean we run at turn speed until we're brakeDist away
         // from waypoint 0, but we trick the algorithm by initializing prevWaypoint to waypoint 1
-        if ( (thisTime - timeZero) < 3000 ) {
+        if ( (thisTime - timeZero) < 3000 ) { // FIXME is this actually working? or should it be distance
             setSpeed( config.startSpeed );
         } else if (distance < config.brakeDist || prevDistance < config.brakeDist) {
             setSpeed( config.turnSpeed );
@@ -497,7 +497,7 @@ void update()
         // Note that trig 0* is 90* off from compass 0*
         float brg = clamp360( Steering::angle_degrees(atan2(By-LAy, Bx-LAx))-90 );
         // Now, compute relative bearing to the lookahead. Relative to bot hdg.
-        relBrg = clamp180(brg - hdg);
+        relBrg = clamp180(hdg - brg);
         // The steering angle equation actually peaks at relBrg == 90 so just clamp to this
         if (relBrg > 89.5) {
             relBrg = 89.5;
@@ -534,26 +534,26 @@ void update()
         // TODO: 3 move all this PID crap into Actuators.cpp
         // TODO: 3 probably should do KF or something for speed/dist; need to address GPS lag, too
         // if nothing else, at least average the encoder speed over mult. samples
-        if (desiredSpeed <= 0.1) {
-            setThrottle( config.escZero );
-        } else {
-            // PID loop for throttle control
-            // http://www.codeproject.com/Articles/36459/PID-process-control-a-Cruise-Control-example
-            float error = desiredSpeed - nowSpeed; 
-            // track error over time, scaled to the timer interval
-            integral += (error * speedDt);
-            // determine the amount of change from the last time checked
-            float derivative = (error - lastError) / speedDt; 
-            // calculate how much to drive the output in order to get to the 
-            // desired setpoint. 
-            float output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
-            if (output > config.escMax) output = config.escMax;
-            if (output < config.escMin) output = config.escMin;
+		if (desiredSpeed <= 0.1 ) {
+			setThrottle( config.escMin );
+		} else {
+			// PID loop for throttle control
+			// http://www.codeproject.com/Articles/36459/PID-process-control-a-Cruise-Control-example
+			float error = desiredSpeed - nowSpeed;
+			// track error over time, scaled to the timer interval
+			integral += (error * speedDt);
+			// determine the amount of change from the last time checked
+			float derivative = (error - lastError) / speedDt;
+			// calculate how much to drive the output in order to get to the
+			// desired setpoint.
+			float output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
+			if (output > config.escMax) output = config.escMax;
+			if (output < config.escZero) output = config.escZero;
 //            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
-            setThrottle( output );
-            // remember the error for the next time around.
-            lastError = error; 
-        }
+			setThrottle( output );
+			// remember the error for the next time around.
+			lastError = error;
+		}
 
         speedDt = 0; // reset dt to begin counting for next time
         control_count = CTRL_SKIP;
