@@ -191,7 +191,7 @@ int main()
     // Also when initializing with ESC powered, it causes motor to run which
     // totally jacks up everything (noise?)
     initSteering();
-    initThrottle();
+//    initThrottle();
     // initFlasher();                       // Initialize autonomous mode flasher
 
     display.init();

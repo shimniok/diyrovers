@@ -514,11 +514,14 @@ int doautonomous(char *arg) {
 
 
 int dospeed(char *arg) {
-	float v = cvstof(arg);
-	fputs("speed=", stdout);
-	setThrottle(v);
-	printFloat(stdout, getThrottle(), 4);
-	fputc('\n', stdout);
+	// FIXME dospeed()
+//	int v = atoi(arg);
+//	if (config.escMin < v && v < config.escMax {
+//		fputs("speed=", stdout);
+//		setThrottle(v);
+//		printFloat(stdout, getThrottle(), 4);
+//		fputc('\n', stdout);
+//	}
 	return 0;
 }
 

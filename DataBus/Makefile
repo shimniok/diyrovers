@@ -12,6 +12,7 @@ OBJECTS += \
 	updater.o \
 	util.o \
 	./Actuators/Actuators.o \
+	./Actuators/Servo/Servo2.o \
 	./Actuators/Servo/Servo.o \
 	./Actuators/Steering/Steering.o \
 	./Channel/Channel.o \

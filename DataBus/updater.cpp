@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "devices.h"
 #include "util.h"
 #include "globals.h"
 #include "updater.h"
@@ -7,6 +8,7 @@
 #include "Sensors.h"
 #include "SystemState.h"
 #include "Steering.h"
+#include "Servo2.h"
 #include "Servo.h"
 #include "Mapping.h"
 #include "CartPosition.h"
@@ -68,6 +70,7 @@ double distance;                        // distance to next waypoint
 float steerAngle;                       // steering angle
 
 // Throttle PID
+Servo2 esc(THROTTLE);
 float speedDt=0;                        // dt for the speed PID
 float integral=0;                       // error integral for speed PID
 float lastError=0;                      // previous error, used for calculating derivative
@@ -112,6 +115,10 @@ int lag = 0;        // fifo output index, entry from 1 second ago (sensors.gps.l
 int lagPrev = 0;    // previous fifo output index, 101 entries prior
 int logCounter = 0;
 
+void initThrottle()
+{
+	esc = 1500;
+}
 
 /** attach update to Ticker */
 void startUpdater()
@@ -535,7 +542,8 @@ void update()
         // TODO: 3 probably should do KF or something for speed/dist; need to address GPS lag, too
         // if nothing else, at least average the encoder speed over mult. samples
 		if (desiredSpeed <= 0.1 ) {
-			setThrottle( config.escMin );
+			//setThrottle( config.escMin );
+			esc = config.escMin;
 		} else {
 			// PID loop for throttle control
 			// http://www.codeproject.com/Articles/36459/PID-process-control-a-Cruise-Control-example
@@ -550,7 +558,8 @@ void update()
 			if (output > config.escMax) output = config.escMax;
 			if (output < config.escZero) output = config.escZero;
 //            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
-			setThrottle( output );
+//			setThrottle( output );
+			esc = output;
 			// remember the error for the next time around.
 			lastError = error;
 		}

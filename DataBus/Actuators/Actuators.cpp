@@ -6,10 +6,7 @@
 extern Config config;
 
 Servo steering(STEERING);               // Steering Servo
-Servo throttle(THROTTLE);               // ESC
-int escMax=520;                         // Servo setting for max speed
 
-#define THROTTLE_CENTER 0.4
 
 void initSteering()
 {
@@ -21,27 +18,6 @@ void initSteering()
     }
     // TODO: 3 parameterize this in config file
     steering.calibrate(0.005, 45.0); 
-}
-
-
-void initThrottle()
-{
-    if (config.loaded) {
-        throttle = config.escZero;
-    } else {
-        throttle = 0.410;
-    }
-    // TODO: 3 parameterize this in config file
-    throttle.calibrate(0.001, 45.0); 
-}
-
-float getThrottle() {
-	return throttle;
-}
-
-void setThrottle(float value)
-{
-	throttle = value;
 }
 
 
