@@ -122,7 +122,7 @@ void hard_fault_handler(unsigned int *hardfault_args)
 	  stacked_psr = ((unsigned long) hardfault_args[7]);
 	  //control = __get_CONTROL();
 
-	  // TODO 1: Eliminate printf
+	  // TODO 2: Eliminate printf
 
 	  puts("\n\n[Hard fault]\n");
 	  printf("R0 = 0x%08x\n", stacked_r0);
