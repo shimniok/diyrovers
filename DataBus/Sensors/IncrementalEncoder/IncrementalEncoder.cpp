@@ -43,8 +43,10 @@ unsigned int IncrementalEncoder::readFall() {
     return _fall;
 }
     
-unsigned int IncrementalEncoder::readTime() {
-    return _time;
+unsigned int IncrementalEncoder::readTime() {\
+	unsigned int result = _time;
+	_time = 0;
+    return result;
 }
     
 void IncrementalEncoder::reset() {
@@ -55,17 +57,13 @@ void IncrementalEncoder::_increment() {
     _ticks++;
 }
 
-#define A 0.3 // mix in how much from previous readings?
 void IncrementalEncoder::_incRise() {
     _rise++;
     _ticks++;
     _new=true;
-    // compute time between ticks; only do this for rise
-    // to eliminate jitter
-    int now = _t.read_us();
-    _time = A*_time + (1-A)*(now - _lastTime); // FIXME bug with speed after stopping
-    // Dead band: if _time > xxxx then turn off and wait until next tick
-    // to start up again
+    // compute time between ticks; only do this for rise to eliminate jitter
+	int now = _t.read_us();
+    _time = now - _lastTime;
     _lastTime = now;
 }
 
