@@ -52,12 +52,14 @@ class IncrementalEncoder
         void reset();
 
     private:
-        Timer _t;
+        bool _new;
         unsigned int _lastTime;
         unsigned int _time;
         unsigned int _lastTicks;
-        unsigned int _ticks, _rise, _fall;
-        bool _new;
+        unsigned int _ticks;
+        unsigned int _rise;
+        unsigned int _fall;
+        Timer _t;
         InterruptIn _interrupt;
         void _increment();
         void _incRise();

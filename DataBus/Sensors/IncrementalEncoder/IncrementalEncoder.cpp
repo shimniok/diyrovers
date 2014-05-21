@@ -3,10 +3,11 @@
 // TODO 2: incorporate distance calcs and config setting
 
 IncrementalEncoder::IncrementalEncoder(PinName pin)
-:	_lastTicks(0)
-,	_ticks(0)
-,	_new(false)
+:	_new(false)
+,	_lastTime(0)
 ,	_time(0)
+,   _lastTicks(0)
+,	_ticks(0)
 ,	_rise(0)
 ,	_fall(0)
 ,	_interrupt(pin)
