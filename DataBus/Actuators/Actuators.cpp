@@ -53,6 +53,6 @@ void setSteering(float steerAngle)
     // also range is 0.535-0.460 --> slope = 800
     // steering = 0.500 + (double) steerAngle / 762.5;
     //
-    steering = 0.500 + (double) steerAngle / 808.0; // TODO: 0 parameterize through config
+    steering = 0.500 + (double) steerAngle / 808.0; // TODO 0: parameterize through config
 }
     
