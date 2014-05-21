@@ -59,6 +59,7 @@ void IncrementalEncoder::_incRise() {
     _ticks++;
     _new=true;
     // compute time between ticks; only do this for rise to eliminate jitter
+	// TODO 3: reimplement filtering of _time
 	int now = _t.read_us();
     _time = now - _lastTime;
     _lastTime = now;
