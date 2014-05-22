@@ -11,7 +11,6 @@ OBJECTS += \
 	print.o \
 	updater.o \
 	util.o \
-	./Actuators/Actuators.o \
 	./Actuators/Servo/Servo2.o \
 	./Actuators/Servo/Servo.o \
 	./Actuators/Steering/Steering.o \
