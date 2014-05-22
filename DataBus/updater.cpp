@@ -52,16 +52,12 @@ extern DigitalOut gpsStatus;
 
 // TODO: 3 better encapsulation, please
 extern Sensors sensors;
-//extern SystemState *state;
-//extern volatile unsigned char inState;
-//extern volatile unsigned char outState;
-//extern bool ssBufOverrun;
 extern Mapping mapper;
-//extern Steering steerCalc;              // steering calculator
 extern Timer timer;
-extern DigitalOut updaterStatus;           // AHRS status LED
+extern DigitalOut updaterStatus;        // AHRS status LED
 
 // Navigation
+Steering steering(STEERING);			// Steering actuator
 extern Config config;
 int nextWaypoint = 0;                   // next waypoint destination
 int lastWaypoint = 1;
@@ -118,6 +114,11 @@ int logCounter = 0;
 void initThrottle()
 {
 	esc = config.escMin;
+}
+
+void initSteering()
+{
+	steering.initSteering();
 }
 
 /** attach update to Ticker */
@@ -467,7 +468,7 @@ void update()
 //                                             config.cwpt[nextWaypoint].x, config.cwpt[nextWaypoint].y);
 
     	//////////////////////////////////////////////////////////////////////////////////////
-    	// Moving this out here so I can instrument the calculations/data
+    	// Steering Control
     	//
     	float hdg;
     	float Bx, By, Ax, Ay, Cx, Cy;
@@ -502,42 +503,39 @@ void update()
         //
         // First, compute absolute bearing to lookahead point (LA) from robot (B);
         // Note that trig 0* is 90* off from compass 0*
-        float brg = clamp360( Steering::angle_degrees(atan2(By-LAy, Bx-LAx))-90 );
+        float brg = clamp360( 90 - Steering::toDegrees(atan2(By-LAy, Bx-LAx)) );
         // Now, compute relative bearing to the lookahead. Relative to bot hdg.
         relBrg = clamp180(hdg - brg);
         // The steering angle equation actually peaks at relBrg == 90 so just clamp to this
+        // Also, we get a div-by-zero if relBrg == 0 so we don't even correct steering
+        // if it's < some minimum
         if (relBrg > 89.5) {
             relBrg = 89.5;
         } else if (relBrg < -89.5) {
             relBrg = -89.5;
+        } else if (fabs(relBrg) > 0.0005) { // avoid div-by-zero
+			// Compute turn radius based on intercept distance and specified angle
+			// The sin equation will produce a negative radius, which causes problems
+			// when subtracting track/2.0, so just take absolute value and multiply sign
+			// later on
+			sign = (relBrg < 0) ? -1 : 1;
+			float radius = config.interceptDist/fabs(2*sin(Steering::toRadians(relBrg)));
+			// optionally, limit radius min/max
+			// Now compute the steering angle to achieve the circle of
+			// Steering angle is based on wheelbase and track width
+			steerAngle = sign * Steering::toDegrees(asin(config.wheelbase / (radius - config.track/2.0)));
+			// Apply gain factor for near straight line
+			// TODO 3 figure out a better, continuous way to deal with steering gain
+	//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
+			steering = steerAngle;
         }
-        // Compute turn radius based on intercept distance and specified angle
-        // The sin equation will produce a negative radius, which causes problems
-        // when subtracting track/2.0, so just take absolute value and multiply sign
-        // later on
-        sign = (relBrg < 0) ? -1 : 1;
-        float radius = config.interceptDist/fabs(2*sin(Steering::angle_radians(relBrg)));
-        // optionally, limit radius min/max
-        // Now compute the steering angle to achieve the circle of
-        // Steering angle is based on wheelbase and track width
-        steerAngle = sign * Steering::angle_degrees(asin(config.wheelbase / (radius - config.track/2.0)));
         //
         //////////////////////////////////////////////////////////////////////////////////////
-        
-        // Apply gain factor for near straight line
-        // TODO 3 figure out a better, continuous way to deal with steering gain
-//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 
-        // Curb avoidance
-        /*
-        if (sensors.rightRanger < config.curbThreshold) {
-            steerAngle -= config.curbGain * (config.curbThreshold - sensors.rightRanger);
-        }
-        */
-                    
-        setSteering( steerAngle );
 
-        // PID control for throttle
+        //////////////////////////////////////////////////////////////////////////////////////
+        // Throttle PID Control
+        //
         // TODO: 3 move all this PID crap into Actuators.cpp
         // TODO: 3 probably should do KF or something for speed/dist; need to address GPS lag, too
         // if nothing else, at least average the encoder speed over mult. samples

@@ -3,11 +3,26 @@
 #include "math.h"
 #include "util.h"
 
-Steering::Steering()
+Steering::Steering(PinName pin)
 : _wheelbase(0)
 , _track(0)
 , _intercept(0)
+, _steering(pin)
 {
+}
+
+extern Config config;
+
+void Steering::initSteering()
+{
+    if (config.loaded) {
+        // Setup steering servo
+        _steering = config.steerZero;
+    } else {
+        _steering = 0.4;
+    }
+    // TODO: 3 parameterize this in config file
+    _steering.calibrate(0.005, 45.0);
 }
 
 void Steering::setWheelbase(float wheelbase)
@@ -24,6 +39,29 @@ void Steering::setIntercept(float intercept)
 {
     _intercept = intercept;
 }
+
+
+void Steering::setSteering(float steerAngle)
+{
+    // Convert steerAngle to servo value
+    // Testing determined near linear conversion between servo ms setting and steering angle
+    // up to 20*.  Assumes a particular servo library with range = 0.005
+    // In that case, f(SA) = servoPosition = 0.500 + SA/762.5
+    // between 20 and 24* the slope is approximately 475
+    // What if we ignore the linearity and just set to a max angle
+    // also range is 0.535-0.460 --> slope = 800
+    // steering = 0.500 + (double) steerAngle / 762.5;
+    //
+    _steering = 0.500 - (double) steerAngle / 808.0; // TODO 0: parameterize through config
+}
+
+
+float Steering::operator =(float steerAngle)
+{
+	setSteering(steerAngle);
+    return steerAngle;
+}
+
 
 /** Calculate a steering angle based on relative bearing
  *
@@ -53,14 +91,14 @@ float Steering::calcSA(float theta, float minRadius)
 
     // Compute |radius| based on intercept distance and specified angle with extra gain to
     // overcome steering slop, misalignment, sidehills, etc.
-    radius = _intercept / ( 2 * sin(angle_radians(theta)) );
+    radius = _intercept / ( 2 * sin(toRadians(theta)) );
 
     if (minRadius > 0) {
         if (radius < minRadius) radius = minRadius;
     }
 
     // Now calculate steering angle based on wheelbase and track width
-    SA = angle_degrees(asin(_wheelbase / (radius - _track/2)));
+    SA = toDegrees(asin(_wheelbase / (radius - _track/2)));
     // The above ignores the effect of speed on required steering angle.
     // Even when under the limits of traction, understeer means more angle
     // is required to achieve a turn at higher speeds than lower speeds.
@@ -129,7 +167,7 @@ float Steering::pathPursuitSA(float hdg, float Bx, float By, float Ax, float Ay,
     // Compute a circle that is tangential to bot heading and intercepts bot
     // and goal point (LAx,LAy), the intercept circle. Then compute the steering
     // angle to trace that circle. (x,y because 0 deg points up not right)
-    float brg = clamp360( angle_degrees(atan2(LAx-Rx,LAy-Ry)) );
+    float brg = clamp360( toDegrees(atan2(LAx-Rx,LAy-Ry)) );
     //if (brg >= 360.0) brg -= 360.0;
     //if (brg < 0) brg += 360.0;
     // would be nice to add in some noise to heading info
@@ -145,11 +183,11 @@ float Steering::pathPursuitSA(float hdg, float Bx, float By, float Ax, float Ay,
     // when subtracting track/2.0, so just take absolute value and multiply sign
     // later on
     sign = (relBrg < 0) ? -1 : 1;
-    float radius = _intercept/fabs(2*sin(angle_radians(relBrg)));
+    float radius = _intercept/fabs(2*sin(toRadians(relBrg)));
     // optionally, limit radius min/max
     // Now compute the steering angle to achieve the circle of 
     // Steering angle is based on wheelbase and track width
-    return ( sign * angle_degrees(asin(_wheelbase / (radius - _track/2.0))) );
+    return ( sign * toDegrees(asin(_wheelbase / (radius - _track/2.0))) );
 }
 
 
@@ -207,7 +245,7 @@ float Steering::purePursuitSA(float hdg, float Bx, float By, float Ax, float Ay,
     }
 
     // Now calculate steering angle based on wheelbase and track width
-    SA = angle_degrees(asin(_wheelbase / (radius - _track/2)));
+    SA = toDegrees(asin(_wheelbase / (radius - _track/2)));
 
     return SA;
 }

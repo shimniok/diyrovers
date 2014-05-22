@@ -10,6 +10,7 @@
 
 /** Configure device assignments */
 
+#include "mbed.h"
 #include "boards.h"
 
 /** GPS */

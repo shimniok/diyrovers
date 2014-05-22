@@ -8,6 +8,8 @@
 #ifndef BOARDS_H_
 #define BOARDS_H_
 
+#include "mbed.h"
+
 /** RoverBaseboard R0.5 */
 #define I2CSDA 		p9
 #define I2CSCL 		p10

@@ -23,8 +23,11 @@ void endRun(void);
 /** Tells the updater to re-initialize the navigation state */
 void restartNav(void);
 
-/** Commands the desired speed of the rover */
+/** Sets the desired speed of the rover */
 void setSpeed(float speed);
+
+/** Sets the steering angle */
+void setSteering(float steerAngle);
 
 /** The function that is called at 100Hz. It reads sensors, performs estimation, and controls the robot */
 void update(void);

@@ -2,6 +2,9 @@
 #define __STEERING_H
 
 #include "globals.h"
+#include "devices.h"
+#include "Servo.h"
+#include "Config.h"
 
 /** A class for managing steering angle calculations based on current and desired heading
  *  and specified intercept distance along the new path.  
@@ -12,7 +15,12 @@ class Steering
 {
   public:
     /** create a new steering calculator */
-	Steering();
+	Steering(PinName pin);
+
+	/** Initalize steering actuator (servo)
+	 *
+	 */
+	void initSteering(void);
 
     /** Set the track width (left to right contact patch distance)
      *
@@ -31,6 +39,21 @@ class Steering
      */
     void setIntercept(float intercept);
 
+
+    /** Convert steerAngle to servo value
+     *
+     * Testing determined near linear conversion between servo ms setting and steering angle
+     * up to ~20*.
+     *
+     * @param steerAngle is the steering angle, measured at front wheels, averaged
+     */
+    void setSteering(float steerAngle);
+
+
+    /**  Shorthand for the write function */
+    float operator= (float steerAngle);
+
+
     /** convert course change to average steering angle
      * assumes Ackerman steering, with track and wheelbase
      * and course intercept distance specified.
@@ -41,6 +64,7 @@ class Steering
      * @returns steering angle in degrees
      */ 
     float calcSA(float theta);
+
 
     /** convert course change to average steering angle
      * assumes Ackerman steering, with track and wheelbase
@@ -54,27 +78,41 @@ class Steering
      */ 
     float calcSA(float theta, float limit);
 
+
     /** compute steering angle based on pure pursuit algorithm
      */
     float purePursuitSA(float hdg, float Bx, float By, float Ax, float Ay, float Cx, float Cy);
     
+
     /** compute steering angle based on a simpler path pursuit variant of pure pursuit
      */
     float pathPursuitSA(float hdg, float Bx, float By, float Ax, float Ay, float Cx, float Cy);
+
 
     /** Compute cross track error given last waypoint, next waypoint, and robot coordinates
      * @returns cross track error
      */
     float crossTrack(float Bx, float By, float Ax, float Ay, float Cx, float Cy);
-    
-    // Temporarily making these public so I can use in updater() to instrument steering calcs
-    inline static float angle_radians(float deg) {return (PI/180.0)*deg;}
-    inline static float angle_degrees(float rad) {return (180/PI)*rad;}
+
+
+    /** Convert degrees to radians
+     * @param deg degrees to convert
+     * @return radians
+     */
+    inline static float toRadians(float deg) {return (PI/180.0)*deg;}
+
+
+    /** Convert radians to degrees
+     * @param rad radians to convert
+     * @return degrees
+     */
+    inline static float toDegrees(float rad) {return (180/PI)*rad;}
 
   private:
     float _wheelbase;
     float _track;
     float _intercept;
+    Servo _steering;               // Steering Servo
 };
 
 #endif

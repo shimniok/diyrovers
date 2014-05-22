@@ -5,7 +5,4 @@
  *
  */
 
-void initSteering(void);
-void setSteering(float steerAngle);
-
 #endif
