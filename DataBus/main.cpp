@@ -6,10 +6,9 @@
 // INCLUDES
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
+#include "mbed.h"
 #include <math.h>
 #include <stdint.h>
-#include "mbed.h"
 #include "devices.h"
 #include "globals.h"
 #include "Filesystem.h"
