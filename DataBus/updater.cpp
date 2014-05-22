@@ -297,7 +297,7 @@ void update()
 
     // TODO: 3 Position filtering
     //    position will be updated based on heading error from heading estimate
-    // TODO: 2 Distance/speed filtering
+    // TODO: 3 Distance/speed filtering
     //    this might be useful, but not sure it's worth the effort
 
     // So the big pain in the ass is that the GPS data coming in represents the
@@ -350,15 +350,12 @@ void update()
 
         // Clamp heading to initial heading when we're not moving; hopefully this will
         // give the KF a head start figuring out how to deal with the gyro
-        //
-        // TODO 1 maybe we should only call the gps version after moving
         if (go) {
             estLagHeading = headingKalman(history[lag].dt, nowState.gpsCourse_deg, useGps, history[lag].gyro, true);
         } else {
             estLagHeading = headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
         }
 
-        // TODO 1 are we adding history lag to lagprev or should we add lag+1 to lag or what?
         // Update the lagged position estimate
         history[lag].x = history[lagPrev].x + history[lag].dist * sin(estLagHeading);
         history[lag].y = history[lagPrev].y + history[lag].dist * cos(estLagHeading);
@@ -453,10 +450,9 @@ void update()
     //////////////////////////////////////////////////////////////////////////////
     // OBSTACLE DETECTION & AVOIDANCE
     //////////////////////////////////////////////////////////////////////////////
-    // TODO 2 limit steering angle based on object detection ?
-    // or limit relative brg perhaps?
-    // TODO 2 add vision obstacle detection and filtering
-    // TODO 2 add ranger obstacle detection and filtering/fusion with vision
+    // TODO 4 limit steering angle based on object detection ? or limit relative brg perhaps?
+    // TODO 4 add vision obstacle detection and filtering
+    // TODO 4 add ranger obstacle detection and filtering/fusion with vision
 
     // For Steering Angle Computation below
     static float relBrg;

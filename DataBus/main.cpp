@@ -359,7 +359,7 @@ int main()
         if (thisUpdate > nextWaypointUpdate) {
         	telem.sendPacket(Config::cwpt, Config::wptCount);
         	nextWaypointUpdate = thisUpdate + 10000;
-        	// TODO 1: make this a request/response, Telemetry has to receive packets, decode, etc.
+        	// TODO 2: make this a request/response, Telemetry has to receive packets, decode, etc.
         }
 
         if (keypad.pressed) {
@@ -572,7 +572,7 @@ int autonomousMode()
         //
         // set throttle only if goGoGo set
         if (goGoGo) {
-            // TODO: 1 Add additional condition of travel for N meters before the HALT button is armed
+            // TODO: 2 Add additional condition of travel for N meters before the HALT button is armed
             
             if (keypad.pressed == true) { // && started
                 fputs(">>>>>>>>>>>>>>>>>>>>>>> HALT\n", stdout);
@@ -606,8 +606,8 @@ int autonomousMode()
         //////////////////////////////////////////////////////////////////////////////
         if (timer.read_ms() > nextTelemUpdate) {
 			SystemState *s = fifo_first();
-			telem.sendPacket(s);
-			nextTelemUpdate += 200;
+			telem.sendPacket(s); // TODO 4 run this out of timer interrupt
+			nextTelemUpdate += 200; // TODO 3 increase update speed
         }
 
         //////////////////////////////////////////////////////////////////////////////

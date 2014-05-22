@@ -22,7 +22,7 @@ void Steering::initSteering()
     _steering.calibrate(0.005, 45.0);
 }
 
-
+// TODO 3 convert steering to Servo2 library
 void Steering::setSteering(float steerAngle)
 {
     // Convert steerAngle to servo value

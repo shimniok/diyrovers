@@ -9,8 +9,6 @@
 #include "Telemetry.h"
 #include "util.h"
 
-// TODO 1: telemetry stream stops after autonomousMode() run
-
 /** Create a new telemetry object
  *
  * @param uart is the Serial object used to send data
