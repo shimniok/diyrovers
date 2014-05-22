@@ -4,7 +4,6 @@
 #include "globals.h"
 #include "updater.h"
 #include "Config.h"
-#include "Actuators.h"
 #include "Sensors.h"
 #include "SystemState.h"
 #include "Steering.h"
@@ -78,8 +77,8 @@ float nowSpeed;
 bool initNav = true;                    // initialize navigation estimates
 bool doLog = false;                     // determines when to start and stop entering log data
 float initialHeading=-999;              // initial heading
-CartPosition cartHere;                  // position estimate, cartesian
-GeoPosition here;                       // position estimate, lat/lon
+CartPosition here;                  	// position estimate, cartesian
+GeoPosition hereGeo;                    // position estimate, lat/lon
 int timeZero=0;
 int lastTime=-1;                        // used to calculate dt for KF
 int thisTime;                           // used to calculate dt for KF
@@ -179,6 +178,12 @@ void setSpeed(const float speed)
     return;
 }
 
+/** Set the steering angle */
+void setSteering(const float steerAngle)
+{
+	steering = steerAngle;
+}
+
 // TODO 2 put update sections into separate modules, possibly call using timers with varying priorities?
 
 /** update() runs the data collection, estimation, steering control, and throttle control */
@@ -209,7 +214,7 @@ void update()
     // 
     if (initNav == true) {
         initNav = false;
-        here.set(config.wpt[0]);
+        hereGeo.set(config.wpt[0]);
         nextWaypoint = 1; // Point to the next waypoint; 0th wpt is the starting point
         lastWaypoint = 0;
         
@@ -223,11 +228,9 @@ void update()
         // initial position is waypoint 0
         history[now].x = config.cwpt[0].x;
         history[now].y = config.cwpt[0].y;
-        cartHere.set(history[now].x, history[now].y);
+        here.set(history[now].x, history[now].y);
         // initialize heading to bearing between waypoint 0 and 1
-        //history[now].hdg = here.bearingTo(config.wpt[nextWaypoint]);
-        initialHeading = history[now].hdg = cartHere.bearingTo(config.cwpt[nextWaypoint]);
-        //history[now].ghdg = history[now].hdg;
+		initialHeading = history[now].hdg = here.bearingTo(config.cwpt[nextWaypoint]);
         // Initialize Kalman Filter
         headingKalmanInit(initialHeading);
         // point next fifo input to slot 1, slot 0 occupied/initialized, now
@@ -351,7 +354,7 @@ void update()
         // TODO 1 maybe we should only call the gps version after moving
         if (go) {
             estLagHeading = headingKalman(history[lag].dt, nowState.gpsCourse_deg, useGps, history[lag].gyro, true);
-        } else {    
+        } else {
             estLagHeading = headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
         }
 
@@ -406,15 +409,15 @@ void update()
         inc(lag);
     }
     // "here" is the current position
-    cartHere.set(history[now].x, history[now].y);
+    here.set(history[now].x, history[now].y);
 
     //////////////////////////////////////////////////////////////////////////////
     // NAVIGATION UPDATE
     //////////////////////////////////////////////////////////////////////////////
     
-    bearing = cartHere.bearingTo(config.cwpt[nextWaypoint]);
-    distance = cartHere.distanceTo(config.cwpt[nextWaypoint]);
-    float prevDistance = cartHere.distanceTo(config.cwpt[lastWaypoint]);
+    bearing = here.bearingTo(config.cwpt[nextWaypoint]);
+    distance = here.distanceTo(config.cwpt[nextWaypoint]);
+    float prevDistance = here.distanceTo(config.cwpt[lastWaypoint]);
 
     // if within config.waypointDist distance threshold move to next waypoint
     // TODO 3 figure out how to output feedback on wpt arrival external to this function
@@ -455,38 +458,31 @@ void update()
     // TODO 2 add ranger obstacle detection and filtering/fusion with vision
 
     // For Steering Angle Computation below
-    static float LAx, LAy, relBrg;
+    static float relBrg;
+    static CartPosition LA;
 
     //////////////////////////////////////////////////////////////////////////////
     // CONTROL UPDATE
     //////////////////////////////////////////////////////////////////////////////
 
     if (--control_count == 0) {
-  
-//        steerAngle = steerCalc.pathPursuitSA(history[now].hdg, history[now].x, history[now].y,
-//                                             config.cwpt[lastWaypoint].x, config.cwpt[lastWaypoint].y,
-//                                             config.cwpt[nextWaypoint].x, config.cwpt[nextWaypoint].y);
 
     	//////////////////////////////////////////////////////////////////////////////////////
     	// Steering Control
     	//
     	float hdg;
-    	float Bx, By, Ax, Ay, Cx, Cy;
+//    	float Bx, By, Ax, Ay, Cx, Cy;
 
     	hdg = history[now].hdg;
-    	Bx = history[now].x;
-    	By = history[now].y;
-    	Ax = config.cwpt[lastWaypoint].x;
-    	Ay = config.cwpt[lastWaypoint].y;
-    	Cx = config.cwpt[nextWaypoint].x;
-    	Cy = config.cwpt[nextWaypoint].y;
+    	static CartPosition A = config.cwpt[lastWaypoint];
+    	static CartPosition C = config.cwpt[nextWaypoint];
 
         // Leg vector
-        float Lx = Cx - Ax;
-        float Ly = Cy - Ay;
+        float Lx = C.x - A.x;
+        float Ly = C.y - A.y;
         // Robot vector
-        float Rx = Bx - Ax;
-        float Ry = By - Ay;
+        float Rx = here.x - A.x;
+        float Ry = here.y - A.y;
         float sign = 1;
 
         // Find the goal point, a projection of the bot vector onto the current leg, moved ahead
@@ -494,18 +490,20 @@ void update()
         float legLength = sqrtf(Lx*Lx + Ly*Ly); // ||L||
         float proj = (Lx*Rx + Ly*Ry)/legLength; // R dot L/||L||, projection magnitude, bot vector onto leg vector
         // find projection point + lookahead, along leg, relative to A
-        LAx = Ax + (proj + config.interceptDist)*Lx/legLength;
-        LAy = Ay + (proj + config.interceptDist)*Ly/legLength;
+        LA.set(A.x + (proj + config.intercept)*Lx/legLength,
+        	   A.y + (proj + config.intercept)*Ly/legLength);
         //
         // Compute a circle that is tangential to bot heading and intercepts bot
-        // and goal point (LAx,LAy), the intercept circle. Then compute the steering
+        // and goal point LA, the intercept circle. Then compute the steering
         // angle to trace that circle.
         //
         // First, compute absolute bearing to lookahead point (LA) from robot (B);
         // Note that trig 0* is 90* off from compass 0*
-        float brg = clamp360( 90 - Steering::toDegrees(atan2(By-LAy, Bx-LAx)) );
+        float brg = here.bearingTo(LA);
         // Now, compute relative bearing to the lookahead. Relative to bot hdg.
-        relBrg = clamp180(hdg - brg);
+        relBrg = clamp180(brg - hdg);
+//        fprintf(stdout, "ih=%.1f hdg=%.1f brg=%.1f rel=%.1f\n", initialHeading, hdg, brg, relBrg);
+//        fprintf(stdout, "gyro=%3d\n", sensors.g[2]);
         // The steering angle equation actually peaks at relBrg == 90 so just clamp to this
         // Also, we get a div-by-zero if relBrg == 0 so we don't even correct steering
         // if it's < some minimum
@@ -519,7 +517,7 @@ void update()
 			// when subtracting track/2.0, so just take absolute value and multiply sign
 			// later on
 			sign = (relBrg < 0) ? -1 : 1;
-			float radius = config.interceptDist/fabs(2*sin(Steering::toRadians(relBrg)));
+			float radius = config.intercept/fabs(2*sin(Steering::toRadians(relBrg)));
 			// optionally, limit radius min/max
 			// Now compute the steering angle to achieve the circle of
 			// Steering angle is based on wheelbase and track width
@@ -587,9 +585,9 @@ void update()
     //state.encHeading += (state.lrEncDistance - state.rrEncDistance) / TRACK;
     nowState.estHeading = history[now].hdg; // gyro heading estimate, current, corrected
     nowState.estLagHeading = history[lag].hdg; // gyro heading, estimate, lagged
-    mapper.cartToGeo(cartHere, &here);
-    nowState.estLatitude = here.latitude();
-    nowState.estLongitude = here.longitude();
+    mapper.cartToGeo(here, &hereGeo);
+    nowState.estLatitude = hereGeo.latitude();
+    nowState.estLongitude = hereGeo.longitude();
     nowState.estX = history[now].x;
     nowState.estY = history[now].y;
     nowState.bearing = bearing;
@@ -602,8 +600,8 @@ void update()
     //state.centerRanger = sensors.centerRanger;
     nowState.steerAngle = steerAngle;
     nowState.LABrg = relBrg;
-    nowState.LAx = LAx;
-    nowState.LAy = LAy;
+    nowState.LAx = LA.x;
+    nowState.LAy = LA.y;
     // Copy AHRS data into logging data
     //state.roll = ToDeg(ahrs.roll);
     //state.pitch = ToDeg(ahrs.pitch);

@@ -22,38 +22,42 @@
 #define VEHICLE			"veh"
 #define ENCODER			"enc"
 
-extern Serial pc;
+bool Config::loaded=false;
+float Config::intercept=0;
+float Config::waypointDist=0;
+float Config::brakeDist=0;
+GeoPosition Config::wpt[Config::MAX_WPT];
+CartPosition Config::cwpt[Config::MAX_WPT];
+float Config::wptTopSpeedAdj[Config::MAX_WPT];
+float Config::wptTurnSpeedAdj[Config::MAX_WPT];
+unsigned int Config::wptCount=0;
+float Config::escMin=1300;
+float Config::escZero=1300;
+float Config::escMax=1300;
+float Config::topSpeed=0;
+float Config::turnSpeed=0;
+float Config::startSpeed=0;
+float Config::minRadius=0;
+float Config::speedKp=0;
+float Config::speedKi=0;
+float Config::speedKd=0;
+float Config::steerZero=1400;
+float Config::steerGain=0;
+float Config::steerGainAngle=0;
+float Config::curbThreshold=0;
+float Config::curbGain=0;
+float Config::gyroBias=0;
+float Config::magOffset[3] = {0,0,0};
+float Config::magScale[3] = {0,0,0};
+float Config::wheelbase=0.280;	// Data Bus Original Settings
+float Config::track=0.290;
+float Config::tireCirc=0.321537;
+int Config::encStripes=32;
 
-// TODO: 3: mod waypoints to include speed after waypoint
 
 Config::Config()
-:   loaded(false)
-,	interceptDist(0.0)
-,	waypointDist(0.0)
-,	brakeDist(0.0)
-,	wptCount(0)
-,	escMin(1300)
-,	escZero(1300)
-,	escMax(1300)
-,	topSpeed(0.0)
-,	turnSpeed(0.0)
-,	startSpeed(0.0)
-,	minRadius(0.0)
-,	speedKp(0.0)
-,	speedKi(0.0)
-,	speedKd(0.0)
-,	steerZero(0.0)
-,	steerGain(0.0)
-,	steerGainAngle(0.0)
-,	curbThreshold(0.0)
-,	curbGain(0.0)
-,	gyroBias(0.0)
-,	wheelbase(0.290)		// original Data Bus defaults
-,	track(0.280)			// original Data Bus defaults
-,	tireCirc(0.321537)		// original Data Bus defaults
-,	encStripes(32)			// original Data Bus defaults
 {
-    // not much to do here.
+	// Nothin' to do here...
 }
 
 // load configuration from filesystem
@@ -108,7 +112,7 @@ bool Config::load()
             } else if (!strcmp(tmp, NAVIGATION)) {
 
             	p = split(tmp, p, MAXBUF, ',');
-				interceptDist = (float) cvstof(tmp);    	// intercept distance for steering algorithm
+				intercept = (float) cvstof(tmp);    	// intercept distance for steering algorithm
 				p = split(tmp, p, MAXBUF, ',');
 				waypointDist = (float) cvstof(tmp);     	// distance before waypoint switch
 				p = split(tmp, p, MAXBUF, ',');

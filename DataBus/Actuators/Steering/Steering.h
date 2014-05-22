@@ -109,9 +109,6 @@ class Steering
     inline static float toDegrees(float rad) {return (180/PI)*rad;}
 
   private:
-    float _wheelbase;
-    float _track;
-    float _intercept;
     Servo _steering;               // Steering Servo
 };
 

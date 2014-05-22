@@ -56,3 +56,9 @@ void CartPosition::move(float bearing, float distance)
     
     return;
 }
+
+CartPosition& CartPosition::operator= (CartPosition p)
+{
+	set(p);
+	return p;
+}

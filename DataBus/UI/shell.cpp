@@ -1,19 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "mbed.h"
+#include "globals.h"
 #include "updater.h"
 #include "print.h"
 #include "DirHandle.h"
 #include "SDFileSystem.h"
 #include "util.h"
 #include "Buttons.h"
-#include "Actuators.h"
 
 #define MAXBUF		128
 #define MAXCMDARR	21
-
-extern Serial pc;
-extern Buttons keypad;
 
 char cwd[MAXBUF];
 char buf[MAXBUF];

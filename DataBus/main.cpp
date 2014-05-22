@@ -1,4 +1,4 @@
-/** Code for "Data Bus" UGV entry for Sparkfun AVC 2013
+/** Code for "Data Bus" UGV entry for Sparkfun AVC 2014
  *  http://www.bot-thoughts.com/
  */
 
@@ -26,8 +26,7 @@
 #include "Sensors.h"
 #include "kalman.h"
 #include "Ublox6.h"
-#include "PinDetect.h" // TODO 3 this should be broken into .h, .cpp
-#include "Actuators.h"
+#include "PinDetect.h" // TODO 4 this should be broken into .h, .cpp
 #include "IncrementalEncoder.h"
 #include "Steering.h"
 #include "Schedule.h"
@@ -77,9 +76,6 @@ Display display;                        // UI display
 Menu menu;
 Buttons keypad;
 
-// VEHICLE
-Steering steerCalc;   // steering calculator
-
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
 SerialMux mux(&pc);						// Multiplexed output
@@ -94,13 +90,8 @@ Serial *dev;                            // For use with bridge
 
 // MISC
 FILE *camlog;                           // Camera log
-
-// Configuration
-Filesystem fs;							// set up filesystems
-Config config;                          // Persistent configuration
-                                        // Course Waypoints
-                                        // Sensor Calibration
-                                        // etc.
+Filesystem fs;							// Set up filesystems
+Config config;							// Configuration utility
 
 // Timing
 Timer timer;                            // For main loop scheduling
@@ -216,51 +207,51 @@ int main()
 
     initThrottle();
 
-    //pc.printf("Declination: %.1f\n", config.declination);
+    //pc.printf("Declination: %.1f\n", Config::declination);
     pc.puts("Speed: escZero=");
-    pc.puts(cvftos(config.escZero, 3));
+    pc.puts(cvftos(Config::escZero, 3));
     pc.puts(" escMin=");
-    pc.puts(cvftos(config.escMin, 3));
+    pc.puts(cvftos(Config::escMin, 3));
     pc.puts(" escMax=");
-    pc.puts(cvftos(config.escMax, 3));
+    pc.puts(cvftos(Config::escMax, 3));
     pc.puts(" top=");
-    pc.puts(cvftos(config.topSpeed, 1));
+    pc.puts(cvftos(Config::topSpeed, 1));
     pc.puts(" turn=");
-    pc.puts(cvftos(config.turnSpeed, 1));
+    pc.puts(cvftos(Config::turnSpeed, 1));
     pc.puts(" Kp=");
-    pc.puts(cvftos(config.speedKp, 4));
+    pc.puts(cvftos(Config::speedKp, 4));
     pc.puts(" Ki=");
-    pc.puts(cvftos(config.speedKi, 4));
+    pc.puts(cvftos(Config::speedKi, 4));
     pc.puts(" Kd=");
-    pc.puts(cvftos(config.speedKd, 4));
+    pc.puts(cvftos(Config::speedKd, 4));
     pc.puts("\n");
 
     pc.puts("Steering: steerZero=");
-    pc.puts(cvftos(config.steerZero, 2));
+    pc.puts(cvftos(Config::steerZero, 2));
     pc.puts(" steerGain=");
-    pc.puts(cvftos(config.steerGain, 1));
+    pc.puts(cvftos(Config::steerGain, 1));
     pc.puts(" gainAngle=");
-    pc.puts(cvftos(config.steerGainAngle, 2));
+    pc.puts(cvftos(Config::steerGainAngle, 2));
     pc.puts("\n");
 
     // Convert lat/lon waypoints to cartesian
-    mapper.init(config.wptCount, config.wpt);
-    for (unsigned int w = 0; w < MAXWPT && w < config.wptCount; w++) {
-        mapper.geoToCart(config.wpt[w], &(config.cwpt[w]));
+    mapper.init(Config::wptCount, Config::wpt);
+    for (unsigned int w = 0; w < MAXWPT && w < Config::wptCount; w++) {
+        mapper.geoToCart(Config::wpt[w], &(Config::cwpt[w]));
         pc.puts("Waypoint #");
         pc.puts(cvntos(w));
         pc.puts(" (");
-        pc.puts(cvftos(config.cwpt[w].x, 4));
+        pc.puts(cvftos(Config::cwpt[w].x, 4));
         pc.puts(", ");
-        pc.puts(cvftos(config.cwpt[w].y, 4));
+        pc.puts(cvftos(Config::cwpt[w].y, 4));
         pc.puts(") lat: ");
-        pc.puts(cvftos(config.wpt[w].latitude(), 6));
+        pc.puts(cvftos(Config::wpt[w].latitude(), 6));
         pc.puts(" lon: ");
-        pc.puts(cvftos(config.wpt[w].longitude(), 6));
+        pc.puts(cvftos(Config::wpt[w].longitude(), 6));
         pc.puts(", topspeed: ");
-        pc.puts(cvftos(config.topSpeed + config.wptTopSpeedAdj[w], 1));
+        pc.puts(cvftos(Config::topSpeed + Config::wptTopSpeedAdj[w], 1));
         pc.puts(", turnspeed: ");
-        pc.puts(cvftos(config.turnSpeed + config.wptTurnSpeedAdj[w], 1));
+        pc.puts(cvftos(Config::turnSpeed + Config::wptTurnSpeedAdj[w], 1));
         pc.puts("\n");
     }
 
@@ -270,36 +261,33 @@ int main()
 
     display.status("Vehicle config      ");
     pc.puts("Wheelbase: ");
-    pc.puts(cvftos(config.wheelbase, 3));
+    pc.puts(cvftos(Config::wheelbase, 3));
     pc.puts("\n");
     pc.puts("Track Width: ");
-    pc.puts(cvftos(config.track, 3));
+    pc.puts(cvftos(Config::track, 3));
     pc.puts("\n");
-    steerCalc.setWheelbase(config.wheelbase);
-    steerCalc.setTrack(config.track);
 
     display.status("Encoder config      ");
     pc.puts("Tire Circumference: ");
-    pc.puts(cvftos(config.tireCirc, 5));
+    pc.puts(cvftos(Config::tireCirc, 5));
     pc.puts("\n");
     pc.puts("Ticks per revolution: ");
-    pc.puts(cvftos(config.encStripes, 5));
+    pc.puts(cvftos(Config::encStripes, 5));
     pc.puts("\n");
-    sensors.configureEncoders(config.tireCirc, config.encStripes);
+    sensors.configureEncoders(Config::tireCirc, Config::encStripes);
 
     display.status("Nav configuration   ");
-    steerCalc.setIntercept(config.interceptDist);               // Setup steering calculator based on intercept distance
     pc.puts("Intercept distance: ");
-    pc.puts(cvftos(config.interceptDist, 1));
+    pc.puts(cvftos(Config::intercept, 1));
     pc.puts("\n");
     pc.puts("Waypoint distance: ");
-    pc.puts(cvftos(config.waypointDist, 1));
+    pc.puts(cvftos(Config::waypointDist, 1));
     pc.puts("\n");
 	pc.puts("Brake distance: ");
-    pc.puts(cvftos(config.brakeDist, 1));
+    pc.puts(cvftos(Config::brakeDist, 1));
     pc.puts("\n");
     pc.puts("Min turn radius: ");
-	pc.puts(cvftos(config.minRadius, 3));
+	pc.puts(cvftos(Config::minRadius, 3));
     pc.puts("\n");
 
     pc.puts("Calculating offsets...\n");
@@ -372,7 +360,7 @@ int main()
 
         // every so often, send the currently configured waypoints
         if (thisUpdate > nextWaypointUpdate) {
-        	telem.sendPacket(config.cwpt, config.wptCount);
+        	telem.sendPacket(Config::cwpt, Config::wptCount);
         	nextWaypointUpdate = thisUpdate + 10000;
         	// TODO 1: make this a request/response, Telemetry has to receive packets, decode, etc.
         }
@@ -609,7 +597,7 @@ int autonomousMode()
 
         // Are we at the last waypoint?
         // 
-        if (fifo_first()->nextWaypoint == config.wptCount) {
+        if (fifo_first()->nextWaypoint == Config::wptCount) {
             fputs("Arrived at final destination.\n", stdout);
             display.status("Arrived at end.");
             navDone = true;

@@ -1,10 +1,8 @@
 #include "SystemState.h"
+#include "globals.h"
 #include "logging.h"
 #include "SDFileSystem.h"
 #include "SerialGraphicLCD.h"
-
-extern Serial pc;
-extern SerialGraphicLCD lcd;
 
 // TODO 2 set up logging out of low priority interrupt handler
 

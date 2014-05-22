@@ -308,11 +308,6 @@
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input.2078156591" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.22219303" name="Actuators.cpp" rcbsApplicability="disable" resourcePath="Actuators/Actuators.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.1247187920">
-						<tool id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.1247187920" name="ARM Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base">
-							<inputType id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input.901848106" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input"/>
-						</tool>
-					</fileInfo>
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1230500516" name="Schedule.cpp" rcbsApplicability="disable" resourcePath="Schedule/Schedule.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.55218209">
 						<tool id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.55218209" name="ARM Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base">
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input.184969356" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input"/>

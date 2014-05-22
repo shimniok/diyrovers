@@ -4,6 +4,7 @@
  
 #define MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
+#include "globals.h"
 #include "mavlink_types.h"
  
 /* Struct that stores the communication settings of this system.
@@ -25,7 +26,6 @@ mavlink_system_t mavlink_system;
  * @param ch Character to send
  */
 static inline void comm_send_ch(mavlink_channel_t chan, uint8_t ch) {
-    extern Serial pc;
     
     if (chan == MAVLINK_COMM_0) {
         pc.putc(ch);

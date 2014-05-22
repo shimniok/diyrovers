@@ -21,6 +21,9 @@ public:
      */
     void set(float x, float y);
 
+    /** Shorthand for set */
+    CartPosition& operator= (CartPosition p);
+
     /** Sets coordinates for object
      * @param p sets coordinates of this object to that of p
      */
