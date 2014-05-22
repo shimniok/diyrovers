@@ -298,16 +298,6 @@
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.linux.c.compiler.base.input.434753737" superClass="org.eclipse.cdt.cross.arm.gnu.linux.c.compiler.base.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1436985721" name="Steering.cpp" rcbsApplicability="disable" resourcePath="Actuators/Steering/Steering.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.1813655334">
-						<tool id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.1813655334" name="ARM Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base">
-							<inputType id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input.895647606" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input"/>
-						</tool>
-					</fileInfo>
-					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.129335993" name="Servo.cpp" rcbsApplicability="disable" resourcePath="Actuators/Servo/Servo.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.468089262">
-						<tool id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.468089262" name="ARM Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base">
-							<inputType id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input.2078156591" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input"/>
-						</tool>
-					</fileInfo>
 					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.toolchain.base.1673339056.1230500516" name="Schedule.cpp" rcbsApplicability="disable" resourcePath="Schedule/Schedule.cpp" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.55218209">
 						<tool id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.55218209" name="ARM Linux GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base">
 							<inputType id="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input.184969356" superClass="org.eclipse.cdt.cross.arm.gnu.linux.cpp.compiler.base.input"/>

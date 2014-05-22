@@ -426,7 +426,8 @@ void update()
         // if we're within brakeDist of next or previous waypoint, run @ turn speed
         // This would normally mean we run at turn speed until we're brakeDist away
         // from waypoint 0, but we trick the algorithm by initializing prevWaypoint to waypoint 1
-        if ( (thisTime - timeZero) < 3000 ) { // FIXME is this actually working? or should it be distance
+    	// TODO 2 make this distance related -- if (here.distanceTo(Config::cwpt[lastWaypoint] < 0.5 ) {
+        if ( (thisTime - timeZero) < 3000 ) {
             setSpeed( Config::startSpeed );
         } else if (distance < Config::brakeDist || prevDistance < Config::brakeDist) {
             setSpeed( Config::turnSpeed );

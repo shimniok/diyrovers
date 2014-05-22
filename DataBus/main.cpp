@@ -227,10 +227,8 @@ int main()
 
     pc.puts("Steering: steerZero=");
     pc.puts(cvftos(Config::steerZero, 2));
-    pc.puts(" steerGain=");
-    pc.puts(cvftos(Config::steerGain, 1));
-    pc.puts(" gainAngle=");
-    pc.puts(cvftos(Config::steerGainAngle, 2));
+    pc.puts(" steerScale=");
+    pc.puts(cvftos(Config::steerScale, 1));
     pc.puts("\n");
 
     // Convert lat/lon waypoints to cartesian

@@ -511,7 +511,7 @@ int doautonomous(char *arg) {
 
 
 int dospeed(char *arg) {
-	// FIXME dospeed()
+	// TODO 2 dospeed()
 //	int v = atoi(arg);
 //	if (config.escMin < v && v < config.escMax {
 //		fputs("speed=", stdout);

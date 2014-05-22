@@ -42,8 +42,7 @@ float Config::speedKp=0;
 float Config::speedKi=0;
 float Config::speedKd=0;
 float Config::steerZero=1400;
-float Config::steerGain=0;
-float Config::steerGainAngle=0;
+float Config::steerScale=0;
 float Config::curbThreshold=0;
 float Config::curbGain=0;
 float Config::gyroBias=0;
@@ -125,9 +124,7 @@ bool Config::load()
             	p = split(tmp, p, MAXBUF, ',');
 				steerZero = cvstof(tmp);            		// servo center setting
 				p = split(tmp, p, MAXBUF, ',');
-				steerGain = cvstof(tmp);            		// steering angle multiplier
-				p = split(tmp, p, MAXBUF, ',');
-				steerGainAngle = cvstof(tmp);       		// angle below which steering gain takes effect
+				steerScale = cvstof(tmp);            		// steering angle conversion factor
 
             } else if (!strcmp(tmp, SPEED)) {
 

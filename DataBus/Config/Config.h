@@ -36,8 +36,7 @@ class Config {
         static float speedKi;		          	// Speed PID integral gain
         static float speedKd;		          	// Speed PID derivative gain
         static float steerZero;        			// zero steering aka center point
-        static float steerGain;     	   		// gain factor for steering algorithm
-        static float steerGainAngle; 	 	 	// angle below which steering gain takes effect
+        static float steerScale;     	   		// gain factor for steering algorithm
         static float curbThreshold; 	   		// distance at which curb avoid takes place
         static float curbGain;      	  		// gain of curb avoid steering
         static float gyroBias; 	    			// this needs to be 3d
