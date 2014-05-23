@@ -6,6 +6,8 @@
 #include "mbed.h"
 #include "SystemState.h"
 
+#define LOGDIR "/log"
+
 FILE *openlog(const char *prefix);
 bool initLogfile(void);
 void logData( SystemState *s );

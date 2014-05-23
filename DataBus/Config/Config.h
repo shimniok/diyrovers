@@ -39,7 +39,8 @@ class Config {
         static float steerScale;     	   		// gain factor for steering algorithm
         static float curbThreshold; 	   		// distance at which curb avoid takes place
         static float curbGain;      	  		// gain of curb avoid steering
-        static float gyroBias; 	    			// this needs to be 3d
+//        static float gyroBias; 	    			// this needs to be 3d
+        static float gyroScale;					// scales gyro output to degrees / sec
         // float gyroScale[3];
         static float magOffset[3];
         static float magScale[3];

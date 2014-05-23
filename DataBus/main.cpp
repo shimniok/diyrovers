@@ -34,7 +34,6 @@
 #include "SimpleFilter.h"
 #include "Beep.h"
 #include "util.h"
-#include "MAVlink/include/mavlink_bridge.h"
 #include "updater.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -392,7 +391,7 @@ int main()
             printLCDMenu = false;
         }
         
-        // TODO 2 move to UI area
+        // TODO 3 move to UI area
         if (printMenu) {
             fputs("\n==============\nData Bus Menu\n==============\n", stdout);
             fputs("0) Autonomous mode\n", stdout);
@@ -422,7 +421,7 @@ int main()
         //
         // Autonomous mode engages CONTROL outputs
         //
-        // I/O mode could be one of: MAVlink, serial bridge (gps), sensor check, shell, log to serial
+        // I/O mode could be one of: telemetry, serial bridge (gps), sensor check, shell, log to serial
         // Or maybe shell should be the main control for different output modes
         //
         // LOGGING can be turned on or off, probably best to start with it engaged
@@ -1098,7 +1097,6 @@ void telemetryMode() {
 }
 
 
-// TODO 2 move to display
 int setBacklight(void) {
     Menu bmenu;
     bool done = false;

@@ -45,7 +45,7 @@ float Config::steerZero=1400;
 float Config::steerScale=0;
 float Config::curbThreshold=0;
 float Config::curbGain=0;
-float Config::gyroBias=0;
+float Config::gyroScale=0;
 float Config::magOffset[3] = {0,0,0};
 float Config::magScale[3] = {0,0,0};
 float Config::wheelbase=0.280;	// Data Bus Original Settings
@@ -156,13 +156,12 @@ bool Config::load()
 				p = split(tmp, p, MAXBUF, ',');
 				tireCirc = cvstof(tmp);                		// tire circumference
 				p = split(tmp, p, MAXBUF, ',');
-				encStripes = atoi(tmp);                	// ticks per revolution
-            } //if-else
-            /*
-			} else if (!strcmp(tmp, GYRO)) {
-				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
-				gyroBias = (float) cvstof(tmp);
-			} else if (!strcmp(tmp, DECLINATION)) {
+				encStripes = atoi(tmp);                		// ticks per revolution
+            } else if (!strcmp(tmp, GYRO)) {
+				p = split(tmp, p, MAXBUF, ',');     		// split off the declination to tmp
+				gyroScale = (float) cvstof(tmp);			// gyro scaling factor to deg/sec
+			} //if-else
+            /* else if (!strcmp(tmp, DECLINATION)) {
 				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
 				declination = (float) cvstof(tmp);
 				declFound = true;

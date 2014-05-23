@@ -29,11 +29,11 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
+#include "globals.h"
+#include "Config.h"
 #include "devices.h"
 #include "Sensors.h"
 #include "debug.h"
-
-#define GYRO_SCALE 14.49787 // Is the sign right here?? yes, see g_sign
 
 #define VFF 50.0 // voltage filter factor
 
@@ -76,7 +76,7 @@ Sensors::Sensors():
     // TODO 2 parameterize scale and sign for mag, accel, gyro
     g_scale[0] = 1;
     g_scale[1] = 1;
-    g_scale[2] = GYRO_SCALE;
+    g_scale[2] = Config::gyroScale;
 
     g_sign[0] = 1;
     g_sign[1] = -1;
@@ -127,14 +127,10 @@ void Sensors::Read_Encoders()
 
     float ticksPerDist = _tireCirc / _encStripes;
 
-            
-    // TODO 2 sanity check on encoders; if difference between them
+    // TODO 3 sanity check on encoders; if difference between them
     //  is huge, what do we do?  Slipping wheel?  Skidding wheel?  Broken encoder?
     //  front encoders would be ideal as additional sanity check
     
-    // TODO 2 move Read_Encoders() into scheduler??
-    
-    // TODO 2 how do we track distance, should we only check distance everytime we do a nav/pos update?
     // TODO 3 get rid of state variable
     lrEncDistance  = ticksPerDist * (double) leftCount;
     rrEncDistance = ticksPerDist * (double) rightCount;

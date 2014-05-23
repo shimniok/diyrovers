@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "globals.h"
 #include "Venus638flpx.h"
 
 // TODO 3 parameterize LED
@@ -71,8 +72,8 @@ void Venus638flpx::setNmeaMessages(char gga, char gsa, char gsv, char gll, char 
     for (int i=4; i < 12; i++) {
         msg[12] ^= msg[i];
     }
-    for (int i=0; i < 15; i++)
-        serial.putc(msg[i]);
+//    for (int i=0; i < 15; i++)
+        //FIXME serial.puts(msg[i], stdout);
 }
 
 void Venus638flpx::setUpdateRate(int rate)
@@ -102,8 +103,8 @@ void Venus638flpx::setUpdateRate(int rate)
         case 8 :
         case 10 :
         case 20 :
-            for (int i=0; i < 10; i++)
-                serial.putc(msg[i]);
+//            for (int i=0; i < 10; i++)
+                //FIXME serial.puts(msg[i]);
             break;
         default :
             break;
@@ -184,6 +185,6 @@ int Venus638flpx::getAvailable(void)
 void Venus638flpx::recv_handler()
 {
     while (serial.readable()) {
-        nmea.encode(serial.getc());
+        nmea.encode((char) serial.getc());
     }
 }
