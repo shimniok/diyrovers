@@ -356,6 +356,7 @@ void update()
             estLagHeading = headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
         }
 
+
         // Update the lagged position estimate
         history[lag].x = history[lagPrev].x + history[lag].dist * sin(estLagHeading);
         history[lag].y = history[lagPrev].y + history[lag].dist * cos(estLagHeading);

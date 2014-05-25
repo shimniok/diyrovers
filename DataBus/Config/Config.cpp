@@ -158,7 +158,7 @@ bool Config::load(const char *filename)
 				encStripes = atoi(tmp);                		// ticks per revolution
             } else if (!strcmp(tmp, GYRO)) {
 				p = split(tmp, p, MAXBUF, ',');     		// split off the declination to tmp
-				gyroScale = (float) cvstof(tmp);			// gyro scaling factor to deg/sec
+				gyroScale = cvstof(tmp);					// gyro scaling factor to deg/sec
 			} //if-else
             /* else if (!strcmp(tmp, DECLINATION)) {
 				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp

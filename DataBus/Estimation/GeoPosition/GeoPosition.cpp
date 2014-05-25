@@ -1,6 +1,5 @@
 #include "GeoPosition.h"
 #include <math.h>
-#include <stdio.h>
 
 
 GeoPosition::GeoPosition():
@@ -162,9 +161,6 @@ float GeoPosition::distanceTo(GeoPosition to)
                sin(dLon/2.0) * sin(dLon/2.0);
     double c = 2.0 * atan2(sqrt(a), sqrt(1-a));
     
-//    fprintf(stdout, "distanceTo: lat=%.7f lon=%.7f c=%.7f R*c=%.7f\n",
-//    		_latitude, _longitude, c, _R*c);
-
     return _R * c;
 }
 

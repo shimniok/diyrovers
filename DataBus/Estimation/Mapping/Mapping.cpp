@@ -16,7 +16,7 @@ void Mapping::init(int count, GeoPosition *p)
     // Find minimum and maximum lat/lon
     for (int i=0; i < count; i++, p++) {
         //fprintf(stdout, "%d (%.6f, %.6f)\n", i, p->latitude(), p->longitude());
-    	if (p->latitude() > latMax)
+        if (p->latitude() > latMax)
             latMax = p->latitude();
         if (p->latitude() < latMin)
             latMin = p->latitude();
@@ -31,8 +31,8 @@ void Mapping::init(int count, GeoPosition *p)
     lonZero = lonMin;
     latZero = latMin;
 
-//    fprintf(stdout, "min: (%.6f, %.6f)\n", latMin, lonMin);
-//    fprintf(stdout, "max: (%.6f, %.6f)\n", latMax, lonMax);
+    //fprintf(stdout, "min: (%.6f, %.6f)\n", latMin, lonMin);
+    //fprintf(stdout, "max: (%.6f, %.6f)\n", latMax, lonMax);
 
     // Three positions required to scale
     GeoPosition sw(latMin, lonMin);
@@ -43,17 +43,14 @@ void Mapping::init(int count, GeoPosition *p)
     float dlat = (latMax - latMin);
     float dlon = (lonMax - lonMin);
     
-//    fprintf(stdout, "dlat=%.8f dlon=%.8f\n", dlat, dlon);
+    //fprintf(stdout, "dlat=%.6f dlon=%.6f\n", dlat, dlon);
     
     // Compute scale based on distances between edges of rectangle
     // and difference between min/max lat and min/max lon
     lonToX = sw.distanceTo(se) / dlon;
     latToY = sw.distanceTo(nw) / dlat;
 
-//    fprintf(stdout, "sw-se=%.7f sw-nw=%.7f lonToX=%.10f\nlatToY=%.10f\n",
-//    		 sw.distanceTo(se),
-//    		 sw.distanceTo(nw),
-//    		 lonToX, latToY);
+    //fprintf(stdout, "lonToX=%.10f\nlatToY=%.10f\n", lonToX, latToY);
 
     return;    
 }

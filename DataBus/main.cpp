@@ -286,6 +286,13 @@ int main()
 	pc.puts(cvftos(Config::minRadius, 3));
     pc.puts("\n");
 
+    pc.puts("Gyro config         ");
+    pc.puts("\n");
+    pc.puts("Gyro scale: ");
+    pc.puts(cvftos(Config::gyroScale, 5));
+    pc.puts("\n");
+    sensors.setGyroScale(Config::gyroScale);
+
     pc.puts("Calculating offsets...\n");
     display.status("Offset calculation  ");
     wait(0.2);
