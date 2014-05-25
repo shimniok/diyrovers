@@ -112,7 +112,7 @@ int logCounter = 0;
 
 void initThrottle()
 {
-	esc = Config::escMin;
+	esc = config.escMin;
 }
 
 void initSteering()
@@ -214,7 +214,7 @@ void update()
     // 
     if (initNav == true) {
         initNav = false;
-        hereGeo.set(Config::wpt[0]);
+        hereGeo.set(config.wpt[0]);
         nextWaypoint = 1; // Point to the next waypoint; 0th wpt is the starting point
         lastWaypoint = 0;
         
@@ -226,11 +226,11 @@ void update()
         history[now].dt = 0;
         history[now].dist = 0;
         // initial position is waypoint 0
-        history[now].x = Config::cwpt[0].x;
-        history[now].y = Config::cwpt[0].y;
+        history[now].x = config.cwpt[0].x;
+        history[now].y = config.cwpt[0].y;
         here.set(history[now].x, history[now].y);
         // initialize heading to bearing between waypoint 0 and 1
-		initialHeading = history[now].hdg = here.bearingTo(Config::cwpt[nextWaypoint]);
+		initialHeading = history[now].hdg = here.bearingTo(config.cwpt[nextWaypoint]);
         // Initialize Kalman Filter
         headingKalmanInit(initialHeading);
         // point next fifo input to slot 1, slot 0 occupied/initialized, now
@@ -413,29 +413,29 @@ void update()
     // NAVIGATION UPDATE
     //////////////////////////////////////////////////////////////////////////////
     
-    bearing = here.bearingTo(Config::cwpt[nextWaypoint]);
-    distance = here.distanceTo(Config::cwpt[nextWaypoint]);
-    float prevDistance = here.distanceTo(Config::cwpt[lastWaypoint]);
+    bearing = here.bearingTo(config.cwpt[nextWaypoint]);
+    distance = here.distanceTo(config.cwpt[nextWaypoint]);
+    float prevDistance = here.distanceTo(config.cwpt[lastWaypoint]);
 
-    // if within Config::waypointDist distance threshold move to next waypoint
+    // if within config.waypointDist distance threshold move to next waypoint
     // TODO 3 figure out how to output feedback on wpt arrival external to this function
     if (go) {
 
         // if we're within brakeDist of next or previous waypoint, run @ turn speed
         // This would normally mean we run at turn speed until we're brakeDist away
         // from waypoint 0, but we trick the algorithm by initializing prevWaypoint to waypoint 1
-    	// TODO 2 make this distance related -- if (here.distanceTo(Config::cwpt[lastWaypoint] < 0.5 ) {
+    	// TODO 2 make this distance related -- if (here.distanceTo(config.cwpt[lastWaypoint] < 0.5 ) {
         if ( (thisTime - timeZero) < 3000 ) {
-            setSpeed( Config::startSpeed );
-        } else if (distance < Config::brakeDist || prevDistance < Config::brakeDist) {
-            setSpeed( Config::turnSpeed );
-            // TODO 3 setSpeed( Config::wptTurnSpeed[nextWaypoint] );
+            setSpeed( config.startSpeed );
+        } else if (distance < config.brakeDist || prevDistance < config.brakeDist) {
+            setSpeed( config.turnSpeed );
+            // TODO 3 setSpeed( config.wptTurnSpeed[nextWaypoint] );
         } else {
-            setSpeed( Config::topSpeed );
-            // TODO 3 setSpeed( Config::wptTopSpeed[nextWaypoint] );
+            setSpeed( config.topSpeed );
+            // TODO 3 setSpeed( config.wptTopSpeed[nextWaypoint] );
         }
 
-        if (distance < Config::waypointDist) {
+        if (distance < config.waypointDist) {
             //fprintf(stdout, "Arrived at wpt %d\n", nextWaypoint);
             //speaker.beep(3000.0, 0.5); // non-blocking
             lastWaypoint = nextWaypoint;
@@ -474,8 +474,8 @@ void update()
     	hdg = history[now].hdg;
 
     	// Update the A and C points
-    	A = Config::cwpt[lastWaypoint];
-    	C = Config::cwpt[nextWaypoint];
+    	A = config.cwpt[lastWaypoint];
+    	C = config.cwpt[nextWaypoint];
 
         // Leg vector
         float Lx = C.x - A.x;
@@ -490,8 +490,8 @@ void update()
         float legLength = sqrtf(Lx*Lx + Ly*Ly); // ||L||
         float proj = (Lx*Rx + Ly*Ry)/legLength; // R dot L/||L||, projection magnitude, bot vector onto leg vector
         // find projection point + lookahead, along leg, relative to A
-        LA.set(A.x + (proj + Config::intercept)*Lx/legLength,
-        	   A.y + (proj + Config::intercept)*Ly/legLength);
+        LA.set(A.x + (proj + config.intercept)*Lx/legLength,
+        	   A.y + (proj + config.intercept)*Ly/legLength);
         //
         // Compute a circle that is tangential to bot heading and intercepts bot
         // and goal point LA, the intercept circle. Then compute the steering
@@ -517,14 +517,14 @@ void update()
 			// when subtracting track/2.0, so just take absolute value and multiply sign
 			// later on
 			sign = (relBrg < 0) ? -1 : 1;
-			float radius = Config::intercept/fabs(2*sin(Steering::toRadians(relBrg)));
+			float radius = config.intercept/fabs(2*sin(Steering::toRadians(relBrg)));
 			// optionally, limit radius min/max
 			// Now compute the steering angle to achieve the circle of
 			// Steering angle is based on wheelbase and track width
-			steerAngle = sign * Steering::toDegrees(asin(Config::wheelbase / (radius - Config::track/2.0)));
+			steerAngle = sign * Steering::toDegrees(asin(config.wheelbase / (radius - config.track/2.0)));
 			// Apply gain factor for near straight line
 			// TODO 3 figure out a better, continuous way to deal with steering gain
-	//        if (fabs(steerAngle) < Config::steerGainAngle) steerAngle *= Config::steerGain;
+	//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 			steering = steerAngle;
         }
         //
@@ -538,7 +538,7 @@ void update()
         // TODO: 3 probably should do KF or something for speed/dist; need to address GPS lag, too
         // if nothing else, at least average the encoder speed over mult. samples
 		if (desiredSpeed <= 0.1 ) {
-			esc = Config::escMin;
+			esc = config.escMin;
 		} else {
 			// PID loop for throttle control
 			// http://www.codeproject.com/Articles/36459/PID-process-control-a-Cruise-Control-example
@@ -549,9 +549,9 @@ void update()
 			float derivative = (error - lastError) / speedDt;
 			// calculate how much to drive the output in order to get to the
 			// desired setpoint.
-			float output = Config::escZero + (Config::speedKp * error) + (Config::speedKi * integral) + (Config::speedKd * derivative);
-			if (output > Config::escMax) output = Config::escMax;
-			if (output < Config::escZero) output = Config::escZero;
+			float output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
+			if (output > config.escMax) output = config.escMax;
+			if (output < config.escZero) output = config.escZero;
 //            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
 			esc = (int) output;
 			// remember the error for the next time around so we can compute delta error.
