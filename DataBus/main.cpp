@@ -355,15 +355,14 @@ int main()
         if (thisUpdate > nextDisplayUpdate) {
             // Pulling out current state so we get the most current
             SystemState *s = fifo_first();
+            // TODO 3 fix this so gps is already in state
             // Now populate in the current GPS data
             s->gpsHDOP = sensors.gps.hdop();
             s->gpsSats = sensors.gps.sat_count();
 
             telem.sendPacket(s);
             display.update(s);
-            nextDisplayUpdate = thisUpdate + 1000;
-            // TODO 3 move this statistic into display class
-            //fprintf(stdout, "update time: %d\n", getUpdateTime());
+            nextDisplayUpdate = thisUpdate + 200;
         }
 
         // every so often, send the currently configured waypoints

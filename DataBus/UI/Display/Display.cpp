@@ -75,6 +75,7 @@ void Display::gauge(int slot)
 
 void Display::update(SystemState *state) {
 	if (state) {
+		// TODO 2 fix padding/overwrite
 		lcd.pos(0,3);
 		lcd.puts("V:");
 		lcd.puts(cvftos(state->voltage, 1));
