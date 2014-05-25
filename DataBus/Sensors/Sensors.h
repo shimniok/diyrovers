@@ -66,6 +66,7 @@ public:
     Sensors(void);
     void Compass_Calibrate(float offset[3], float scale[3]);
     void configureEncoders(float tireCirc, int encStripes);
+    void setGyroScale(float scale);
     void Read_Encoders(void);
     void Read_Gyro(void);
     void Read_Accel(void);

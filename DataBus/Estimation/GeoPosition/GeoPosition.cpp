@@ -12,8 +12,8 @@ GeoPosition::GeoPosition():
 }
 
 GeoPosition::GeoPosition(double latitude, double longitude):
-	_latitude(0.0),
-	_longitude(0.0),
+	_latitude(latitude),
+	_longitude(longitude),
 	_northing(0.0),
 	_easting(0.0),
 	_time(0)

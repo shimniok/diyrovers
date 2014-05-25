@@ -74,27 +74,32 @@ Sensors::Sensors():
     }
 
     // TODO 2 parameterize scale and sign for mag, accel, gyro
-    g_scale[0] = 1;
-    g_scale[1] = 1;
-    g_scale[2] = Config::gyroScale;
+    g_scale[_x_] = 1;
+    g_scale[_y_] = 1;
+    g_scale[_z_] = 1;
 
-    g_sign[0] = 1;
-    g_sign[1] = -1;
-    g_sign[2] = -1;
+    g_sign[_x_] = 1;
+    g_sign[_y_] = -1;
+    g_sign[_z_] = -1;
 
-    a_sign[0] = -1;
-    a_sign[1] = 1;
-    a_sign[2] = 1;
+    a_sign[_x_] = -1;
+    a_sign[_y_] = 1;
+    a_sign[_z_] = 1;
 
-    m_sign[0] = 1;
-    m_sign[1] = -1;
-    m_sign[2] = -1;
+    m_sign[_x_] = 1;
+    m_sign[_y_] = -1;
+    m_sign[_z_] = -1;
 
     // upside down mounting
     //g_sign[3] = {1,1,1};        
     //a_sign[3] = {-1,-1,-1};
     //m_sign[3] = {1,1,1}; 
 }
+
+void Sensors::setGyroScale(float scale) {
+	g_scale[_z_] = scale;
+}
+
 
 /* Compass_Calibrate
  *
@@ -173,6 +178,8 @@ void Sensors::Read_Gyro()
     gyro[_x_] = g_sign[_x_] * (g[_x_] - g_offset[_x_]); // really need to scale this too
     gyro[_y_] = g_sign[_y_] * (g[_y_] - g_offset[_y_]); // really need to scale this too
     gyro[_z_] = (g_sign[_z_] * (g[_z_] - g_offset[_z_])) / g_scale[_z_];
+
+    fprintf(stdout, "sign:%d scale:%.5f offset:%d gyro:%d\n", this->g_sign[_z_], this->g_scale[_z_], this->g_offset[_z_], g[_z_]);
 
     return;
 }
