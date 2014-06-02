@@ -292,11 +292,15 @@ int main()
     pc.puts("\n");
 
     display.status("Gyro config         ");
-    pc.puts("\n");
     pc.puts("Gyro scale: ");
     pc.puts(cvftos(config.gyroScale, 5));
     pc.puts("\n");
     sensors.setGyroScale(config.gyroScale);
+
+    display.status("GPS configuration   ");
+    pc.puts("GPS valid speed: ");
+    pc.puts(cvftos(config.gpsValidSpeed,1));
+    pc.puts("\n");
 
     pc.puts("Calculating offsets...\n");
     display.status("Offset calculation  ");

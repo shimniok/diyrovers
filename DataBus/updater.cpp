@@ -252,6 +252,9 @@ void update()
     //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
     nowSpeed = sensors.encSpeed;
 
+//    int timeA = timer.read_us();
+//    int timeB = timeA;
+
     sensors.Read_Gyro(); 
     //sensors.Read_Rangers();
     //sensors.Read_Accel();
@@ -284,8 +287,8 @@ void update()
         // Also, best to only use GPS if we've got at least 4 sats active -- really should be like 5 or 6
         // Finally, it takes 3-5 secs of runtime for the gps heading to converge.
         useGps = (nowState.gpsSats > 4 &&
-                  nowState.lrEncSpeed > 1.0 &&
-                  nowState.rrEncSpeed > 1.0 &&
+                  nowState.lrEncSpeed > config.gpsValidSpeed &&
+                  nowState.rrEncSpeed > config.gpsValidSpeed &&
                   (thisTime-timeZero) > 3000); // gps hdg converges by 3-5 sec.                
     }
 
@@ -527,6 +530,7 @@ void update()
 	//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 			steering = steerAngle;
         }
+        timeB = timer.read_us();
         //
         //////////////////////////////////////////////////////////////////////////////////////
 
@@ -543,8 +547,10 @@ void update()
 			// PID loop for throttle control
 			// http://www.codeproject.com/Articles/36459/PID-process-control-a-Cruise-Control-example
 			float error = desiredSpeed - nowSpeed;
-			// track error over time, scaled to the timer interval
-			integral += (error * speedDt);
+			// Keep track of accumulated error, but only if we're not sitting still, due to
+			// being at the line with manual control enabled.
+			if (nowSpeed > 0.5)
+				integral += (error * speedDt);
 			// determine the amount of change from the last time checked
 			float derivative = (error - lastError) / speedDt;
 			// calculate how much to drive the output in order to get to the
@@ -602,6 +608,12 @@ void update()
     nowState.LABrg = relBrg;
     nowState.LAx = LA.x;
     nowState.LAy = LA.y;
+
+//    if (timeB > timeA) {
+//    	pc.puts(cvitos(timeB-timeA));
+//    	pc.puts("\n");
+//    }
+    //    nowState.lag = timeB - timeA;
     // Copy AHRS data into logging data
     //state.roll = ToDeg(ahrs.roll);
     //state.pitch = ToDeg(ahrs.pitch);

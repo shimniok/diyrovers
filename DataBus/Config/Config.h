@@ -48,8 +48,9 @@ class Config {
         // float accelScale[3];
         float wheelbase;					// Vehicle wheelbase, front to rear axle
         float track;						// Vehicle track width, left to right contact patch
-        float tireCirc;					// tire circumference
-        int encStripes;					// Number of ticks per revolution
+        float tireCirc;						// tire circumference
+        int encStripes;						// Number of ticks per revolution
+        float gpsValidSpeed;				// speed above which GPS can be relied upon
 };
 
 #endif

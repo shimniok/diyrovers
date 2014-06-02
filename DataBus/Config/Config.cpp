@@ -159,7 +159,10 @@ bool Config::load(const char *filename)
             } else if (!strcmp(tmp, GYRO)) {
 				p = split(tmp, p, MAXBUF, ',');     		// split off the declination to tmp
 				gyroScale = cvstof(tmp);					// gyro scaling factor to deg/sec
-			} //if-else
+            } else if (!strcmp(tmp, GPS)) {
+            	p = split(tmp, p, MAXBUF, ',');
+            	gpsValidSpeed = cvstof(tmp);
+            } //if-else
             /* else if (!strcmp(tmp, DECLINATION)) {
 				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
 				declination = (float) cvstof(tmp);
