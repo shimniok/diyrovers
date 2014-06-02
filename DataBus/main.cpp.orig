@@ -305,9 +305,15 @@ int main()
     pc.puts("Gyro config         ");
     pc.puts("\n");
     pc.puts("Gyro scale: ");
+<<<<<<< HEAD
+    pc.puts(cvftos(Config::gyroScale, 5));
+    pc.puts("\n");
+    sensors.setGyroScale(Config::gyroScale);
+=======
     pc.puts(cvftos(config.gyroScale, 5));
     pc.puts("\n");
     sensors.setGyroScale(config.gyroScale);
+>>>>>>> origin/newlcd
 
     pc.puts("Calculating offsets...\n");
     display.status("Offset calculation  ");

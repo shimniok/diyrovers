@@ -530,7 +530,7 @@ void update()
 	//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 			steering = steerAngle;
         }
-        timeB = timer.read_us();
+//        timeB = timer.read_us();
         //
         //////////////////////////////////////////////////////////////////////////////////////
 
