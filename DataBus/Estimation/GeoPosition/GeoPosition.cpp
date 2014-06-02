@@ -14,11 +14,7 @@ GeoPosition::GeoPosition():
 GeoPosition::GeoPosition(double latitude, double longitude):
 	_latitude(latitude),
 	_longitude(longitude),
-<<<<<<< HEAD
-	_northing(0.0),
-=======
 	_northing(0.0), // TODO 3 remove UTM
->>>>>>> newlcd
 	_easting(0.0),
 	_time(0)
 {

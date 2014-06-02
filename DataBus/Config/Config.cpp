@@ -158,16 +158,11 @@ bool Config::load(const char *filename)
 				encStripes = atoi(tmp);                		// ticks per revolution
             } else if (!strcmp(tmp, GYRO)) {
 				p = split(tmp, p, MAXBUF, ',');     		// split off the declination to tmp
-<<<<<<< HEAD
 				gyroScale = cvstof(tmp);			// gyro scaling factor to deg/sec
-			} //if-else
-=======
-				gyroScale = cvstof(tmp);					// gyro scaling factor to deg/sec
             } else if (!strcmp(tmp, GPS)) {
             	p = split(tmp, p, MAXBUF, ',');
             	gpsValidSpeed = cvstof(tmp);
             } //if-else
->>>>>>> newlcd
             /* else if (!strcmp(tmp, DECLINATION)) {
 				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
 				declination = (float) cvstof(tmp);
