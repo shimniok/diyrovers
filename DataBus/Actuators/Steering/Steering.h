@@ -22,11 +22,13 @@ class Steering
 	 */
 	void initSteering(void);
 
+
     /** Set the track width (left to right contact patch distance)
      *
      * @param track is the vehicle track width
      */
     void setTrack(float track);
+
 
     /** Set the wheelbase (front to rear axle distance)
      *
@@ -34,10 +36,17 @@ class Steering
      */
     void setWheelbase(float wheelbase);
 
+
     /** set intercept distance
      * @param intercept distance along new course at which turn arc will intercept
      */
     void setIntercept(float intercept);
+
+
+    /** set steering scale factor to convert between steering angle and servo output
+     * @param scale is the scale factor
+     */
+    void setScale(float scale);
 
 
     /** Convert steerAngle to servo value
@@ -109,7 +118,11 @@ class Steering
     inline static float toDegrees(float rad) {return (180/PI)*rad;}
 
   private:
-    Servo _steering;               // Steering Servo
+    Servo _steering;                // Steering Servo
+    float _scale;					// Steering scale factor
+    float _track;					// vehicle track used for steering intercept calc
+    float _wheelbase;				// vehicle wheelbase used for steering intercept calc
+    float _intercept;				// circle intercept distance
 };
 
 #endif

@@ -14,42 +14,43 @@ class Config {
 		Config();
 
 		/** Load configuration from file */
-        bool load(void);
+        bool load(const char *filename);
 
-        static bool loaded;            			// has the config been loaded yet?
-        static float intercept;    				// used for course correction steering calculation
-        static float waypointDist;	     		// distance threshold to waypoint
-        static float brakeDist;   	     		// braking distance
-        static GeoPosition wpt[MAX_WPT]; 		// Waypoints, lat/lon coords
-        static CartPosition cwpt[MAX_WPT];		// Waypoints, cartesian coords
-        static float wptTopSpeedAdj[MAX_WPT];	// Speed approaching waypoint
-        static float wptTurnSpeedAdj[MAX_WPT];
-        static unsigned int wptCount;		  	// number of active waypoints
-        static float escMin;             		// minimum ESC value; brake
-        static float escZero;            		// zero throttle
-        static float escMax;           		  	// max throttle
-        static float topSpeed;	      		   	// default top speed to achieve on the straights
-        static float turnSpeed;	        		// default speed for turns
-        static float startSpeed;		       	// speed for start
-        static float minRadius;	        		// minimum turning radius (calculated)
-        static float speedKp;		          	// Speed PID proportional gain
-        static float speedKi;		          	// Speed PID integral gain
-        static float speedKd;		          	// Speed PID derivative gain
-        static float steerZero;        			// zero steering aka center point
-        static float steerScale;     	   		// gain factor for steering algorithm
-        static float curbThreshold; 	   		// distance at which curb avoid takes place
-        static float curbGain;      	  		// gain of curb avoid steering
-//        static float gyroBias; 	    			// this needs to be 3d
-        static float gyroScale;					// scales gyro output to degrees / sec
+        bool loaded;            			// has the config been loaded yet?
+        float intercept;    				// used for course correction steering calculation
+        float waypointDist;	     			// distance threshold to waypoint
+        float brakeDist;   	     			// braking distance
+        GeoPosition wpt[10]; 				// Waypoints, lat/lon coords
+        CartPosition cwpt[10];				// Waypoints, cartesian coords
+        float wptTopSpeedAdj[MAX_WPT];		// Speed approaching waypoint
+        float wptTurnSpeedAdj[MAX_WPT];
+        unsigned int wptCount;		  		// number of active waypoints
+        float escMin;             			// minimum ESC value; brake
+        float escZero;            			// zero throttle
+        float escMax;           		  	// max throttle
+        float topSpeed;	      			   	// default top speed to achieve on the straights
+        float turnSpeed;	        		// default speed for turns
+        float startSpeed;		   	    	// speed for start
+        float minRadius;	        		// minimum turning radius (calculated)
+        float speedKp;		       	   		// Speed PID proportional gain
+        float speedKi;		       	   		// Speed PID integral gain
+        float speedKd;		          		// Speed PID derivative gain
+        float steerZero;        			// zero steering aka center point
+        float steerScale;     	   			// gain factor for steering algorithm
+        float curbThreshold; 	   			// distance at which curb avoid takes place
+        float curbGain;      	  			// gain of curb avoid steering
+//        float gyroBias; 	    			// this needs to be 3d
+        float gyroScale;					// scales gyro output to degrees / sec
         // float gyroScale[3];
-        static float magOffset[3];
-        static float magScale[3];
+        float magOffset[3];
+        float magScale[3];
         // float accelOffset[3];
         // float accelScale[3];
-        static float wheelbase;					// Vehicle wheelbase, front to rear axle
-        static float track;						// Vehicle track width, left to right contact patch
-        static float tireCirc;					// tire circumference
-        static int encStripes;					// Number of ticks per revolution
+        float wheelbase;					// Vehicle wheelbase, front to rear axle
+        float track;						// Vehicle track width, left to right contact patch
+        float tireCirc;						// tire circumference
+        int encStripes;						// Number of ticks per revolution
+        float gpsValidSpeed;				// speed above which GPS can be relied upon
 };
 
 #endif

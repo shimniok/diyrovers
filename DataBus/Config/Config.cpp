@@ -6,8 +6,6 @@
 #include "globals.h"
 #include "util.h"
 
-#define CONFIGFILE	"/etc/config.txt"
-
 // Identifiers for each of the parameters
 #define CURB 			"curb"
 #define WAYPOINT		"wpt"
@@ -22,45 +20,46 @@
 #define VEHICLE			"veh"
 #define ENCODER			"enc"
 
-bool Config::loaded=false;
-float Config::intercept=0;
-float Config::waypointDist=0;
-float Config::brakeDist=0;
-GeoPosition Config::wpt[Config::MAX_WPT];
-CartPosition Config::cwpt[Config::MAX_WPT];
-float Config::wptTopSpeedAdj[Config::MAX_WPT];
-float Config::wptTurnSpeedAdj[Config::MAX_WPT];
-unsigned int Config::wptCount=0;
-float Config::escMin=1300;
-float Config::escZero=1300;
-float Config::escMax=1300;
-float Config::topSpeed=0;
-float Config::turnSpeed=0;
-float Config::startSpeed=0;
-float Config::minRadius=0;
-float Config::speedKp=0;
-float Config::speedKi=0;
-float Config::speedKd=0;
-float Config::steerZero=1400;
-float Config::steerScale=0;
-float Config::curbThreshold=0;
-float Config::curbGain=0;
-float Config::gyroScale=0;
-float Config::magOffset[3] = {0,0,0};
-float Config::magScale[3] = {0,0,0};
-float Config::wheelbase=0.280;	// Data Bus Original Settings
-float Config::track=0.290;
-float Config::tireCirc=0.321537;
-int Config::encStripes=32;
 
-
-Config::Config()
+Config::Config():
+	loaded(false),
+	intercept(0),
+	waypointDist(0),
+	brakeDist(0),
+	wptCount(0),
+	escMin(1300),
+	escZero(1300),
+	escMax(1300),
+	topSpeed(0),
+	turnSpeed(0),
+	startSpeed(0),
+	minRadius(0),
+	speedKp(0),
+	speedKi(0),
+	speedKd(0),
+	steerZero(0),
+	steerScale(0),
+	curbThreshold(0),
+	curbGain(0),
+	gyroScale(0),
+	// Data Bus Original Settings
+	wheelbase(0.280),
+	track(0.290),
+	tireCirc(0.321537),
+	encStripes(32)
 {
-	// Nothin' to do here...
+	for (int i=0; i < MAX_WPT; i++) {
+		wptTopSpeedAdj[i] = 0;
+		wptTurnSpeedAdj[i] = 0;
+	}
+	for (int i=0; i < 3; i++) {
+		magOffset[i] = 0;
+		magScale[i] = 0;
+	}
 }
 
 // load configuration from filesystem
-bool Config::load()
+bool Config::load(const char *filename)
 {
     FILE *fp;
     char buf[MAXBUF];   // buffer to read in data
@@ -73,10 +72,10 @@ bool Config::load()
 
     pc.printf("opening config file...\n");
     
-    fp = fopen(CONFIGFILE, "r");
+    fp = fopen(filename, "r");
     if (fp == 0) {
         pc.puts("Could not open ");
-        pc.puts(CONFIGFILE);
+        pc.puts(filename);
         pc.puts(" \n");
     } else {
         wptCount = 0;
@@ -159,8 +158,16 @@ bool Config::load()
 				encStripes = atoi(tmp);                		// ticks per revolution
             } else if (!strcmp(tmp, GYRO)) {
 				p = split(tmp, p, MAXBUF, ',');     		// split off the declination to tmp
+<<<<<<< HEAD
 				gyroScale = cvstof(tmp);			// gyro scaling factor to deg/sec
 			} //if-else
+=======
+				gyroScale = cvstof(tmp);					// gyro scaling factor to deg/sec
+            } else if (!strcmp(tmp, GPS)) {
+            	p = split(tmp, p, MAXBUF, ',');
+            	gpsValidSpeed = cvstof(tmp);
+            } //if-else
+>>>>>>> newlcd
             /* else if (!strcmp(tmp, DECLINATION)) {
 				p = split(tmp, p, MAXBUF, ',');     // split off the declination to tmp
 				declination = (float) cvstof(tmp);
