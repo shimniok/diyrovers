@@ -302,6 +302,13 @@ int main()
     pc.puts(cvftos(config.gpsValidSpeed,1));
     pc.puts("\n");
 
+    pc.puts("Gyro config         ");
+    pc.puts("\n");
+    pc.puts("Gyro scale: ");
+    pc.puts(cvftos(config.gyroScale, 5));
+    pc.puts("\n");
+    sensors.setGyroScale(config.gyroScale);
+
     pc.puts("Calculating offsets...\n");
     display.status("Offset calculation  ");
     wait(0.2);
