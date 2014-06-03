@@ -69,12 +69,14 @@ Servo2 esc(THROTTLE);
 float speedDt=0;                        // dt for the speed PID
 float integral=0;                       // error integral for speed PID
 float lastError=0;                      // previous error, used for calculating derivative
-volatile bool go=false;                 // initiate throttle (or not)
 float desiredSpeed;                     // speed set point
 float nowSpeed;
 
+// Flags
+volatile bool go=false;                 // initiate throttle (or not)
+volatile bool initNav = true;           // initialize navigation estimates
+
 // Pose Estimation
-bool initNav = true;                    // initialize navigation estimates
 bool doLog = false;                     // determines when to start and stop entering log data
 float initialHeading=-999;              // initial heading
 CartPosition here;                  	// position estimate, cartesian
@@ -85,7 +87,6 @@ int thisTime;                           // used to calculate dt for KF
 float dt;                               // dt for the KF
 float estLagHeading = 0;                // lagged heading estimate
 float errHeading;                       // error between gyro hdg estimate and gps hdg estimate
-float gyroBias=0;                       // exponentially weighted moving average of gyro error
 float Ag = (2.0/(1000.0+1.0));          // Gyro bias filter alpha, gyro; # of 10ms steps
 float Kbias = 0.995;            
 float filtErrRate = 0;
@@ -103,12 +104,11 @@ struct history_rec {
     float dt;       // delta time
 } history[MAXHIST] __attribute__ ((section("AHBSRAM0"))); // fifo for sensor data, position, heading, dt
 
-int hCount;         // history counter; we can go back in time to reference gyro history
-int now = 0;        // fifo input index, latest entry
-int prev = 0;       // previous fifo iput index, next to latest entry
-int lag = 0;        // fifo output index, entry from 1 second ago (sensors.gps.lag entries prior)
-int lagPrev = 0;    // previous fifo output index, 101 entries prior
-int logCounter = 0;
+static int hCount=0;		// history counter; we can go back in time to reference gyro history
+static int now = 0;        	// fifo input index, latest entry
+static int prev = 0;       	// previous fifo iput index, next to latest entry
+static int lag = 0;       	// fifo output index, entry from 1 second ago (sensors.gps.lag entries prior)
+static int lagPrev = 0;   	// previous fifo output index, 101 entries prior
 
 void initThrottle()
 {
@@ -252,9 +252,6 @@ void update()
     //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
     nowSpeed = sensors.encSpeed;
 
-//    int timeA = timer.read_us();
-//    int timeB = timeA;
-
     sensors.Read_Gyro(); 
     //sensors.Read_Rangers();
     //sensors.Read_Accel();
@@ -323,7 +320,7 @@ void update()
     history[now].dist = (sensors.lrEncDistance + sensors.rrEncDistance) / 2.0; // current distance traveled
     history[now].gyro = sensors.gyro[_z_];  // current raw gyro data
     history[now].dt = dt; // current dt, to address jitter
-    history[now].hdg = clamp360( history[prev].hdg + dt*(history[now].gyro - gyroBias) ); // compute current heading from current gyro
+    history[now].hdg = clamp360( history[prev].hdg + dt*(history[now].gyro) ); // compute current heading from current gyro
     float r = PI/180 * history[now].hdg;
     history[now].x = history[prev].x + history[now].dist * sin(r);    // update current position
     history[now].y = history[prev].y + history[now].dist * cos(r);
@@ -359,7 +356,6 @@ void update()
             estLagHeading = headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
         }
 
-
         // Update the lagged position estimate
         history[lag].x = history[lagPrev].x + history[lag].dist * sin(estLagHeading);
         history[lag].y = history[lagPrev].y + history[lag].dist * cos(estLagHeading);
@@ -379,10 +375,7 @@ void update()
         // trig calcs is marginal. Update rate is 10ms and we can't hog more than maybe 2-3ms as the outer
         // loop has logging work to do. Rotating each point is faster; pre-calculate sin/cos, etc. for rotation
         // matrix.
-
-        // Low pass filter the error correction.  Multiplying by 0.01, it takes sensors.gps.lag updates to correct a
-        // consistent error; that's 0.10s/0.01 = 1 sec.  0.005 is 2 sec, 0.0025 is 4 sec, etc.
-        errHeading = clamp180(estLagHeading - history[lag].hdg) * 0.01;  // lopass filter error angle
+        errHeading = clamp180(estLagHeading - history[lag].hdg);
 
         //fprintf(stdout, "%d %.2f, %.2f, %.4f %.4f\n", lag, estLagHeading, history[lag].hdg, estLagHeading - history[lag].hdg, errHeading);
         float cosA = cos(errHeading * PI / 180.0);
@@ -488,11 +481,11 @@ void update()
         float Ry = here.y - A.y;
         float sign = 1;
 
-        // Find the goal point, a projection of the bot vector onto the current leg, moved ahead
-        // along the path by the lookahead distance
+        // Find the goal point, a projection of the bot vector onto the current leg, moved
+        // along the path by the lookahead distance.
         float legLength = sqrtf(Lx*Lx + Ly*Ly); // ||L||
         float proj = (Lx*Rx + Ly*Ry)/legLength; // R dot L/||L||, projection magnitude, bot vector onto leg vector
-        // find projection point + lookahead, along leg, relative to A
+        // Now find projection point + lookahead, along leg, relative to A.
         LA.set(A.x + (proj + config.intercept)*Lx/legLength,
         	   A.y + (proj + config.intercept)*Ly/legLength);
         //
@@ -500,8 +493,7 @@ void update()
         // and goal point LA, the intercept circle. Then compute the steering
         // angle to trace that circle.
         //
-        // First, compute absolute bearing to lookahead point (LA) from robot (B);
-        // Note that trig 0* is 90* off from compass 0*
+        // First, compute absolute bearing to lookahead point (LA) from robot (B)
         float brg = here.bearingTo(LA);
         // Now, compute relative bearing to the lookahead. Relative to bot hdg.
         relBrg = clamp180(brg - hdg);
@@ -599,7 +591,7 @@ void update()
     nowState.bearing = bearing;
     nowState.distance = distance;
     nowState.nextWaypoint = nextWaypoint;
-    nowState.gbias = gyroBias;
+    //nowState.gbias = 0;
     nowState.errHeading = errHeading;
     //state.leftRanger = sensors.leftRanger;
     //state.rightRanger = sensors.rightRanger;
