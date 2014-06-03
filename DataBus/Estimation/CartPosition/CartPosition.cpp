@@ -1,6 +1,6 @@
 #include "mbed.h" // debug
 #include "CartPosition.h"
-
+#include "util.h"
 #include "globals.h"
 
 CartPosition::CartPosition(void)
@@ -30,10 +30,9 @@ void CartPosition::set(float newx, float newy)
 
 float CartPosition::bearingTo(CartPosition to)
 {
-    // x and y aren't backwards; it's to correct for the differences between
-    // geometry and navigation. In the former, angles are measured from the x axis,
-    // in the latter, from the y axis.
-    return 180/PI * atan2(to.x-x, to.y-y); 
+	float result = clamp360(90 - 180/PI * atan2(to.y-y, to.x-x));
+
+    return result;
 }
 
 
