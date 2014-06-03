@@ -1,8 +1,7 @@
 #include "IncrementalEncoder.h"
 
 IncrementalEncoder::IncrementalEncoder(PinName pin)
-:	_new(false)
-,	_lastTime(0)
+:	_lastTime(0)
 ,	_time(0)
 ,   _lastTicks(0)
 ,	_ticks(0)
@@ -18,31 +17,27 @@ IncrementalEncoder::IncrementalEncoder(PinName pin)
     _lastTime = _t.read_us();
 }
 
-unsigned int IncrementalEncoder::read() {
-    unsigned int ticks = _ticks - _lastTicks;
+int IncrementalEncoder::read() {
+    int ticks = _ticks - _lastTicks;
     _lastTicks = _ticks;
-    _new=false;
     return ticks;
 }  
 
-unsigned int IncrementalEncoder::readTotal() {
-    _new=false;
+int IncrementalEncoder::readTotal() {
     return _ticks;
 }
 
-unsigned int IncrementalEncoder::readRise() {
-    _new=false;
+int IncrementalEncoder::readRise() {
     return _rise;
 }  
 
-unsigned int IncrementalEncoder::readFall() {
-    _new=false;
+int IncrementalEncoder::readFall() {
     return _fall;
 }
     
-unsigned int IncrementalEncoder::readTime() {\
-	unsigned int result = _time;
-	_time = 0;
+int IncrementalEncoder::readTime() {
+	int result = _time;
+	_time = _lastTime = -1;
     return result;
 }
     
@@ -57,16 +52,18 @@ void IncrementalEncoder::_increment() {
 void IncrementalEncoder::_incRise() {
     _rise++;
     _ticks++;
-    _new=true;
-    // compute time between ticks; only do this for rise to eliminate jitter
-	// TODO 3: reimplement filtering of _time
-	int now = _t.read_us();
-    _time = now - _lastTime;
-    _lastTime = now;
+    if (_lastTime < 0) {
+    	_time = _lastTime = _t.read_us();
+    } else {
+		// compute time between ticks; only do this for rise to eliminate jitter
+		// TODO 3: reimplement filtering of _time
+		int now = _t.read_us();
+		_time = now - _lastTime;
+		_lastTime = now;
+    }
 }
 
 void IncrementalEncoder::_incFall() {
     _fall++;
     _ticks++;
-    _new=true;
 }

@@ -20,31 +20,31 @@ class IncrementalEncoder
          *
          * @returns the number of ticks since the last call to this method
          */        
-        unsigned int read();
+        int read();
 
         /** Get total tick count since last reset
          *
          * @returns total ticks since the last reset or instantiation
          */
-        unsigned int readTotal();
+        int readTotal();
        
         /** Get total rise tick count
          *
          * @returns total rise ticks
          */
-        unsigned int readRise();
+        int readRise();
 
         /** Get total fall tick count
          *
          * @returns total fall ticks
          */
-        unsigned int readFall();
+        int readFall();
 
         /** Read time interval between ticks
          *
-         * @returns filtered time between encoder pulses
+         * @returns filtered time between encoder pulses, -1 if no update since last call.
          */
-        unsigned int readTime();
+        int readTime();
        
         /** Reset the tick counter
          *
@@ -52,13 +52,12 @@ class IncrementalEncoder
         void reset();
 
     private:
-        bool _new;
-        unsigned int _lastTime;
-        unsigned int _time;
-        unsigned int _lastTicks;
-        unsigned int _ticks;
-        unsigned int _rise;
-        unsigned int _fall;
+        int _lastTime;
+        int _time;
+        int _lastTicks;
+        int _ticks;
+        int _rise;
+        int _fall;
         Timer _t;
         InterruptIn _interrupt;
         void _increment();
