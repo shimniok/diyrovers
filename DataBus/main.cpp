@@ -109,12 +109,7 @@ Mapping mapper;
 // FUNCTION DEFINITIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void initFlasher(void);
-//void initDR(void);
-void displayData(const int mode);
 int autonomousMode(void);
-void telemetryMode(void);
-void servoCalibrate(void);
 void serialBridge(Serial &gps);
 int instrumentCheck(void);
 int compassCalibrate(void);
@@ -337,11 +332,7 @@ int main()
 
     // Setup LCD Input Menu
     menu.add("Auto mode", &autonomousMode);
-    menu.add("Instruments", &instrumentCheck);
-    menu.add("Calibrate", &compassCalibrate);
-    menu.add("Compass Swing", &compassSwing);
     menu.add("Gyro Calib", &gyroSwing);
-    //menu.sdd("Reload Config", &loadConfig);
     menu.add("Backlight", &setBacklight);
     menu.add("Reverse", &reverseScreen);
     menu.add("Reset", &resetMe);
@@ -419,11 +410,8 @@ int main()
             fputs("0) Autonomous mode\n", stdout);
             fputs("1) Bridge serial to GPS\n", stdout);
             fputs("2) Calibrate compass\n", stdout);
-            fputs("3) Swing compass\n", stdout);
-            fputs("4) Gyro calibrate\n", stdout);
-            //fputs("5) Instrument check\n", stdout);
-            fputs("5) Telemetry mode\n", stdout);
-            fputs("6) Shell\n", stdout);
+            fputs("3) Gyro calibrate\n", stdout);
+            fputs("4) Shell\n", stdout);
             fputs("R) Reset\n", stdout);
             fputs("\nSelect from the above: ", stdout);
             fflush(stdout);
@@ -477,38 +465,13 @@ int main()
                     break;
                 case '3' :
                     display.select(menu.getItemName(2));
-                    compassSwing();
-                    break;
-                case '4' :
-                    display.select(menu.getItemName(2));
                     gyroSwing();
                     break;
-				/*
-                case '5' :
-                    display.select("Instruments");
-                    display.status("Standby.");
-                    displayData(INSTRUMENT_CHECK);
-                    break;
-                */
-                case '5' :
-                	display.select("Telemetry");
-                	display.status("Standby.");
-                	telemetryMode();
-                	break;
-                case '6' :
+                case '4' :
                     display.select("Shell");
                     display.status("Standby.");
                     shell(0);
                     break;
-                /*
-                case 'A' :
-                    display.select("Serial bridge 2");
-                    display.status("Standby.");
-                    //gps2.enableVerbose();
-                    //serialBridge( *(gps2.getSerial()) );
-                    //gps2.disableVerbose();
-                    break;
-                */
                 default :
                     break;
             } // switch        
@@ -521,21 +484,6 @@ int main()
 
 }
 
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// INITIALIZATION ROUTINES
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-void initFlasher()
-{ 
-    // Set up flasher schedule; 3 flashes every 80ms
-    // for 80ms total, with a 9x80ms period
-    blink.max(9);
-    blink.scale(80);
-    blink.mode(Schedule::repeat);
-    blink.set(0, 1);  blink.set(2, 1);  blink.set(4, 1);
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -803,6 +751,8 @@ int gyroSwing()
         fputs("Data collection complete.\n", stdout);
         wait(2);
     }
+
+    sensors.gps.enable();
     
     keypad.pressed = false;
 
@@ -810,121 +760,16 @@ int gyroSwing()
 }
 
 
-// Swing compass using turntable equipped with dual channel
-// encoder. Use onboard wheel encoder system. Left channel
-// is the index (0 degree) mark, while the right channel
-// is the incremental encoder.
-//
-// Note: much of this code is identical to the gyroSwing() code.
-//
-int compassSwing()
-{
-    int revolutions=5;
-    int heading=0;
-    int leftCount = 0;
-    FILE *fp;
-    // left is index track
-    // right is encoder track
-
-    fputs("Entering compass swing...\n", stdout);
-    display.status("Starting...");
-    wait(2);
-    fp = openlog("sw");
-    wait(2);
-    display.status("Ok. Begin.");
-
-    fputs("Begin clockwise rotation... exit after ", stdout);
-    fputs(cvntos(revolutions), stdout);
-	fputs(" revolutions\n", stdout);
-
-    timer.reset();
-    timer.start();
-
-    // wait for index to change
-    while ((leftCount += sensors._left.read()) < 2) {
-        if (keypad.pressed) {
-            keypad.pressed = false;
-            break;    
-        }
-    }
-    fputs(">>>> Index detected. Starting data collection\n", stdout);
-    leftCount = 0;
-    // TODO 3 how to parameterize status?
-    lcd.pos(0,1);
-    // TODO 3 lcd.printf("%1d %-14s", revolutions, "revs left");
-
-    sensors._right.read(); // easiest way to reset the heading counter
-    
-    while (revolutions > 0) {
-        int encoder;
-
-        if (keypad.pressed) {
-            keypad.pressed = false;
-            break;
-        }
-               
-        // wait for state change
-        while ((encoder = sensors._right.read()) == 0) {
-            if (keypad.pressed) {
-                keypad.pressed = false;
-                break;
-            }
-        }
-        heading += 2*encoder;                          // encoder has resolution of 2 degrees
-        if (heading >= 360) heading -= 360;
-                
-        // when index is 1, reset the heading and decrement revolution counter
-        // make sure we don't detect the index mark until after the first several
-        // encoder pulses.  Index is active low
-        if ((leftCount += sensors._left.read()) > 1) {
-            // check for error in heading?
-            leftCount = 0;
-            revolutions--;
-            fputs(">>>>> ", stdout);
-            fputs(cvitos(revolutions), stdout);
-            fputs(" left\n", stdout); // we sense the rising and falling of the index so /2
-            lcd.pos(0,1);
-            // TODO 4 lcd.printf("%1d %-14s", revolutions, "revs left");
-        }
-        
-        float heading2d = 180 * atan2((float) sensors.mag[1], (float) sensors.mag[0]) / PI;
-        // Print out data
-        fputs(cvitos(heading), stdout);
-        fputs(cvftos(heading2d, 4), stdout);
-
-        if (fp) {
-        	fputs(cvitos(timer.read_ms()), stdout);
-        	fputs(cvitos(heading), stdout);
-        	fputs(cvftos(heading2d, 2), stdout);
-        	fputs(cvftos(sensors.mag[0], 4), stdout);
-        	fputs(cvftos(sensors.mag[1], 4), stdout);
-        	fputs(cvftos(sensors.mag[2], 4), stdout);
-        	fputs("\n", stdout);
-        }
-
-    }    
-    if (fp) {
-        fclose(fp);
-        display.status("Done. Saved.");
-        fputs("Data collection complete.\n", stdout);
-        wait(2);
-    }
-    
-    keypad.pressed = false;
-        
-    return 0;
-}
-
-void servoCalibrate() 
-{
-}
 
 void bridgeRecv()
 {
+#if 0
     while (dev && dev->readable()) {
         pc.putc(dev->getc());
     }
+#endif
 }
+
 
 void serialBridge(Serial &serial)
 {
@@ -955,167 +800,6 @@ void serialBridge(Serial &serial)
         }
     }
 #endif
-}
-
-/* to be called from panel menu
- */
-int instrumentCheck(void) {
-    displayData(INSTRUMENT_CHECK);
-    return 0;
-}
-
-/* Display data
- * mode determines the type of data and format
- * INSTRUMENT_CHECK   : display readings of various instruments
- * AHRS_VISUALIZATION : display data for use by AHRS python visualization script
- */
- 
-void displayData(const int mode)
-{
-#if 0
-    bool done = false;
-
-    lcd.clear();
-
-    // Init GPS
-    sensors.gps.disableVerbose();
-    sensors.gps.enable();
-    sensors.gps.reset_available();    
-
-    // Init 2nd GPS
-    //gps2.enable();
-    //gps2.reset_available();
-
-    keypad.pressed = false;  
-    
-    timer.reset();
-    timer.start();
-
-    fputs("press e to exit\n", stdout);
-    while (!done) {
-        int millis = timer.read_ms();
-
-        if (keypad.pressed) {
-            keypad.pressed = false;
-            done=true;
-        }
-        
-        while (pc.readable()) {
-            if (pc.getc() == 'e') {
-                done = true;
-                break;
-            }
-        }
-
-/*        
-        if (mode == AHRS_VISUALIZATION && (millis % 100) == 0) {
-
-            fprintf(stdout, "!ANG:%.1f,%.1f,%.1f\r\n", ToDeg(ahrs.roll), ToDeg(ahrs.pitch), ToDeg(ahrs.yaw));
-
-        } else if (mode == INSTRUMENT_CHECK) {
- */
-        
-            if ((millis % 1000) == 0) {
-            	SystemState *s = fifo_first();
-
-                fprintf(stdout, "update() time = %.3f msec\n", getUpdateTime() / 1000.0);
-                fprintf(stdout, "Rangers: L=%.2f R=%.2f C=%.2f", sensors.leftRanger, sensors.rightRanger, sensors.centerRanger);
-                fprintf(stdout, "\n");
-                //fprintf(stdout, "ahrs.MAG_Heading=%4.1f\n",  ahrs.MAG_Heading*180/PI);
-                //fprintf(stdout, "raw m=(%d, %d, %d)\n", sensors.m[0], sensors.m[1], sensors.m[2]);
-                //fprintf(stdout, "m=(%2.3f, %2.3f, %2.3f) %2.3f\n", sensors.mag[0], sensors.mag[1], sensors.mag[2],
-                //        sqrt(sensors.mag[0]*sensors.mag[0] + sensors.mag[1]*sensors.mag[1] + sensors.mag[2]*sensors.mag[2] ));
-                fprintf(stdout, "g=(%4d, %4d, %4d) %d\n", sensors.g[0], sensors.g[1], sensors.g[2], sensors.gTemp);
-                fprintf(stdout, "gc=(%.1f, %.1f, %.1f)\n", sensors.gyro[0], sensors.gyro[1], sensors.gyro[2]);
-                fprintf(stdout, "a=(%5d, %5d, %5d)\n", sensors.a[0], sensors.a[1], sensors.a[2]);
-                fprintf(stdout, "estHdg=%.2f lagHdg=%.2f\n", s->estHeading, s->estLagHeading);
-                //fprintf(stdout, "roll=%.2f pitch=%.2f yaw=%.2f\n", ToDeg(ahrs.roll), ToDeg(ahrs.pitch), ToDeg(ahrs.yaw));
-                fprintf(stdout, "speed: left=%.3f  right=%.3f\n", sensors.lrEncSpeed, sensors.rrEncSpeed);
-                fprintf(stdout, "gps=(%.6f, %.6f, h=%.1f, s=%.1f, hdop=%.1f, sat=%d)\n",
-                    sensors.gps.latitude(), sensors.gps.longitude(), sensors.gps.heading_deg(), 
-                    sensors.gps.speed_mps(), sensors.gps.hdop(), sensors.gps.sat_count());
-                fprintf(stdout, "brg=%6.2f d=%8.4f sa=%6.2f\n", s->bearing, s->distance, s->steerAngle);
-                /*
-                fprintf(stdout, "gps2=(%.6f, %.6f, %.1f, %.1f, %.1f, %d) %02x\n", 
-                    gps2.latitude(), gps2.longitude(), gps2.heading_deg(), gps2.speed_mps(), gps2.hdop(), gps2.sat_count(),
-                    (unsigned char) gps2.getAvailable() );
-                */
-                fprintf(stdout, "v=%.2f  a=%.3f\n", sensors.voltage, sensors.current);
-                fprintf(stdout, "\n");
-                
-            }
-
-            if ((millis % 3000) == 0) {
-
-                lcd.pos(0,1);
-                //lcd.printf("H=%4.1f   ", ahrs.MAG_Heading*180/PI);
-                //wait(0.1);
-                lcd.pos(0,2);
-                lcd.printf("G=%4.1f,%4.1f,%4.1f    ", sensors.gyro[0], sensors.gyro[1], sensors.gyro[2]);
-                wait(0.1);
-                lcd.pos(0,3);
-                lcd.printf("La=%11.6f HD=%1.1f  ", sensors.gps.latitude(), sensors.gps.hdop());
-                wait(0.1);
-                lcd.pos(0,4);
-                lcd.printf("Lo=%11.6f Sat=%-2d  ", sensors.gps.longitude(), sensors.gps.sat_count());
-                wait(0.1);
-                lcd.pos(0,5);
-                lcd.printf("V=%5.2f A=%5.3f  ", sensors.voltage, sensors.current);
-                
-            }
-        //}
-    
-    } // while !done
-    // clear input buffer
-    while (pc.readable()) pc.getc();
-    lcd.clear();
-    updaterStatus = 0;
-    gpsStatus = 0;
-#endif
-}
-
-
-void telemetryMode() {
-	RawSerial pc(USBTX, USBRX);
-	bool done=false;
-	int nextDisplayUpdate = 0;
-
-	pc.baud(115200);
-
-	pc.puts("Entering telemetry mode; press e to exit\n\n");
-
-    timer.reset();
-    timer.start();
-    nextDisplayUpdate = timer.read_ms();
-
-    beginRun();
-
-    while (!done) {
-
-        if (keypad.pressed) {
-            keypad.pressed = false;
-            done=true;
-        }
-
-        while (pc.readable()) {
-            if (pc.getc() == 'e') {
-                done = true;
-                break;
-            }
-        }
-
-//        pc.printf("fifo in:%d out:%d\n", fifo_getInState(), fifo_getOutState());
-
-        if (timer.read_ms() > nextDisplayUpdate) {
-			SystemState *s = fifo_first();
-			telem.sendPacket(s);
-			nextDisplayUpdate += 100;
-        }
-
-    }
-    endRun();
-
-	return;
 }
 
 
