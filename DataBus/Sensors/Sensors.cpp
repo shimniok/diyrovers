@@ -33,6 +33,7 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 #include "Config.h"
 #include "devices.h"
 #include "Sensors.h"
+#include "util.h"
 #include "debug.h"
 
 #define VFF 50.0 // voltage filter factor
@@ -178,8 +179,6 @@ void Sensors::Read_Gyro()
     gyro[_x_] = g_sign[_x_] * (g[_x_] - g_offset[_x_]); // really need to scale this too
     gyro[_y_] = g_sign[_y_] * (g[_y_] - g_offset[_y_]); // really need to scale this too
     gyro[_z_] = (g_sign[_z_] * (g[_z_] - g_offset[_z_])) / g_scale[_z_];
-
-    fprintf(stdout, "sign:%d scale:%.5f offset:%d gyro:%d\n", this->g_sign[_z_], this->g_scale[_z_], this->g_offset[_z_], g[_z_]);
 
     return;
 }
