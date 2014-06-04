@@ -129,6 +129,11 @@ void startUpdater()
     sched.attach(&update, UPDATE_PERIOD);
 }
 
+void stopUpdater()
+{
+	sched.detach();
+}
+
 /** set flag to initialize navigation at next schedHandler() call */
 void restartNav()
 {

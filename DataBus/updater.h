@@ -14,6 +14,9 @@ void initSteering(void);
 /** attach the update routine to Ticker interrupt */
 void startUpdater(void);
 
+/** detach the update routine from Ticker interrupt */
+void stopUpdater(void);
+
 /** Returns the elapsed time taken by the updater routine on its most recent run */
 int getUpdateTime(void);
 
