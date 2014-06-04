@@ -111,9 +111,6 @@ Mapping mapper;
 
 int autonomousMode(void);
 void serialBridge(Serial &gps);
-int instrumentCheck(void);
-int compassCalibrate(void);
-int compassSwing(void);
 int gyroSwing(void);
 int setBacklight(void);
 int reverseScreen(void);
@@ -409,33 +406,13 @@ int main()
             fputs("\n==============\nData Bus Menu\n==============\n", stdout);
             fputs("0) Autonomous mode\n", stdout);
             fputs("1) Bridge serial to GPS\n", stdout);
-            fputs("2) Calibrate compass\n", stdout);
-            fputs("3) Gyro calibrate\n", stdout);
-            fputs("4) Shell\n", stdout);
+            fputs("2) Gyro calibrate\n", stdout);
+            fputs("3) Shell\n", stdout);
             fputs("R) Reset\n", stdout);
             fputs("\nSelect from the above: ", stdout);
             fflush(stdout);
             printMenu = false;
         }
-
-        // Basic functional architecture
-        // SENSORS -> FILTERS -> AHRS -> POSITION -> NAVIGATION -> CONTROL | INPUT/OUTPUT | LOGGING
-        // SENSORS (for now) are polled out of AHRS via interrupt every 10ms
-        //
-        // no FILTERing in place right now
-        // if we filter too heavily we get lag. At 30mph = 14m/s a sensor lag
-        // of only 10ms means the estimate is 140cm behind the robot
-        //
-        // POSITION and NAVIGATION should probably always be running
-        // log file can have different entry type per module, to be demultiplexed on the PC
-        //
-        // Autonomous mode engages CONTROL outputs
-        //
-        // I/O mode could be one of: telemetry, serial bridge (gps), sensor check, shell, log to serial
-        // Or maybe shell should be the main control for different output modes
-        //
-        // LOGGING can be turned on or off, probably best to start with it engaged
-        // and then disable from user panel or when navigation is ended
 
         if (pc.readable()) {
             cmd = fgetc(stdin);
@@ -460,14 +437,11 @@ int main()
                     sensors.gps.disableVerbose();
                     break;
                 case '2' :
-                    display.select(menu.getItemName(1));
-                    compassCalibrate();
-                    break;
-                case '3' :
+                    display.select("Gyro Calib");
                     display.select(menu.getItemName(2));
                     gyroSwing();
                     break;
-                case '4' :
+                case '3' :
                     display.select("Shell");
                     display.status("Standby.");
                     shell(0);
@@ -615,137 +589,71 @@ int autonomousMode()
 // UTILITY FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-int compassCalibrate()
-{
-    bool done=false;
-    int m[3];
-    FILE *fp;
-    
-    fputs("Entering compass calibration in 2 seconds.\nLaunch _3DScatter Processing app now... type e to exit\n", stdout);
-    display.status("Starting...");
-
-    fp = openlog("cal");
-
-    wait(2);
-    display.status("Select exits");
-    timer.reset();
-    timer.start();
-    while (!done) {
-    
-        if (keypad.pressed) {
-            keypad.pressed = false;
-            done = true;
-        }
-        
-        while (pc.readable()) {
-            if (fgetc(stdin) == 'e') {
-                done = true;
-                break;
-            }
-        }
-        int millis = timer.read_ms();
-        if ((millis % 100) == 0) {
-            sensors.getRawMag(m);
-
-            // Correction
-            // Let's see how our ellipsoid looks after scaling and offset            
-            /*
-            float mag[3];
-            mag[0] = ((float) m[0] - M_OFFSET_X) * 0.5 / M_SCALE_X;
-            mag[1] = ((float) m[1] - M_OFFSET_Y) * 0.5 / M_SCALE_Y;
-            mag[2] = ((float) m[2] - M_OFFSET_Z) * 0.5 / M_SCALE_Z;  
-            */
-            
-            bool skipIt = false;
-            for (int i=0; i < 3; i++) {
-                if (abs(m[i]) > 1024) skipIt = true;
-            }
-            if (!skipIt) {
-            	static char buf[2] = { 0xde, 0 }; // Start of transmission character
-            	fputs(buf, stdout);
-            	fputs(cvitos(m[0]), stdout);
-            	fputs(" ", stdout);
-            	fputs(cvitos(m[1]), stdout);
-            	fputs(" ", stdout);
-            	fputs(cvitos(m[2]), stdout);
-            	fputs(" \r\n", stdout);
-
-            	fputs(cvitos(m[0]), fp);
-            	fputs(", ", stdout);
-            	fputs(cvitos(m[1]), fp);
-            	fputs(", ", stdout);
-            	fputs(cvitos(m[2]), fp);
-            	fputs("\n", fp);
-            }
-        }
-    }
-    if (fp) {
-        fclose(fp);
-        display.status("Done. Saved.");
-        wait(2);
-    }
-
-    return 0;
-}
-
 // Gather gyro data using turntable equipped with dual channel
 // encoder. Use onboard wheel encoder system. Left channel
 // is the index (0 degree) mark, while the right channel
 // is the incremental encoder.  Can then compare gyro integrated
 // heading with machine-reported heading
 //
-// Note: some of this code is identical to the compassSwing() code.
-//
 int gyroSwing()
 {
     FILE *fp;
+    int now;
+    int next;
+    int g[3];
+    int leftTotal=0;
+    int rightTotal=0;
 
     // Timing is pretty critical so just in case, disable serial processing from GPS
     sensors.gps.disable();
+    stopUpdater();
 
-    fputs("Entering gyro swing...\n", stdout);
+    fputs("Starting gyro swing...\n", stdout);
     display.status("Starting...");
-    wait(2);
-    fp = openlog("gy");
-    wait(2);
-    display.status("Begin. Select exits.");
+//    fp = openlog("gy");
+    fp = stdout;
 
-    fputs("Begin clockwise rotation, varying rpm... press select to exit\n", stdout);
+    display.status("Rotate clockwise.");
+    fputs("Begin clockwise rotation, varying rpm\n", stdout);
+    wait(1);
+
+    display.status("Select exits.");
+	fputs("Press select to exit\n", stdout);
+    wait(1);
+
 
     timer.reset();
     timer.start();
 
-    sensors.rightTotal = 0; // reset total
+    next = now = timer.read_ms();
+
     sensors._right.read();  // easiest way to reset the heading counter
+    sensors._left.read();
     
     while (1) {
-        if (keypad.pressed) {
+    	now = timer.read_ms();
+
+    	if (keypad.pressed) {
             keypad.pressed = false;
             break;
         }
 
-        // Print out data
-        // fprintf(stdout, "%d,%d,%d,%d,%d\n", timer.read_ms(), heading, sensors.g[0], sensors.g[1], sensors.g[2]);
-        // sensors.rightTotal gives us each tick of the machine, multiply by 2 for cumulative heading, which is easiest
-        // to compare with cumulative integration of gyro (rather than dealing with 0-360 degree range and modulus and whatnot
-        if (fp) {
-        	fputs(cvitos(timer.read_ms()), fp);
-        	fputs(",", fp);
-        	fputs(cvitos(2*sensors.rightTotal), fp);
-        	fputs(",", fp);
-        	fputs(cvitos(sensors.g[0]), fp);
-        	fputs(",", fp);
-        	fputs(cvitos(sensors.g[1]), fp);
-        	fputs(",", fp);
-        	fputs(cvitos(sensors.g[2]), fp);
-        	fputs(",", fp);
-        	fputs(cvitos(sensors.gTemp), fp);
-        	fputs("\n", fp);
+        if (now >= next) {
+            leftTotal += sensors._left.read();
+            rightTotal += sensors._right.read();
+        	sensors._gyro.read(g);
+			fputs(cvitos(now), fp);
+			fputs(" ", fp);
+			fputs(cvntos(leftTotal), fp);
+			fputs(" ", fp);
+			fputs(cvntos(rightTotal), fp);
+			fputs(" ", fp);
+			fputs(cvitos(g[_z_]), fp);
+			fputs("\n", fp);
+			next = now + 50;
         }
-        wait(0.200);
     }    
-    if (fp) {
+    if (fp && fp != stdout) {
         fclose(fp);
         display.status("Done. Saved.");
         fputs("Data collection complete.\n", stdout);
@@ -753,6 +661,8 @@ int gyroSwing()
     }
 
     sensors.gps.enable();
+    restartNav();
+    startUpdater();
     
     keypad.pressed = false;
 
