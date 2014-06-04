@@ -222,7 +222,7 @@ void Sensors::Calculate_Offsets()
     for(int i=0; i < samples; i++) {  // We take some readings...
         Read_Gyro();
         Read_Accel();
-        wait(0.010); // sample at 100hz
+        wait(0.010); // sample at ~100hz
         for(int y=0; y < 3; y++) {   // accumulate values
             g_offset[y] += g[y];
             a_offset[y] += a[y];
