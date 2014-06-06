@@ -116,6 +116,7 @@ char *cvitos(long n)
 	*str = '\0';
     if (n < 0) {
         *str++ = '-';
+        *str = '\0';
         n = -n;
     }
     strcat(str, cvntos(n));

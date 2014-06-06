@@ -28,8 +28,6 @@ typedef struct {
 extern int autonomousMode();
 extern int resetMe();
 extern int gyroSwing();
-extern int compassSwing();
-extern void displayData(int mode);
 
 extern "C" {
 
@@ -51,8 +49,6 @@ int doprintfree(char *path);
 int doexit(char *s);
 int dodebug(char *s);
 int dohelp(char *s);
-int doinstrchk(char *s);
-int docompswing(char *s);
 int dogyroswing(char *s);
 int doreset(char *s);
 int doautonomous(char *s);
@@ -74,8 +70,6 @@ const cmd command[MAXCMDARR] = {
     	{ "send", dosend, "send file to terminal" },
     	{ "rm", dorm, "remove file" },
     	{ "debug", dodebug, "toggle debug mode" },
-    	{ "stat", doinstrchk, "instrument check" },
-    	{ "comp", docompswing, "compass swing" },
     	{ "gyro", dogyroswing, "gyro swing" },
     	{ "auto", doautonomous, "run autonomous mode" },
     	{ "reset", doreset, "reset the MCU" },
@@ -465,24 +459,6 @@ int dohelp(char *arg) {
 	return 0;
 }
 
-/** doinstrchk
- * call external instrument check routine
- */
-int doinstrchk(char *arg) {
-	displayData(0);
-
-	return 0;
-}
-
-/** docompswing
- * perform compass swing, call external function
- */
-int docompswing(char *arg) {
-	compassSwing();
-
-	return 0;
-}
-
 /** dogyroswing
  * perform gyro swing, call external function
  */
@@ -511,7 +487,7 @@ int doautonomous(char *arg) {
 
 
 int dospeed(char *arg) {
-	// FIXME dospeed()
+	// TODO 3 dospeed()
 //	int v = atoi(arg);
 //	if (config.escMin < v && v < config.escMax {
 //		fputs("speed=", stdout);

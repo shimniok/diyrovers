@@ -35,7 +35,7 @@
 
 class Ublox6: public GPS {
 public:
-	// TODO 2 convert this to time units
+	// TODO 3 convert this to time units
     static const int lag=40;		// number of updater steps by which gps output lags reality
 
     /**

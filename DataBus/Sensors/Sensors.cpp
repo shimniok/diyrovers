@@ -29,11 +29,12 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
+#include "globals.h"
+#include "Config.h"
 #include "devices.h"
 #include "Sensors.h"
+#include "util.h"
 #include "debug.h"
-
-#define GYRO_SCALE 14.49787 // Is the sign right here?? yes, see g_sign
 
 #define VFF 50.0 // voltage filter factor
 
@@ -74,27 +75,32 @@ Sensors::Sensors():
     }
 
     // TODO 2 parameterize scale and sign for mag, accel, gyro
-    g_scale[0] = 1;
-    g_scale[1] = 1;
-    g_scale[2] = GYRO_SCALE;
+    g_scale[_x_] = 1;
+    g_scale[_y_] = 1;
+    g_scale[_z_] = 1;
 
-    g_sign[0] = 1;
-    g_sign[1] = -1;
-    g_sign[2] = -1;
+    g_sign[_x_] = 1;
+    g_sign[_y_] = -1;
+    g_sign[_z_] = -1;
 
-    a_sign[0] = -1;
-    a_sign[1] = 1;
-    a_sign[2] = 1;
+    a_sign[_x_] = -1;
+    a_sign[_y_] = 1;
+    a_sign[_z_] = 1;
 
-    m_sign[0] = 1;
-    m_sign[1] = -1;
-    m_sign[2] = -1;
+    m_sign[_x_] = 1;
+    m_sign[_y_] = -1;
+    m_sign[_z_] = -1;
 
     // upside down mounting
     //g_sign[3] = {1,1,1};        
     //a_sign[3] = {-1,-1,-1};
     //m_sign[3] = {1,1,1}; 
 }
+
+void Sensors::setGyroScale(float scale) {
+	g_scale[_z_] = scale;
+}
+
 
 /* Compass_Calibrate
  *
@@ -127,14 +133,10 @@ void Sensors::Read_Encoders()
 
     float ticksPerDist = _tireCirc / _encStripes;
 
-            
-    // TODO 2 sanity check on encoders; if difference between them
+    // TODO 3 sanity check on encoders; if difference between them
     //  is huge, what do we do?  Slipping wheel?  Skidding wheel?  Broken encoder?
     //  front encoders would be ideal as additional sanity check
     
-    // TODO 2 move Read_Encoders() into scheduler??
-    
-    // TODO 2 how do we track distance, should we only check distance everytime we do a nav/pos update?
     // TODO 3 get rid of state variable
     lrEncDistance  = ticksPerDist * (double) leftCount;
     rrEncDistance = ticksPerDist * (double) rightCount;
@@ -220,7 +222,7 @@ void Sensors::Calculate_Offsets()
     for(int i=0; i < samples; i++) {  // We take some readings...
         Read_Gyro();
         Read_Accel();
-        wait(0.010); // sample at 100hz
+        wait(0.010); // sample at ~100hz
         for(int y=0; y < 3; y++) {   // accumulate values
             g_offset[y] += g[y];
             a_offset[y] += a[y];

@@ -1,15 +1,22 @@
 #include "GeoPosition.h"
 #include <math.h>
 
-// Earth's mean radius in meters
-#define EARTHRADIUS 6371000.0
-// TODO: 2 altitude
 
-GeoPosition::GeoPosition(): _R(EARTHRADIUS), _latitude(0.0), _longitude(0.0)
+GeoPosition::GeoPosition():
+	_latitude(0.0),
+	_longitude(0.0),
+	_northing(0.0),
+	_easting(0.0),
+	_time(0)
 {
 }
 
-GeoPosition::GeoPosition(double latitude, double longitude): _R(EARTHRADIUS), _latitude(latitude), _longitude(longitude)
+GeoPosition::GeoPosition(double latitude, double longitude):
+	_latitude(latitude),
+	_longitude(longitude),
+	_northing(0.0), // TODO 3 remove UTM
+	_easting(0.0),
+	_time(0)
 {
 }
 
@@ -193,4 +200,3 @@ int GeoPosition::getTimestamp(void) {
 }
 
 
-    

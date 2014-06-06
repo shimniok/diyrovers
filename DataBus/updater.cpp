@@ -69,12 +69,14 @@ Servo2 esc(THROTTLE);
 float speedDt=0;                        // dt for the speed PID
 float integral=0;                       // error integral for speed PID
 float lastError=0;                      // previous error, used for calculating derivative
-volatile bool go=false;                 // initiate throttle (or not)
 float desiredSpeed;                     // speed set point
 float nowSpeed;
 
+// Flags
+volatile bool go=false;                 // initiate throttle (or not)
+volatile bool initNav = true;           // initialize navigation estimates
+
 // Pose Estimation
-bool initNav = true;                    // initialize navigation estimates
 bool doLog = false;                     // determines when to start and stop entering log data
 float initialHeading=-999;              // initial heading
 CartPosition here;                  	// position estimate, cartesian
@@ -85,7 +87,6 @@ int thisTime;                           // used to calculate dt for KF
 float dt;                               // dt for the KF
 float estLagHeading = 0;                // lagged heading estimate
 float errHeading;                       // error between gyro hdg estimate and gps hdg estimate
-float gyroBias=0;                       // exponentially weighted moving average of gyro error
 float Ag = (2.0/(1000.0+1.0));          // Gyro bias filter alpha, gyro; # of 10ms steps
 float Kbias = 0.995;            
 float filtErrRate = 0;
@@ -103,16 +104,15 @@ struct history_rec {
     float dt;       // delta time
 } history[MAXHIST] __attribute__ ((section("AHBSRAM0"))); // fifo for sensor data, position, heading, dt
 
-int hCount;         // history counter; we can go back in time to reference gyro history
-int now = 0;        // fifo input index, latest entry
-int prev = 0;       // previous fifo iput index, next to latest entry
-int lag = 0;        // fifo output index, entry from 1 second ago (sensors.gps.lag entries prior)
-int lagPrev = 0;    // previous fifo output index, 101 entries prior
-int logCounter = 0;
+static int hCount=0;		// history counter; we can go back in time to reference gyro history
+static int now = 0;        	// fifo input index, latest entry
+static int prev = 0;       	// previous fifo iput index, next to latest entry
+static int lag = 0;       	// fifo output index, entry from 1 second ago (sensors.gps.lag entries prior)
+static int lagPrev = 0;   	// previous fifo output index, 101 entries prior
 
 void initThrottle()
 {
-	esc = Config::escMin;
+	esc = config.escMin;
 }
 
 void initSteering()
@@ -127,6 +127,11 @@ void startUpdater()
     // Needs to happen after we've reset the millisecond timer and after
     // the schedHandler() fires off at least once more with the new time
     sched.attach(&update, UPDATE_PERIOD);
+}
+
+void stopUpdater()
+{
+	sched.detach();
 }
 
 /** set flag to initialize navigation at next schedHandler() call */
@@ -214,7 +219,7 @@ void update()
     // 
     if (initNav == true) {
         initNav = false;
-        hereGeo.set(Config::wpt[0]);
+        hereGeo.set(config.wpt[0]);
         nextWaypoint = 1; // Point to the next waypoint; 0th wpt is the starting point
         lastWaypoint = 0;
         
@@ -226,11 +231,11 @@ void update()
         history[now].dt = 0;
         history[now].dist = 0;
         // initial position is waypoint 0
-        history[now].x = Config::cwpt[0].x;
-        history[now].y = Config::cwpt[0].y;
+        history[now].x = config.cwpt[0].x;
+        history[now].y = config.cwpt[0].y;
         here.set(history[now].x, history[now].y);
         // initialize heading to bearing between waypoint 0 and 1
-		initialHeading = history[now].hdg = here.bearingTo(Config::cwpt[nextWaypoint]);
+		initialHeading = history[now].hdg = here.bearingTo(config.cwpt[nextWaypoint]);
         // Initialize Kalman Filter
         headingKalmanInit(initialHeading);
         // point next fifo input to slot 1, slot 0 occupied/initialized, now
@@ -284,8 +289,8 @@ void update()
         // Also, best to only use GPS if we've got at least 4 sats active -- really should be like 5 or 6
         // Finally, it takes 3-5 secs of runtime for the gps heading to converge.
         useGps = (nowState.gpsSats > 4 &&
-                  nowState.lrEncSpeed > 1.0 &&
-                  nowState.rrEncSpeed > 1.0 &&
+                  nowState.lrEncSpeed > config.gpsValidSpeed &&
+                  nowState.rrEncSpeed > config.gpsValidSpeed &&
                   (thisTime-timeZero) > 3000); // gps hdg converges by 3-5 sec.                
     }
 
@@ -297,7 +302,7 @@ void update()
 
     // TODO: 3 Position filtering
     //    position will be updated based on heading error from heading estimate
-    // TODO: 2 Distance/speed filtering
+    // TODO: 3 Distance/speed filtering
     //    this might be useful, but not sure it's worth the effort
 
     // So the big pain in the ass is that the GPS data coming in represents the
@@ -320,7 +325,7 @@ void update()
     history[now].dist = (sensors.lrEncDistance + sensors.rrEncDistance) / 2.0; // current distance traveled
     history[now].gyro = sensors.gyro[_z_];  // current raw gyro data
     history[now].dt = dt; // current dt, to address jitter
-    history[now].hdg = clamp360( history[prev].hdg + dt*(history[now].gyro - gyroBias) ); // compute current heading from current gyro
+    history[now].hdg = clamp360( history[prev].hdg + dt*(history[now].gyro) ); // compute current heading from current gyro
     float r = PI/180 * history[now].hdg;
     history[now].x = history[prev].x + history[now].dist * sin(r);    // update current position
     history[now].y = history[prev].y + history[now].dist * cos(r);
@@ -350,15 +355,12 @@ void update()
 
         // Clamp heading to initial heading when we're not moving; hopefully this will
         // give the KF a head start figuring out how to deal with the gyro
-        //
-        // TODO 1 maybe we should only call the gps version after moving
         if (go) {
             estLagHeading = headingKalman(history[lag].dt, nowState.gpsCourse_deg, useGps, history[lag].gyro, true);
         } else {
             estLagHeading = headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
         }
 
-        // TODO 1 are we adding history lag to lagprev or should we add lag+1 to lag or what?
         // Update the lagged position estimate
         history[lag].x = history[lagPrev].x + history[lag].dist * sin(estLagHeading);
         history[lag].y = history[lagPrev].y + history[lag].dist * cos(estLagHeading);
@@ -378,10 +380,7 @@ void update()
         // trig calcs is marginal. Update rate is 10ms and we can't hog more than maybe 2-3ms as the outer
         // loop has logging work to do. Rotating each point is faster; pre-calculate sin/cos, etc. for rotation
         // matrix.
-
-        // Low pass filter the error correction.  Multiplying by 0.01, it takes sensors.gps.lag updates to correct a
-        // consistent error; that's 0.10s/0.01 = 1 sec.  0.005 is 2 sec, 0.0025 is 4 sec, etc.
-        errHeading = clamp180(estLagHeading - history[lag].hdg) * 0.01;  // lopass filter error angle
+        errHeading = clamp180(estLagHeading - history[lag].hdg);
 
         //fprintf(stdout, "%d %.2f, %.2f, %.4f %.4f\n", lag, estLagHeading, history[lag].hdg, estLagHeading - history[lag].hdg, errHeading);
         float cosA = cos(errHeading * PI / 180.0);
@@ -415,28 +414,29 @@ void update()
     // NAVIGATION UPDATE
     //////////////////////////////////////////////////////////////////////////////
     
-    bearing = here.bearingTo(Config::cwpt[nextWaypoint]);
-    distance = here.distanceTo(Config::cwpt[nextWaypoint]);
-    float prevDistance = here.distanceTo(Config::cwpt[lastWaypoint]);
+    bearing = here.bearingTo(config.cwpt[nextWaypoint]);
+    distance = here.distanceTo(config.cwpt[nextWaypoint]);
+    float prevDistance = here.distanceTo(config.cwpt[lastWaypoint]);
 
-    // if within Config::waypointDist distance threshold move to next waypoint
+    // if within config.waypointDist distance threshold move to next waypoint
     // TODO 3 figure out how to output feedback on wpt arrival external to this function
     if (go) {
 
         // if we're within brakeDist of next or previous waypoint, run @ turn speed
         // This would normally mean we run at turn speed until we're brakeDist away
         // from waypoint 0, but we trick the algorithm by initializing prevWaypoint to waypoint 1
-        if ( (thisTime - timeZero) < 3000 ) { // FIXME is this actually working? or should it be distance
-            setSpeed( Config::startSpeed );
-        } else if (distance < Config::brakeDist || prevDistance < Config::brakeDist) {
-            setSpeed( Config::turnSpeed );
-            // TODO 3 setSpeed( Config::wptTurnSpeed[nextWaypoint] );
+    	// TODO 2 make this distance related -- if (here.distanceTo(config.cwpt[lastWaypoint] < 0.5 ) {
+        if ( (thisTime - timeZero) < 3000 ) {
+            setSpeed( config.startSpeed );
+        } else if (distance < config.brakeDist || prevDistance < config.brakeDist) {
+            setSpeed( config.turnSpeed );
+            // TODO 3 setSpeed( config.wptTurnSpeed[nextWaypoint] );
         } else {
-            setSpeed( Config::topSpeed );
-            // TODO 3 setSpeed( Config::wptTopSpeed[nextWaypoint] );
+            setSpeed( config.topSpeed );
+            // TODO 3 setSpeed( config.wptTopSpeed[nextWaypoint] );
         }
 
-        if (distance < Config::waypointDist) {
+        if (distance < config.waypointDist) {
             //fprintf(stdout, "Arrived at wpt %d\n", nextWaypoint);
             //speaker.beep(3000.0, 0.5); // non-blocking
             lastWaypoint = nextWaypoint;
@@ -452,10 +452,9 @@ void update()
     //////////////////////////////////////////////////////////////////////////////
     // OBSTACLE DETECTION & AVOIDANCE
     //////////////////////////////////////////////////////////////////////////////
-    // TODO 2 limit steering angle based on object detection ?
-    // or limit relative brg perhaps?
-    // TODO 2 add vision obstacle detection and filtering
-    // TODO 2 add ranger obstacle detection and filtering/fusion with vision
+    // TODO 4 limit steering angle based on object detection ? or limit relative brg perhaps?
+    // TODO 4 add vision obstacle detection and filtering
+    // TODO 4 add ranger obstacle detection and filtering/fusion with vision
 
     // For Steering Angle Computation below
     static float relBrg;
@@ -476,8 +475,8 @@ void update()
     	hdg = history[now].hdg;
 
     	// Update the A and C points
-    	A = Config::cwpt[lastWaypoint];
-    	C = Config::cwpt[nextWaypoint];
+    	A = config.cwpt[lastWaypoint];
+    	C = config.cwpt[nextWaypoint];
 
         // Leg vector
         float Lx = C.x - A.x;
@@ -487,20 +486,19 @@ void update()
         float Ry = here.y - A.y;
         float sign = 1;
 
-        // Find the goal point, a projection of the bot vector onto the current leg, moved ahead
-        // along the path by the lookahead distance
+        // Find the goal point, a projection of the bot vector onto the current leg, moved
+        // along the path by the lookahead distance.
         float legLength = sqrtf(Lx*Lx + Ly*Ly); // ||L||
         float proj = (Lx*Rx + Ly*Ry)/legLength; // R dot L/||L||, projection magnitude, bot vector onto leg vector
-        // find projection point + lookahead, along leg, relative to A
-        LA.set(A.x + (proj + Config::intercept)*Lx/legLength,
-        	   A.y + (proj + Config::intercept)*Ly/legLength);
+        // Now find projection point + lookahead, along leg, relative to A.
+        LA.set(A.x + (proj + config.intercept)*Lx/legLength,
+        	   A.y + (proj + config.intercept)*Ly/legLength);
         //
         // Compute a circle that is tangential to bot heading and intercepts bot
         // and goal point LA, the intercept circle. Then compute the steering
         // angle to trace that circle.
         //
-        // First, compute absolute bearing to lookahead point (LA) from robot (B);
-        // Note that trig 0* is 90* off from compass 0*
+        // First, compute absolute bearing to lookahead point (LA) from robot (B)
         float brg = here.bearingTo(LA);
         // Now, compute relative bearing to the lookahead. Relative to bot hdg.
         relBrg = clamp180(brg - hdg);
@@ -519,16 +517,17 @@ void update()
 			// when subtracting track/2.0, so just take absolute value and multiply sign
 			// later on
 			sign = (relBrg < 0) ? -1 : 1;
-			float radius = Config::intercept/fabs(2*sin(Steering::toRadians(relBrg)));
+			float radius = config.intercept/fabs(2*sin(Steering::toRadians(relBrg)));
 			// optionally, limit radius min/max
 			// Now compute the steering angle to achieve the circle of
 			// Steering angle is based on wheelbase and track width
-			steerAngle = sign * Steering::toDegrees(asin(Config::wheelbase / (radius - Config::track/2.0)));
+			steerAngle = sign * Steering::toDegrees(asin(config.wheelbase / (radius - config.track/2.0)));
 			// Apply gain factor for near straight line
 			// TODO 3 figure out a better, continuous way to deal with steering gain
-	//        if (fabs(steerAngle) < Config::steerGainAngle) steerAngle *= Config::steerGain;
+	//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 			steering = steerAngle;
         }
+//        timeB = timer.read_us();
         //
         //////////////////////////////////////////////////////////////////////////////////////
 
@@ -540,20 +539,22 @@ void update()
         // TODO: 3 probably should do KF or something for speed/dist; need to address GPS lag, too
         // if nothing else, at least average the encoder speed over mult. samples
 		if (desiredSpeed <= 0.1 ) {
-			esc = Config::escMin;
+			esc = config.escMin;
 		} else {
 			// PID loop for throttle control
 			// http://www.codeproject.com/Articles/36459/PID-process-control-a-Cruise-Control-example
 			float error = desiredSpeed - nowSpeed;
-			// track error over time, scaled to the timer interval
-			integral += (error * speedDt);
+			// Keep track of accumulated error, but only if we're not sitting still, due to
+			// being at the line with manual control enabled.
+			if (nowSpeed > 0.5)
+				integral += (error * speedDt);
 			// determine the amount of change from the last time checked
 			float derivative = (error - lastError) / speedDt;
 			// calculate how much to drive the output in order to get to the
 			// desired setpoint.
-			float output = Config::escZero + (Config::speedKp * error) + (Config::speedKi * integral) + (Config::speedKd * derivative);
-			if (output > Config::escMax) output = Config::escMax;
-			if (output < Config::escZero) output = Config::escZero;
+			float output = config.escZero + (config.speedKp * error) + (config.speedKi * integral) + (config.speedKd * derivative);
+			if (output > config.escMax) output = config.escMax;
+			if (output < config.escZero) output = config.escZero;
 //            fprintf(stdout, "s=%.1f d=%.1f o=%.1f\n", nowSpeed, desiredSpeed, output);
 			esc = (int) output;
 			// remember the error for the next time around so we can compute delta error.
@@ -595,7 +596,7 @@ void update()
     nowState.bearing = bearing;
     nowState.distance = distance;
     nowState.nextWaypoint = nextWaypoint;
-    nowState.gbias = gyroBias;
+    //nowState.gbias = 0;
     nowState.errHeading = errHeading;
     //state.leftRanger = sensors.leftRanger;
     //state.rightRanger = sensors.rightRanger;
@@ -604,6 +605,12 @@ void update()
     nowState.LABrg = relBrg;
     nowState.LAx = LA.x;
     nowState.LAy = LA.y;
+
+//    if (timeB > timeA) {
+//    	pc.puts(cvitos(timeB-timeA));
+//    	pc.puts("\n");
+//    }
+    //    nowState.lag = timeB - timeA;
     // Copy AHRS data into logging data
     //state.roll = ToDeg(ahrs.roll);
     //state.pitch = ToDeg(ahrs.pitch);

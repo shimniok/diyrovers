@@ -45,12 +45,44 @@ L3G4200D::L3G4200D(PinName sda, PinName scl):
     _device(sda, scl)
 {
     _device.frequency(400000);
-    // Turns on the L3G4200D's gyro and places it in normal mode.
-    // 0x0F = 0b00001111
-    // Normal power mode, all axes enabled
-    writeReg(L3G4200D_CTRL_REG1, 0x0F);
-    writeReg(L3G4200D_CTRL_REG4, 0x20); // 2000 dps full scale
-
+    // CTRL_REG1
+    // 	00: DR = 100Hz
+    // 	00: BW = 25Hz
+    // 	1: PD = normal
+    // 	1: Xen = enable
+    // 	1: Yen = enable
+    // 	1: Zen = enable
+    writeReg(L3G4200D_CTRL_REG1, 0x1F);
+    // CTRL_REG2
+    // 	00: reserved
+    // 	00: HPM, Normal mode, reset reading HP_RESET_FILTER
+    // 	0111: HPFCF, 0.05Hz
+    writeReg(L3G4200D_CTRL_REG2, 0x00);
+    // CTRL_REG3
+    //	0: I1_Int1 disable
+    //  0: I1_Boot disable
+    //  0: H_Lactive active high
+    //  0: PP_OD push pull
+    //  0: I2_DRDY disable
+    //  0: I2_WTM watermark interrupt disable
+    //  0: I2_ORun disable
+    // 	0: 2_Empty disable
+    writeReg(L3G4200D_CTRL_REG3, 0x00);
+    // CTRL_REG4
+    //	0: BDU disable
+    //	0: BLE data lsb at lower addr
+    // 	00: FS, 250 deg/sec
+    //  00: ST disable
+    //  00: SIM disable
+    writeReg(L3G4200D_CTRL_REG4, 0x00);
+    // CTRL_REG5
+    //	0: BOOT disable
+    //	0: FIFO_EN disable
+    //  x: reserved
+    //	0: HPen high pass enable
+    //	00: INT1_Sel non-HPF for interrupt
+    //	00: No HPF or LPF
+    writeReg(L3G4200D_CTRL_REG5, 0x00);
 }
 
 // Writes a gyro register

@@ -111,13 +111,16 @@ clean:
 	rm -f $(PROJECT).bin $(PROJECT).elf $(OBJECTS)
 
 .s.o:
-	$(AS) $(CPU) -o $@ $<
+	@echo $@
+	@$(AS) $(CPU) -o $@ $<
 
 .c.o:
-	$(CC)  $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu99   $(INCLUDE_PATHS) -o $@ $<
+	@echo $@
+	@$(CC)  $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu99   $(INCLUDE_PATHS) -o $@ $<
 
 .cpp.o:
-	$(CPP) $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu++98 $(INCLUDE_PATHS) -o $@ $<
+	@echo $@
+	@$(CPP) $(CC_FLAGS) $(CC_SYMBOLS) -std=gnu++98 $(INCLUDE_PATHS) -o $@ $<
 
 
 $(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS)
