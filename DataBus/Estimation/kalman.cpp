@@ -9,19 +9,41 @@
 /*
  * Kalman Filter Setup
  */
-static float x[2]={ 0, 0 };                 // System State: hdg, hdg rate
-float z[2]={ 0, 0 };                        // measurements, hdg, hdg rate
-static float A[4]={ 1, 0, 0, 1};            // State transition matrix; A[1] should be dt
-static float H[4]={ 1, 0, 0, 1 };           // Observer matrix maps measurements to state transition
-float K[4]={ 0, 0, 0, 0 };                  // Kalman gain
-static float P[4]={ 1000, 0, 0, 1000 };     // Covariance matrix
-static float R[4]={ 100, 0, 0, 0.03 };        // Measurement noise, hdg, hdg rate
-static float Q[4]={ 100, 0, 0, 0.01 };        // Process noise matrix
-static float I[4]={ 1, 0, 0, 1 };           // Identity matrix
+static float x[3]={ 0,
+					0,
+					0 };                 // System State: hdg, hdg rate, bias
+float z[2]={ 0,
+			 0 };                        // measurements, hdg, hdg rate
+
+static float A[9]={ 1, 0, 0,
+				    0, 1, 0,
+				    0, 0, 1};            // State transition matrix; A[1]=dt, A[2]=-dt
+
+static float H[6]={ 1, 0, 0,
+					0, 1, 1 };           // Observer matrix maps measurements to state transition
+
+float K[6]={ 0, 0,
+			 0, 0,
+			 0, 0 };                  // Kalman gain
+
+static float P[9]={ 1, 0, 0,
+					0, 1000, 0,
+					0, 0, 1000 };     // Covariance matrix
+
+static float R[4]={ 0.25, 0,
+					0, 0.03 };        // Measurement noise, hdg, hdg rate
+
+static float Q[9]={ 1, 0, 0,
+					0, 0.1, 0,
+					0, 0, 0.00001 };        // Process noise matrix
+
+static float I[9]={ 1, 0, 0,
+					0, 1, 0,
+					0, 0, 1 };           // Identity matrix
 
 float kfGetX(int i)
 {
-    return (i >= 0 && i < 2) ? x[i] : 0xFFFFFFFF;
+    return (i >= 0 && i < 3) ? x[i] : 0xFFFFFFFF;
 }
 
 /** headingKalmanInit
@@ -32,15 +54,18 @@ void headingKalmanInit(float x0)
 {
     x[0] = x0;
     x[1] = 0;
+    x[2] = 0;
 
     z[0] = 0;
     z[1] = 0;
 
     K[0] = 0; K[1] = 0;
     K[2] = 0; K[3] = 0;
+    K[4] = 0; K[5] = 0;
     
-    P[0] = 1000; P[1] = 0;
-    P[2] = 0;    P[3] = 1000;
+    P[0] = 0.1; P[1] = 0; P[2] = 0;
+    P[3] = 0; P[4] = 1000; P[5] = 0;
+    P[6] = 0; P[7] = 0; P[8] = 1000;
 }
 
 
@@ -48,18 +73,24 @@ void headingKalmanInit(float x0)
  *
  * Implements a 1-dimensional, 1st order Kalman Filter
  *
- * That is, it deals with heading and heading rate (h and h') but no other
+ * That is, it deals with heading and heading rate (h and h') and bias, but no other
  * state variables.  The state equations are:
  *
- *                     X    =    A       X^
- * h = h + h'dt -->  | h  | = | 1 dt | | h  |
- * h' = h'           | h' |   | 0  1 | | h' |
+ *                            X    =      A         X^
+ * ^h = h + h'dt -->  | h  | = | 1 dt  0 | | h  |
+ * ^h' = h'           | h' |   | 0  1  0 | | h' |
+ * ^bias = bias       | b  |   | 0  0  1 | | b  |
+ *
+ * The Observation model is set up so that gyro measurement represents
+ * both heading rate _and_ bias:
+ *
+ * H = | 1 0 0 |
+ *     | 0 1 1 |
  *
  * Kalman Filtering is not that hard. If it's hard you haven't found the right
  * teacher. Try taking CS373 from Udacity.com
  *
- * This notation is Octave (Matlab) syntax and is based on the Bishop-Welch
- * paper and references the equation numbers in that paper.
+ * Notation based on the Bishop-Welch paper and references the equation numbers in that paper.
  * http://www.cs.unc.edu/~welch/kalman/kalmanIntro.html
  *
  * returns : current heading estimate
@@ -67,10 +98,6 @@ void headingKalmanInit(float x0)
 float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
 {
     A[1] = dt;
-
-    /* Initialize, first time thru
-    x = H*z0
-    */
 
     //fprintf(stdout, "gyro? %c  gps? %c\n", (gyro)?'Y':'N', (gps)?'Y':'N');
             
@@ -86,19 +113,21 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
     }
 
     if (gyro) {
-        H[3] = 1.0;
+        H[4] = 1.0;
+        H[5] = 1.0;
         z[1] = dHgyro;
     } else {
-        H[3] = 0;
+        H[4] = 0;
+        H[5] = 0;
         z[1] = 0;
     }
 
-    //Matrix_print(2,2, A, "1. A");
-    //Matrix_print(2,2, P, "   P");
-    //Matrix_print(2,1, x, "   x");
-    //Matrix_print(2,1, K, "   K");
-    //Matrix_print(2,2, H, "2. H");
-    //Matrix_print(2,1, z, "   z");
+//    Matrix_print(3,3, A, "1. A");
+//    Matrix_print(3,3, P, "   P");
+//    Matrix_print(3,1, x, "   x");
+//    Matrix_print(3,2, K, "   K");
+//    Matrix_print(2,3, H, "2. H");
+//    Matrix_print(2,1, z, "   z");
    
    /**********************************************************************
      * Predict
@@ -107,10 +136,10 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
      *
      * x = A*x; // Eq 1.9
      ***********************************************************************/
-    float xp[2];
-    Matrix_Multiply(2,2,1, xp, A, x);
+    float xp[3];
+    Matrix_Multiply(3,3,1, xp, A, x);
     
-    //Matrix_print(2,1, xp, "3. xp");
+//    Matrix_print(3,1, xp, "3. xp");
 
     /**********************************************************************
      * We also have to "move" our uncertainty and add noise. Whenever we move,
@@ -118,15 +147,15 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
      *
      * P = A*P*A' + Q; // Eq 1.10
      ***********************************************************************/
-    float At[4];
-    Matrix_Transpose(2,2, At, A);
-    float AP[4];
-    Matrix_Multiply(2,2,2, AP, A, P);
-    float APAt[4];
-    Matrix_Multiply(2,2,2, APAt, AP, At);
-    Matrix_Add(2,2, P, APAt, Q);
+    float At[9];
+    Matrix_Transpose(3,3, At, A);
+    float AP[9];
+    Matrix_Multiply(3,3,3, AP, A, P);
+    float APAt[9];
+    Matrix_Multiply(3,3,3, APAt, AP, At);
+    Matrix_Add(3,3, P, APAt, Q);
 
-    //Matrix_print(2,2, P, "4. P");
+//    Matrix_print(3,3, P, "4. P");
 
     /**********************************************************************
      * Measurement aka Correct
@@ -135,37 +164,37 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
      *
      * K = P*H'*inv(H*P*H' + R);    // Eq 1.11
      ***********************************************************************/
-    float Ht[4];
-    //Matrix_print(2,2, H,    "5. H");
-    Matrix_Transpose(2,2, Ht, H);
-    //Matrix_print(2,2, Ht,    "5. Ht");
+    float Ht[6];
+//    Matrix_print(2,3, H,    "5. H");
+    Matrix_Transpose(2,3, Ht, H);
+//    Matrix_print(3,2, Ht,    "5. Ht");
 
-    float HP[2];
-    //Matrix_print(2,2, P,    "5. P");
-    Matrix_Multiply(2,2,2, HP, H, P);
-    //Matrix_print(2,2, HP,    "5. HP");
+    float HP[6];
+//    Matrix_print(3,3, P,    "5. P");
+    Matrix_Multiply(2,3,3, HP, H, P);
+//    Matrix_print(2,3, HP,    "5. HP");
 
     float HPHt[4];
-    Matrix_Multiply(2,2,2, HPHt, HP, Ht);
-    //Matrix_print(2,2, HPHt,    "5. HPHt");
+    Matrix_Multiply(2,3,2, HPHt, HP, Ht);
+//    Matrix_print(2,2, HPHt,    "5. HPHt");
     
     float HPHtR[4];
-    //Matrix_print(2,2, R,    "5. R");
+//    Matrix_print(2,2, R,    "5. R");
     Matrix_Add(2,2, HPHtR, HPHt, R);
-    //Matrix_print(2,2, HPHtR,    "5. HPHtR");
+//    Matrix_print(2,2, HPHtR,    "5. HPHtR");
 
     Matrix_Inverse(2, HPHtR);
-    //Matrix_print(2,2, HPHtR,    "5. HPHtR");
+//    Matrix_print(2,2, HPHtR,    "5. HPHtR");
 
-    float PHt[2];
-    //Matrix_print(2,2, P,    "5. P");
-    //Matrix_print(2,2, Ht,    "5. Ht");
-    Matrix_Multiply(2,2,2, PHt, P, Ht);
-    //Matrix_print(2,2, PHt,    "5. PHt");
+    float PHt[6];
+//    Matrix_print(3,3, P,    "5. P");
+//    Matrix_print(3,2, Ht,    "5. Ht");
+    Matrix_Multiply(3,3,2, PHt, P, Ht);
+//    Matrix_print(3,2, PHt,    "5. PHt");
     
-    Matrix_Multiply(2,2,2, K, PHt, HPHtR);
+    Matrix_Multiply(3,2,2, K, PHt, HPHtR);
     
-    //Matrix_print(2,2, K,    "5. K");
+//    Matrix_print(3,2, K,    "5. K");
         
     /**********************************************************************
      * Then we determine the discrepancy between prediction and measurement 
@@ -176,29 +205,29 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
      * x = x + K*(z-H*x);            // Eq 1.12
      ***********************************************************************/
     float Hx[2];
-    Matrix_Multiply(2,2,1, Hx, H, xp);
+    Matrix_Multiply(2,3,1, Hx, H, xp);
     
-    //Matrix_print(2,2, H, "6. H");
-    //Matrix_print(2,1, x, "6. x");
-    //Matrix_print(2,1, Hx, "6. Hx");
+//    Matrix_print(2,3, H, "6. H");
+//    Matrix_print(3,1, x, "6. x");
+//    Matrix_print(2,1, Hx, "6. Hx");
     
     float zHx[2];
     Matrix_Subtract(2,1, zHx, z, Hx);
     zHx[0] = clamp180(zHx[0]);
 
-    //Matrix_print(2,1, z, "6. z");
-    //Matrix_print(2,1, zHx, "6. zHx");
+//    Matrix_print(2,1, z, "6. z");
+//    Matrix_print(2,1, zHx, "6. zHx");
     
     float KzHx[2];
-    Matrix_Multiply(2,2,1, KzHx, K, zHx);
+    Matrix_Multiply(3,2,1, KzHx, K, zHx);
 
-    //Matrix_print(2,2, K, "6. K");
-    //Matrix_print(2,1, KzHx, "6. KzHx");
+//    Matrix_print(2,2, K, "6. K");
+//    Matrix_print(2,1, KzHx, "6. KzHx");
     
-    Matrix_Add(2,1, x, xp, KzHx);
+    Matrix_Add(3,1, x, xp, KzHx);
     x[0] = clamp360(x[0]);    // Clamp to 0-360 range
 
-    //Matrix_print(2,1, x, "6. x");
+//    Matrix_print(3,1, x, "6. x");
 
     /**********************************************************************
      * We also have to adjust the certainty. With a new measurement, the 
@@ -206,17 +235,17 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
      *
      * P = (I-K*H)*P;                // Eq 1.13
      ***********************************************************************/
-    float KH[4];
-    //Matrix_print(2,2, K, "7. K");
-    Matrix_Multiply(2,2,2, KH, K, H);
-    //Matrix_print(2,2, KH, "7. KH");
-    float IKH[4];
-    Matrix_Subtract(2,2, IKH, I, KH);
-    //Matrix_print(2,2, IKH, "7. IKH");
-    float P2[4];
-    Matrix_Multiply(2,2,2, P2, IKH, P);
-    Matrix_Copy(2, 2, P, P2);
+    float KH[9];
+//    Matrix_print(3,2, K, "7. K");
+    Matrix_Multiply(3,2,3, KH, K, H);
+//    Matrix_print(3,3, KH, "7. KH");
+    float IKH[9];
+    Matrix_Subtract(3,3, IKH, I, KH);
+//    Matrix_print(3,3, IKH, "7. IKH");
+    float P2[9];
+    Matrix_Multiply(3,3,3, P2, IKH, P);
+    Matrix_Copy(3,3, P, P2);
 
-    //Matrix_print(2,2, P, "7. P");
+//    Matrix_print(3,3, P, "7. P");
     return x[0];
 }

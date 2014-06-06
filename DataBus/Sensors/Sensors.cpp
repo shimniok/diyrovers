@@ -71,6 +71,7 @@ Sensors::Sensors():
 {
     for (int i=0; i < 3; i++) {
         m_offset[i] = 0;
+        g_offset[i] = 0;
         m_scale[i] = 1;
     }
 

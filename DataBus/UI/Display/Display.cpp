@@ -91,6 +91,10 @@ void Display::update(SystemState *state) {
 		lcd.puts(cvftos(state->bearing, 1));
 		lcd.puts(" ");
 		lcd.puts(cvftos(state->LABrg, 1));
+
+		lcd.pos(0,5);
+		lcd.puts("bias:");
+		lcd.puts(cvftos(state->gbias, 3));
 	}
 }
 

@@ -325,7 +325,8 @@ void update()
     history[now].dist = (sensors.lrEncDistance + sensors.rrEncDistance) / 2.0; // current distance traveled
     history[now].gyro = sensors.gyro[_z_];  // current raw gyro data
     history[now].dt = dt; // current dt, to address jitter
-    history[now].hdg = clamp360( history[prev].hdg + dt*(history[now].gyro) ); // compute current heading from current gyro
+    // compute current heading from current gyro
+    history[now].hdg = clamp360( history[prev].hdg + dt*(history[now].gyro - kfGetX(BIAS)) );
     float r = PI/180 * history[now].hdg;
     history[now].x = history[prev].x + history[now].dist * sin(r);    // update current position
     history[now].y = history[prev].y + history[now].dist * cos(r);
@@ -360,6 +361,17 @@ void update()
         } else {
             estLagHeading = headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
         }
+
+        fputs(cvftos(initialHeading, 5), stdout);
+        fputs(" ", stdout);
+        fputs(cvftos(history[lag].gyro, 5), stdout);
+        fputs(" ", stdout);
+        fputs(cvftos(kfGetX(HDG), 5), stdout);
+        fputs(" ", stdout);
+        fputs(cvftos(kfGetX(HDGRATE), 5), stdout);
+        fputs(" ", stdout);
+        fputs(cvftos(kfGetX(BIAS), 5), stdout);
+        fputs("\n", stdout);
 
         // Update the lagged position estimate
         history[lag].x = history[lagPrev].x + history[lag].dist * sin(estLagHeading);
@@ -410,6 +422,9 @@ void update()
     // "here" is the current position
     here.set(history[now].x, history[now].y);
 
+//    fputs(cvftos(kfGetX(2),3), stdout);
+//    fputs("\n", stdout);
+
     //////////////////////////////////////////////////////////////////////////////
     // NAVIGATION UPDATE
     //////////////////////////////////////////////////////////////////////////////
@@ -418,10 +433,8 @@ void update()
     distance = here.distanceTo(config.cwpt[nextWaypoint]);
     float prevDistance = here.distanceTo(config.cwpt[lastWaypoint]);
 
-    // if within config.waypointDist distance threshold move to next waypoint
-    // TODO 3 figure out how to output feedback on wpt arrival external to this function
+    // if within config.waypointDist distance threshold moves to next waypoint
     if (go) {
-
         // if we're within brakeDist of next or previous waypoint, run @ turn speed
         // This would normally mean we run at turn speed until we're brakeDist away
         // from waypoint 0, but we trick the algorithm by initializing prevWaypoint to waypoint 1
@@ -430,15 +443,13 @@ void update()
             setSpeed( config.startSpeed );
         } else if (distance < config.brakeDist || prevDistance < config.brakeDist) {
             setSpeed( config.turnSpeed );
-            // TODO 3 setSpeed( config.wptTurnSpeed[nextWaypoint] );
+            // TODO 1 setSpeed( config.wptTurnSpeed[nextWaypoint] );
         } else {
             setSpeed( config.topSpeed );
-            // TODO 3 setSpeed( config.wptTopSpeed[nextWaypoint] );
+            // TODO 1 setSpeed( config.wptTopSpeed[nextWaypoint] );
         }
 
         if (distance < config.waypointDist) {
-            //fprintf(stdout, "Arrived at wpt %d\n", nextWaypoint);
-            //speaker.beep(3000.0, 0.5); // non-blocking
             lastWaypoint = nextWaypoint;
             nextWaypoint++;
         }
@@ -596,7 +607,7 @@ void update()
     nowState.bearing = bearing;
     nowState.distance = distance;
     nowState.nextWaypoint = nextWaypoint;
-    //nowState.gbias = 0;
+    nowState.gbias = kfGetX(BIAS);
     nowState.errHeading = errHeading;
     //state.leftRanger = sensors.leftRanger;
     //state.rightRanger = sensors.rightRanger;

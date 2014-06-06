@@ -301,13 +301,7 @@ int main()
     pc.puts("\n");
     sensors.setGyroScale(config.gyroScale);
 
-    pc.puts("Calculating offsets...\n");
-    display.status("Offset calculation  ");
-    wait(0.2);
-    // TODO 3 Really need to give the gyro more time to settle
     sensors.gps.disable();
-    // TODO 2 sensors.Calculate_Offsets();
-
     pc.puts("Starting GPS...\n");
     display.status("Start GPS           "); // TODO 3: would be nice not to have to pad at this level
     wait(0.2);

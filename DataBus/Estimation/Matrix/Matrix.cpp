@@ -1,59 +1,8 @@
 #include <stdio.h>
 #include "Matrix.h"
+#include "util.h"
 
 unsigned int matrix_error = 0;
-
-void Vector_Cross_Product(float C[3], float A[3], float B[3])
-{
-    C[0] = (A[1] * B[2]) - (A[2] * B[1]);
-    C[1] = (A[2] * B[0]) - (A[0] * B[2]);
-    C[2] = (A[0] * B[1]) - (A[1] * B[0]);
-  
-    return;
-}
-
-void Vector_Scale(float C[3], float A[3], float b)
-{
-    for (int m = 0; m < 3; m++)
-        C[m] = A[m] * b;
-        
-    return;
-}
-
-float Vector_Dot_Product(float A[3], float B[3])
-{
-    float result = 0.0;
-
-    for (int i = 0; i < 3; i++) {
-        result += A[i] * B[i];
-    }
-    
-    return result;
-}
-
-void Vector_Add(float C[3], float A[3], float B[3])
-{
-    for (int m = 0; m < 3; m++)
-        C[m] = A[m] + B[m];
-        
-    return;
-}
-
-void Vector_Add(float C[3][3], float A[3][3], float B[3][3])
-{
-    for (int m = 0; m < 3; m++)
-        for (int n = 0; n < 3; n++)
-            C[m][n] = A[m][n] + B[m][n];
-}
-
-void Matrix_Add(float C[3][3], float A[3][3], float B[3][3])
-{
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-           C[i][j] = A[i][j] + B[i][j];
-        }
-    }
-}
 
 void Matrix_Add(int n, int m, float *C, float *A, float *B)
 {
@@ -68,8 +17,6 @@ void Matrix_Subtract(int n, int m, float *C, float *A, float *B)
        C[i] = A[i] - B[i];
     }
 }
-
-
 
 // grabbed from MatrixMath library for Arduino
 // http://arduino.cc/playground/Code/MatrixMath
@@ -100,18 +47,6 @@ void Matrix_Multiply(int m, int p, int n, float *C, float *A, float *B)
     return;
 }
 
-void Matrix_Multiply(float C[3][3], float A[3][3], float B[3][3])
-{
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            C[i][j] = 0;
-            for (int k = 0; k < 3; k++) {
-               C[i][j] += A[i][k] * B[k][j];
-            }
-        }
-    }
-}
-
 
 void Matrix_Transpose(int n, int m, float *C, float *A)
 {
@@ -124,7 +59,7 @@ void Matrix_Transpose(int n, int m, float *C, float *A)
 
 #define fabs(x) (((x) < 0) ? -x : x)
 
-// grabbed from MatrixMath library for Arduino
+// Grabbed from MatrixMath library for Arduino
 // http://arduino.cc/playground/Code/MatrixMath
 //Matrix Inversion Routine
 // * This function inverts a matrix based on the Gauss Jordan method.
@@ -222,14 +157,4 @@ void Matrix_print(int n, int m, float *A, const char *name)
     fprintf(stdout, "]\n");
 }  
 
-
-void Vector_Print(float A[3], const char *name)
-{
-    fprintf(stdout, "%s=[ ", name);
-    for (int i=0; i < 3; i++)
-        fprintf(stdout, "%5.5f ", A[i]);
-    fprintf(stdout, "]\n");
-    
-    return;
-}
 
