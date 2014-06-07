@@ -1,95 +1,58 @@
 #include <Servo.h>
 
-#define MOTORMIN 1200
-#define MOTORCTR 1500
-#define MOTORMAX 1800
-#define INC 10
-#define DELAY 50
-#define MOTOR 3
-#define POT 0
-#define LED 5
+#define INTERVAL     10  // Update interval
+#define MOTORRIGHT 1200  // Motor speed control limit (CCW or CW?)
+#define MOTORCTR   1500  // Motor stopped speed control
+#define MOTORLEFT  1800  // Motor speed control limit (CCW or CW?)
+#define POT           0  // Feedback potentiometer pin
+#define MOTOR         3  // Motor servo-PWM out pin
+#define INPWM         4  // Control servo-PWM in pin
+#define LED           5  // LED status pin
 
-#define FULL_RIGHT 367
-#define FULL_LEFT 823
-#define CENTER 570
+#define FULL_RIGHT  367  // POT ADC value at full right lock
+#define FULL_LEFT 823    // POT ADC value at full left lock
+#define CENTER 560       // POT ADC value at center (approximately)
 
-Servo motor;
-int pos=1500;
-int target;
+Servo motor;             // Servo PWM output for motor control
+int pwmin=1500;          // Commanded position PWM value in ms
+int pos;                 // current steering position
+int target;              // target steering position
+int next;
 
 void setup() {
   Serial.begin(115200);
   pinMode(LED, OUTPUT);
-  motor.attach(MOTOR);
-  motor.writeMicroseconds(1500);
-
-  // Setup pulse read timing thingy
-  
-  // Convert pulse width to target position
-  
+  motorInit();
+  pwmHandlerInit();
+  next = millis() + INTERVAL;
 }
 
 void loop() {
-  for (int i=1000; i < 2000; i+=50) {
-    Serial.print("pw=");
+
+  if (millis() > next) {
+    target = pulseWidthToPosition(pwmin);
+
+    // Run the motor in the correct direction
+    // to move to the target position
+    if (target < pos) {
+      motorWrite(1500);
+    } else if (target > pos) {
+      motorWrite(1500);
+    }
+    next += INTERVAL;
+    /*
+    Serial.print(" in=");
+    Serial.print(pwmin);
+    Serial.println();
+    Serial.print(" out=");
     Serial.print(i);
     Serial.print(" pos=");
-    Serial.println(pulseWidthToPosition(i));
-//    Serial.println(analogRead(POT));
-    delay(500);
-  }
+    Serial.print(pulseWidthToPosition(pwmin));
+    */
+  }    
 }
 
-#define M 456L
-#define B -101000L
-#define M1 386L
-#define B1 -19000L
-#define M2 526L
-#define B2 -229000L
 
-long pulseWidthToPosition(long pw) {
-  long pos = CENTER;
 
-  // Dual slope interpolation
-  if (pw < 1500) {
-    pos = M1*pw + B1;
-  } else {
-    pos = M2*pw + B2;
-  }
-  pos /= 1000;
-
-//  if (pos > FULL_LEFT) pos = FULL_LEFT;
-//  if (pos < FULL_RIGHT) pos = FULL_RIGHT;
-  
-  return pos;
-}
-
-void servoTest() {
-  digitalWrite(LED, HIGH);
-  for (int i=MOTORCTR; i >= MOTORMIN; i-=INC) {
-    motor.writeMicroseconds(i);
-    delay(DELAY);
-  }
-  for (int i=MOTORMIN; i < MOTORCTR; i+=INC) {
-    motor.writeMicroseconds(i);
-    delay(DELAY);
-  }
-
-  digitalWrite(LED, LOW);
-  delay(1000);
-
-  digitalWrite(LED, HIGH);
-  for (int i=MOTORCTR; i < MOTORMAX; i+=INC) {
-    motor.writeMicroseconds(i);
-    delay(DELAY);
-  }
-  for (int i=MOTORMAX; i >= MOTORCTR; i-=INC) {
-    motor.writeMicroseconds(i);
-    delay(DELAY);
-  }
-
-  digitalWrite(LED, LOW);
-  delay(1000);
-}
 
 
