@@ -32,7 +32,7 @@ with MinIMU-9-Arduino-AHRS. If not, see <http://www.gnu.org/licenses/>.
 
 /** Sensor interface library abstracts sensor drivers, next step to a pluggable architecture */
 
-#include "Ublox6.h"
+#include "A100.h"
 #include "L3G4200D.h"
 #include "LSM303DLM.h"
 #include "IncrementalEncoder.h"
@@ -112,7 +112,8 @@ public:
     float encSpeed;                         // encoder calculated speed
     //Sirf3 gps;                              // Pharos SiRF III GPS
     //Venus638flpx gps;                       // Venus GPS
-    Ublox6 gps;                             // Ublox6 GPS
+    //Ublox6 gps;                             // Ublox6 GPS
+    A100 gps;								// Hemisphere A100 GPS
     AnalogIn _voltage;                      // Voltage from sensor board
     AnalogIn _current;                      // Current from sensor board
     IncrementalEncoder _left;               // Left wheel encoder
@@ -120,7 +121,7 @@ public:
     L3G4200D _gyro;                         // MinIMU-9 gyro
     LSM303DLM _compass;                     // MinIMU-9 compass/accelerometer
     I2C _rangers;                           // Arduino ranger board
-    I2C _cam;                               // Propeller camer aboard
+    I2C _cam;                               // Propeller camera aboard
     //HMC5843 compass;
 
 private:

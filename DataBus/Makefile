@@ -35,7 +35,8 @@ OBJECTS += \
 	./Sensors/IncrementalEncoder/IncrementalEncoder.o \
 	./Sensors/L3G4200D/L3G4200D.o \
 	./Sensors/LSM303DLM/LSM303DLM.o \
-	./Sensors/GPS/Ublox6.o \
+	./Sensors/GPS/A100.o \
+	./Sensors/GPS/TinyGPS/TinyGPS.o \
 	./Telemetry/Telemetry.o \
 	./UI/Beep/Beep.o \
 	./UI/Buttons/Buttons.o \
@@ -72,6 +73,7 @@ INCLUDE_PATHS += \
 	-I./Sensors/L3G4200D \
     -I./Sensors/LSM303DLM \
     -I./Sensors/GPS \
+    -I./Sensors/GPS/TinyGPS \
     -I./SimpleFilter \
     -I./Telemetry \
 	-I./UI \
