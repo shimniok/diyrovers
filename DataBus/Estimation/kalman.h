@@ -4,8 +4,12 @@
 /** Implementation of 1st order, 2-state Kalman Filter for heading estimation
  */
  
-float kfGetX(int i);
+#define HDG 	0
+#define HDGRATE	1
+#define BIAS 	2
+
 void headingKalmanInit(float x0);
-float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro);
+void headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro);
+float kfGetX(int i);
 
 #endif
