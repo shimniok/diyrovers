@@ -24,6 +24,5 @@ extern Steering steering;
 extern Serial pc;
 extern SerialGraphicLCD lcd;
 extern Buttons keypad;
-extern L3G4200D gyro;
 
 #endif
