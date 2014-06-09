@@ -1,6 +1,7 @@
 #include "SystemState.h"
 #include "globals.h"
 #include "logging.h"
+#include "util.h"
 #include "SDFileSystem.h"
 #include "SerialGraphicLCD.h"
 
@@ -12,126 +13,31 @@ static FILE *logp;
 Timer logtimer;
 //extern int bufCount;
 
-/*
-void logData( const SystemState s ) {
-    unsigned char buf[512]; // for now we really only need ~256 bytes but in case I add more to state...
-    unsigned char *state = (unsigned char *) &s;
-    //unsigned int t1, t2, t3;
-    //logtimer.start();
-    //logtimer.reset();
-    if (logp) {
-        //t1 = logtimer.read_us();
-        encode(state, sizeof(s), buf, 0); // infinite line size
-        //t2 = logtimer.read_us();
-        fputs((char *) buf, logp);
-        fputs("\n", logp);
-        bufCount--;
-        fprintf(stdout, "bufCount: %d\n", bufCount);
-        //t3 = logtimer.read_us();
-        //fprintf(stdout, "%d %d\n", t3-t2, t2-t1);
-    }
-}
-*/
-
-// from Arduino source
-size_t printNumber(FILE *f, unsigned long n)
-{
-    char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
-    char *str = &buf[sizeof(buf) - 1];
-
-    *str = '\0';
-
-    do {
-        unsigned long m = n;
-        n /= 10;
-        char c = m - 10 * n;
-        *--str = c + '0';
-    } while(n);
-
-    return fputs(str, f);
-}
-
-// from Arduino source
-size_t printInt(FILE *f, long n)
-{
-    int t = 0;
-    if (n < 0) {
-        t = fputc('-', f);
-        n = -n;
-    }
-    return printNumber(f, n) + t;
-}
-
-// from Arduino source
-size_t printFloat(FILE *f, double number, uint8_t digits)
-{
-    size_t n=0;
-
-    if (isnan(number)) return fputs("nan", f);
-    if (isinf(number)) return fputs("inf", f);
-    if (number > 4294967040.0) return fputs("ovf", f);  // constant determined empirically
-    if (number <-4294967040.0) return fputs("ovf", f);  // constant determined empirically
-
-    // Handle negative numbers
-    if (number < 0.0) {
-        n += fputc('-', f);
-        number = -number;
-    }
-
-    // Round correctly so that print(1.999, 2) prints as "2.00"
-    double rounding = 0.5;
-    for (uint8_t i=0; i < digits; ++i)
-        rounding /= 10.0;
-
-    number += rounding;
-
-    // Extract the integer part of the number and print it
-    unsigned long int_part = (unsigned long)number;
-    double remainder = number - (double)int_part;
-    n += printInt(f, int_part);
-
-    // Print the decimal point, but only if there are digits beyond
-    if (digits > 0) {
-        n += fputc('.', f);
-    }
-
-    // Extract digits from the remainder one at a time
-    while (digits-- > 0) {
-        remainder *= 10.0;
-        int toPrint = int(remainder);
-        n += fputc(toPrint+'0', f);
-        remainder -= toPrint;
-    }
-
-    return n;
-}
-
-
 // If I use arduino style print routines, logging takes ~1000 / ~8000 usec
 // the big sprintf takes ~ 700-750 usec all by itself
 void logData( SystemState *s )
 {
 	//char buf[256];
-	//unsigned int t1, t2;
-	//logtimer.start();
-	//logtimer.reset();
-	//t1 = logtimer.read_us();
+	unsigned int t1, t2;
+	logtimer.start();
+	logtimer.reset();
+	t1 = logtimer.read_us();
 
 	if (s) {
-		printInt(logp, s->millis);
+		fputs(cvitos(s->millis), logp);
 		fputc(',',logp);
-		printFloat(logp, s->current, 2);
+		fputs(cvftos(s->current, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->voltage, 2);
+		fputs(cvftos(s->voltage, 2), logp);
 		fputc(',',logp);
 		for (int q=0; q < 3; q++) {
-			printFloat(logp, s->gyro[q], 6);
+			fputs(cvftos(s->gyro[q], 6), logp);
 			fputc(',',logp);
 		}
-		printInt(logp, s->gTemp);
+		fputs(cvitos(s->gTemp), logp);
 		fputc(',',logp);
 		for (int q=0; q < 3; q++) {
-			printInt(logp, s->a[q]);
+			fputs(cvitos(s->a[q]), logp);
 			fputc(',',logp);
 		}
 		/*
@@ -140,68 +46,70 @@ void logData( SystemState *s )
 			fputc(',',logp);
 		}
 		*/
-		printFloat(logp, s->gHeading, 2);
+		fputs(cvftos(s->gHeading, 2), logp);
 		fputc(',',logp);
 
 		// GPS 1
-		fprintf(logp, "%.7f,%.7f,", s->gpsLatitude, s->gpsLongitude);
+		fputs(cvftos(s->gpsLatitude, 7), logp);
+		fputs(cvftos(s->gpsLongitude, 7), logp);
 		//printFloat(logp, s->gpsLatitude, 7);
 		//fputc(',',logp);
 		//printFloat(logp, s->gpsLongitude, 7);
 		//fputc(',',logp);
-		printFloat(logp, s->gpsCourse_deg, 2);
+		fputs(cvftos(s->gpsCourse_deg, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->gpsSpeed_mps, 2);
+		fputs(cvftos(s->gpsSpeed_mps, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->gpsHDOP, 1);
+		fputs(cvftos(s->gpsHDOP, 1), logp);
 		fputc(',',logp);
-		printInt(logp, s->gpsSats);
+		fputs(cvitos(s->gpsSats), logp);
 		fputc(',',logp);
 		// Encoders
-		printFloat(logp, s->lrEncDistance, 7);
+		fputs(cvftos(s->lrEncDistance, 7), logp);
 		fputc(',',logp);
-		printFloat(logp, s->rrEncDistance, 7);
+		fputs(cvftos(s->rrEncDistance, 7), logp);
 		fputc(',',logp);
-		printFloat(logp, s->lrEncSpeed, 2);
+		fputs(cvftos(s->lrEncSpeed, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->rrEncSpeed, 2);
+		fputs(cvftos(s->rrEncSpeed, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->encHeading, 2);
+		fputs(cvftos(s->encHeading, 2), logp);
 		fputc(',',logp);
 		// Estimates
-		printFloat(logp, s->estHeading, 2);
+		fputs(cvftos(s->estHeading, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->estLagHeading, 2);
+		fputs(cvftos(s->estLagHeading, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->estLatitude,  7);
+		fputs(cvftos(s->estLatitude,  7), logp);
 		fputc(',',logp);
-		printFloat(logp, s->estLongitude, 7);
+		fputs(cvftos(s->estLongitude, 7), logp);
 		fputc(',',logp);
-		printFloat(logp, s->estX, 4);
+		fputs(cvftos(s->estX, 4), logp);
 		fputc(',',logp);
-		printFloat(logp, s->estY, 4);
+		fputs(cvftos(s->estY, 4), logp);
 		fputc(',',logp);
 		// Nav
-		printInt(logp, s->nextWaypoint);
+		fputs(cvitos(s->nextWaypoint), logp);
 		fputc(',',logp);
-		printFloat(logp, s->bearing, 2);
+		fputs(cvftos(s->bearing, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->distance, 3);
+		fputs(cvftos(s->distance, 3), logp);
 		fputc(',',logp);
-		printFloat(logp, s->steerAngle, 3);
+		fputs(cvftos(s->steerAngle, 3), logp);
 		fputc(',',logp);
-		printFloat(logp, s->errHeading, 3);
+		fputs(cvftos(s->errHeading, 3), logp);
 		fputc(',',logp);
-		printFloat(logp, s->LABrg, 2);
+		fputs(cvftos(s->LABrg, 2), logp);
 		fputc(',',logp);
-		printFloat(logp, s->LAx, 4);
+		fputs(cvftos(s->LAx, 4), logp);
 		fputc(',',logp);
-		printFloat(logp, s->LAy, 4);
+		fputs(cvftos(s->LAy, 4), logp);
 		fputc('\n',logp);
 		fflush(logp);
 
-		//t2 = logtimer.read_us();
-		//fprintf(stdout, "%d\n", t2-t1);
+		t2 = logtimer.read_us();
+		fputs(cvitos(t2-t1), stdout);
+		fputs(" us\n", stdout);
 	}
 
     return;
