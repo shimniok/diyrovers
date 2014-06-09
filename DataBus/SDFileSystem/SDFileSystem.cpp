@@ -210,7 +210,7 @@ int SDFileSystem::disk_initialize() {
         return 1;
     }
     
-    _spi.frequency(1000000); // Set to 1MHz for data transfer
+    _spi.frequency(5000000); // Set to 5MHz for data transfer
     return 0;
 }
 
