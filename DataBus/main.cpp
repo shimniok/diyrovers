@@ -447,6 +447,9 @@ int main()
 
 		} // if (pc.readable())
 
+//        fputs(cvitos(getUpdateTime()), stdout);
+//        fputs("\n", stdout);
+
         wait(0.1);
 
     } // while
