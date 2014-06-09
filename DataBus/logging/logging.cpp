@@ -51,6 +51,7 @@ void logData( SystemState *s )
 
 		// GPS 1
 		fputs(cvftos(s->gpsLatitude, 7), logp);
+		fputc(',',logp);
 		fputs(cvftos(s->gpsLongitude, 7), logp);
 		//printFloat(logp, s->gpsLatitude, 7);
 		//fputc(',',logp);
@@ -105,7 +106,7 @@ void logData( SystemState *s )
 		fputc(',',logp);
 		fputs(cvftos(s->LAy, 4), logp);
 		fputc('\n',logp);
-		fflush(logp);
+//		fflush(logp);
 
 		t2 = logtimer.read_us();
 		fputs(cvitos(t2-t1), stdout);
