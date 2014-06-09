@@ -86,10 +86,23 @@ class L3G4200D
          * @param scl is the pin for the I2C SCL line
          */
         L3G4200D(PinName sda, PinName scl);
+
+        /** Set scaling (and sign) for x, y and z axes
+         * @param x is the x scale
+         * @param y is the y scale
+         * @param z is the z scale
+         */
+        void setScale(float x, float y, float z);
         
-        /** Read gyro values
+        /** Read scaled gyro values
+         * @param g Array containing, x, y, and z gyro scaled values
+         * @return g
+         */
+        void read(float g[3]);
+
+        /** Read raw gyro values
          * @param g Array containing x, y, and z gyro values
-         * @return g Array containing x, y, and z gyro values
+         * @return g
          */
         void read(int g[3]);
 
@@ -101,6 +114,7 @@ class L3G4200D
     private:
         char data[6];
         int _rates[3];
+        float _scale[3];
         I2C _device;
         void writeReg(const byte reg, const byte value);
         byte readReg(const byte reg);

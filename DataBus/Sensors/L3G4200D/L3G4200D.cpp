@@ -85,6 +85,12 @@ L3G4200D::L3G4200D(PinName sda, PinName scl):
     writeReg(L3G4200D_CTRL_REG5, 0x00);
 }
 
+void L3G4200D::setScale(float x, float y, float z) {
+	_scale[0] = x;
+	_scale[1] = y;
+	_scale[2] = z;
+}
+
 // Writes a gyro register
 void L3G4200D::writeReg(const byte reg, const byte value)
 {
@@ -103,6 +109,15 @@ byte L3G4200D::readReg(const byte reg)
     _device.read(GYR_ADDRESS, &value, 1);
 
     return value;
+}
+
+// read the 3 gyro channels and correct with scaling
+void L3G4200D::read(float g[3]) {
+	int gz[3];
+	read(gz);
+	for (int i=0; i < 3; i++) {
+		g[i] = (float) gz[i] * _scale[i];
+	}
 }
 
 // Reads the 3 gyro channels and stores them in vector g
@@ -133,3 +148,4 @@ void L3G4200D::read(int g[3])
 uint8_t L3G4200D::readTemp(void) {
     return readReg(L3G4200D_OUT_TEMP);
 }
+
