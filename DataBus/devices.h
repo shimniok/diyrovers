@@ -1,14 +1,19 @@
 /*
- * config.h
+ * devices.h
+ *
+ * Configure device assignments and device objects
  *
  *  Created on: May 7, 2014
  *      Author: mes
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef DEVICES_H_
+#define DEVICES_H_
 
-/** Configure device assignments */
+/** Device Objects */
+#include "L3G4200D.h"
+
+extern L3G4200D gyro;
 
 #include "mbed.h"
 #include "boards.h"
