@@ -5,6 +5,7 @@
 #include "updater.h"
 #include "Config.h"
 #include "Sensors.h"
+#include "L3G4200D.h"
 #include "SystemState.h"
 #include "Steering.h"
 #include "Servo2.h"
@@ -15,11 +16,6 @@
 #include "kalman.h"
 
 #define UPDATE_PERIOD 0.010             // update period in s
-
-// TODO 3 put x,y,z defines somewhere else
-#define _x_ 0
-#define _y_ 1
-#define _z_ 2
 
 // TODO 3 parameterize LED update and feed through event queue (or something)
 DigitalOut useGpsStat(LED1);
@@ -84,10 +80,6 @@ GeoPosition hereGeo;                    // position estimate, lat/lon
 int timeZero=0;
 int lastTime=-1;                        // used to calculate dt for KF
 int thisTime;                           // used to calculate dt for KF
-float dt;                               // dt for the KF
-float estLagHeading = 0;                // lagged heading estimate
-float errHeading;                       // error between gyro hdg estimate and gps hdg estimate
-float Ag = (2.0/(1000.0+1.0));          // Gyro bias filter alpha, gyro; # of 10ms steps
 float Kbias = 0.995;            
 float filtErrRate = 0;
 float biasErrAngle = 0;
@@ -107,8 +99,7 @@ struct history_rec {
 static int hCount=0;		// history counter; we can go back in time to reference gyro history
 static int now = 0;        	// fifo input index, latest entry
 static int prev = 0;       	// previous fifo iput index, next to latest entry
-static int lag = 0;       	// fifo output index, entry from 1 second ago (sensors.gps.lag entries prior)
-static int lagPrev = 0;   	// previous fifo output index, 101 entries prior
+static int lag = 0;       	// fifo output index, entry from lag samples ago (sensors.gps.lag entries prior)
 
 void initThrottle()
 {
@@ -194,6 +185,9 @@ void setSteering(const float steerAngle)
 /** update() runs the data collection, estimation, steering control, and throttle control */
 void update()
 {
+	float dt;                               // dt for the KF
+	float errHeading;                       // error between gyro hdg estimate and gps hdg estimate
+
 	tReal = timer.read_us();
     bool useGps=false;
 
@@ -226,8 +220,7 @@ void update()
         // Initialize lag estimates
         //lagHere.set( here );
         hCount = 2; // lag entry and first now entry are two entries
-        now = 0;
-        // initialize what will become lag data in 1 second from now
+        now = 0; // initialize what will become lag data shortly.
         history[now].dt = 0;
         history[now].dist = 0;
         // initial position is waypoint 0
@@ -235,12 +228,13 @@ void update()
         history[now].y = config.cwpt[0].y;
         here.set(history[now].x, history[now].y);
         // initialize heading to bearing between waypoint 0 and 1
-		initialHeading = history[now].hdg = here.bearingTo(config.cwpt[nextWaypoint]);
+		initialHeading = here.bearingTo(config.cwpt[nextWaypoint]);
+		history[now].hdg = initialHeading;
         // Initialize Kalman Filter
         headingKalmanInit(initialHeading);
+        headingKalman(0.010, initialHeading, true, 0, false);
         // point next fifo input to slot 1, slot 0 occupied/initialized, now
         lag = 0;
-        lagPrev = 0;
         prev = now; // point to the most recently entered data
         now = 1;    // new input slot
     }
@@ -257,7 +251,8 @@ void update()
     //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
     nowSpeed = sensors.encSpeed;
 
-    sensors.Read_Gyro(); 
+    float g[3];
+    gyro.read(g);
     //sensors.Read_Rangers();
     //sensors.Read_Accel();
     //sensors.Read_Camera();
@@ -323,21 +318,24 @@ void update()
 
     // Save current data into history fifo to use 1 second from now
     history[now].dist = (sensors.lrEncDistance + sensors.rrEncDistance) / 2.0; // current distance traveled
-    history[now].gyro = sensors.gyro[_z_];  // current raw gyro data
+    history[now].gyro = g[_z_];  // current raw gyro data
     history[now].dt = dt; // current dt, to address jitter
     // compute current heading from current gyro
-    history[now].hdg = clamp360( history[prev].hdg + dt*(history[now].gyro - kfGetX(BIAS)) );
+    history[now].hdg = clamp360( history[prev].hdg + dt*(g[_z_] - kfGetX(BIAS)));
     float r = PI/180 * history[now].hdg;
     history[now].x = history[prev].x + history[now].dist * sin(r);    // update current position
     history[now].y = history[prev].y + history[now].dist * cos(r);
 
+//    fputs(cvftos(sensors.gyro[_z_], 4), stdout);
+//    fputs(" ", stdout);
+//    fputs(cvftos(history[now].hdg, 4), stdout);
+//    fputs("\n", stdout);
+
     // We can't do anything until the history buffer is full
     if (hCount < sensors.gps.lag) {
-        estLagHeading = history[now].hdg;
-        // Until the fifo is full, only keep track of current gyro heading
-        hCount++; // after n iterations the fifo will be full
+    	hCount++; // only increment until we reach lag value
     } else {
-        // Now that the buffer is full, we'll maintain a Kalman Filter estimate that is
+        // Once the buffer is full, we'll maintain a Kalman Filter estimate that is
         // time-shifted to the past because the GPS output represents the system state from
         // the past. We'll also correct our history of gyro readings from the past to the
         // present
@@ -345,34 +343,34 @@ void update()
         ////////////////////////////////////////////////////////////////////////////////
         // UPDATE LAGGED ESTIMATE
         
-        // Recover data from 1 second ago which will be used to generate
-        // updated lag estimates
+        // Recover data from 1 second ago which will be used to generate gyro bias.
 
-        // This represents the best estimate for heading... for one second ago
-        // If we do nothing else, the robot will think it is located at a position 1 second behind
-        // where it actually is. That means that any control feedback needs to have a longer time
-        // constant than 1 sec or the robot will have unstable heading correction.
-        // Use gps data when available, always use gyro data
+        // The estimate is for "lag" samples in the past.  If we didn't compensate for
+    	// this lag, the feedback would always be far behind the control loop, resulting
+    	// in oscillation.
 
-        // Clamp heading to initial heading when we're not moving; hopefully this will
-        // give the KF a head start figuring out how to deal with the gyro
         if (go) {
-            estLagHeading = headingKalman(history[lag].dt, nowState.gpsCourse_deg, useGps, history[lag].gyro, true);
+        	// Estimate heading given previous bias and heading from GPS
+            headingKalman(history[lag].dt, nowState.gpsCourse_deg, useGps, history[lag].gyro, true);
         } else {
-            estLagHeading = headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
+            // We previously initialized the heading. Now we try to get a bias estimate while waiting to run.
+            headingKalman(history[lag].dt, initialHeading, true, history[lag].gyro, true);
         }
 
-        fputs(cvftos(initialHeading, 5), stdout);
-        fputs(" ", stdout);
-        fputs(cvftos(history[lag].gyro, 5), stdout);
-        fputs(" ", stdout);
-        fputs(cvftos(kfGetX(HDG), 5), stdout);
-        fputs(" ", stdout);
-        fputs(cvftos(kfGetX(HDGRATE), 5), stdout);
-        fputs(" ", stdout);
-        fputs(cvftos(kfGetX(BIAS), 5), stdout);
-        fputs("\n", stdout);
-
+//        fputs(" ih=", stdout);
+//        fputs(cvftos(initialHeading, 5), stdout);
+//        fputs(" lag=", stdout);
+//        fputs(cvitos(lag), stdout);
+//        fputs(" g=", stdout);
+//        fputs(cvftos(history[lag].gyro, 5), stdout);
+//        fputs(" h=", stdout);
+//        fputs(cvftos(kfGetX(HDG), 5), stdout);
+//        fputs(" hr=", stdout);
+//        fputs(cvftos(kfGetX(HDGRATE), 5), stdout);
+//        fputs(" b=", stdout);
+//        fputs(cvftos(kfGetX(BIAS), 5), stdout);
+//        fputs("\n", stdout);
+#if 0
         // Update the lagged position estimate
         history[lag].x = history[lagPrev].x + history[lag].dist * sin(estLagHeading);
         history[lag].y = history[lagPrev].y + history[lag].dist * cos(estLagHeading);
@@ -415,8 +413,9 @@ void update()
             }
             inc(i);
         }
+#endif
+
         // increment lag pointer and wrap        
-        lagPrev = lag;
         inc(lag);
     }
     // "here" is the current position

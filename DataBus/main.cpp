@@ -84,6 +84,7 @@ Telemetry telem(tel);					// Setup telemetry system
 
 // SENSORS
 Sensors sensors;                        // Abstraction of sensor drivers
+L3G4200D gyro(I2CSDA, I2CSCL);			// MinIMU-9 gyro
 //DCM ahrs;                             // ArduPilot/MatrixPilot AHRS
 Serial *dev;                            // For use with bridge
 
@@ -287,7 +288,7 @@ int main()
     pc.puts("Gyro scale: ");
     pc.puts(cvftos(config.gyroScale, 5));
     pc.puts("\n");
-    sensors.setGyroScale(config.gyroScale);
+    gyro.setScale(1.0, 1.0, config.gyroScale);
 
     display.status("GPS configuration   ");
     pc.puts("GPS valid speed: ");
