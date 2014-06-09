@@ -146,13 +146,14 @@ void Matrix_Copy(int n, int m, float *C, float *A)
 
 void Matrix_print(int n, int m, float *A, const char *name)
 {
-    fprintf(stdout, "%s=[", name);
+    fputs(name, stdout);
+    fputs("=[", stdout);
     for (int i=0; i < n; i++) {
         for (int j=0; j < m; j++) {
-            fprintf(stdout, "%5.5f", A[i*m+j]);
-            if (j < m-1) fprintf(stdout, ", ");
+            fputs(cvftos(A[i*m+j], 5), stdout);
+            if (j < m-1) fputs(", ", stdout);
         }
-        if (i < n-1) fprintf(stdout, "; ");
+        if (i < n-1) fputs("; ", stdout);
     }
     fprintf(stdout, "]\n");
 }  

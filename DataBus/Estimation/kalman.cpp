@@ -12,21 +12,16 @@
 static float x[3]={ 0,
 					0,
 					0 };                 // System State: hdg, hdg rate, bias
-float z[2]={ 0,
-			 0 };                        // measurements, hdg, hdg rate
 
 static float A[9]={ 1, 0, 0,
 				    0, 1, 0,
 				    0, 0, 1};            // State transition matrix; A[1]=dt, A[2]=-dt
 
-static float H[6]={ 1, 0, 0,
-					0, 1, 1 };           // Observer matrix maps measurements to state transition
+static float K[6]={ 0, 0,
+					0, 0,
+					0, 0 };                  // Kalman gain
 
-float K[6]={ 0, 0,
-			 0, 0,
-			 0, 0 };                  // Kalman gain
-
-static float P[9]={ 1, 0, 0,
+static float P[9]={ 1000, 0, 0,
 					0, 1000, 0,
 					0, 0, 1000 };     // Covariance matrix
 
@@ -35,16 +30,12 @@ static float R[4]={ 0.25, 0,
 
 static float Q[9]={ 1, 0, 0,
 					0, 0.1, 0,
-					0, 0, 0.00001 };        // Process noise matrix
+					0, 0, 0.00005 };        // Process noise matrix
 
 static float I[9]={ 1, 0, 0,
 					0, 1, 0,
 					0, 0, 1 };           // Identity matrix
 
-float kfGetX(int i)
-{
-    return (i >= 0 && i < 3) ? x[i] : 0xFFFFFFFF;
-}
 
 /** headingKalmanInit
  *
@@ -55,17 +46,6 @@ void headingKalmanInit(float x0)
     x[0] = x0;
     x[1] = 0;
     x[2] = 0;
-
-    z[0] = 0;
-    z[1] = 0;
-
-    K[0] = 0; K[1] = 0;
-    K[2] = 0; K[3] = 0;
-    K[4] = 0; K[5] = 0;
-    
-    P[0] = 0.1; P[1] = 0; P[2] = 0;
-    P[3] = 0; P[4] = 1000; P[5] = 0;
-    P[6] = 0; P[7] = 0; P[8] = 1000;
 }
 
 
@@ -95,12 +75,18 @@ void headingKalmanInit(float x0)
  *
  * returns : current heading estimate
  */
-float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
+void headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
 {
+    float z[2]={ 0,
+    		     0 };		// measurements, hdg, hdg rate
+    float H[6]={ 0, 0, 0,
+    			 0, 0, 0 }; // Observer matrix maps measurements to state transition
+
+
     A[1] = dt;
 
     //fprintf(stdout, "gyro? %c  gps? %c\n", (gyro)?'Y':'N', (gps)?'Y':'N');
-            
+
     // Depending on what sensor measurements we've gotten,
     // switch between observer (H) matrices and measurement noise (R) matrices
     // TODO 3 incorporate HDOP or sat count in R
@@ -139,6 +125,7 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
     float xp[3];
     Matrix_Multiply(3,3,1, xp, A, x);
     
+//    Matrix_print(3,1, x, "3. x");
 //    Matrix_print(3,1, xp, "3. xp");
 
     /**********************************************************************
@@ -208,7 +195,7 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
     Matrix_Multiply(2,3,1, Hx, H, xp);
     
 //    Matrix_print(2,3, H, "6. H");
-//    Matrix_print(3,1, x, "6. x");
+//    Matrix_print(3,1, xp, "6. xp");
 //    Matrix_print(2,1, Hx, "6. Hx");
     
     float zHx[2];
@@ -218,10 +205,11 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
 //    Matrix_print(2,1, z, "6. z");
 //    Matrix_print(2,1, zHx, "6. zHx");
     
-    float KzHx[2];
+    float KzHx[3];
     Matrix_Multiply(3,2,1, KzHx, K, zHx);
 
 //    Matrix_print(2,2, K, "6. K");
+//    Matrix_print(3,1, xp, "6. xp");
 //    Matrix_print(2,1, KzHx, "6. KzHx");
     
     Matrix_Add(3,1, x, xp, KzHx);
@@ -247,5 +235,10 @@ float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro)
     Matrix_Copy(3,3, P, P2);
 
 //    Matrix_print(3,3, P, "7. P");
-    return x[0];
+}
+
+
+float kfGetX(int i)
+{
+    return (i >= 0 && i < 3) ? x[i] : 0xFFFFFFFF;
 }

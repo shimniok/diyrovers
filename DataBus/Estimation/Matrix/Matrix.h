@@ -61,4 +61,12 @@ void Matrix_Inverse(int n, float *A);
  */
 void Matrix_Copy(int n, int m, float *C, float *A);
 
+/** Prints out a given matrix of n rows, m columns with specified name
+ * @param n rows
+ * @param m cols
+ * @param A array pointer representing matrix
+ * @param name is the string name to display
+ */
+void Matrix_print(int n, int m, float *A, const char *name);
+
 #endif

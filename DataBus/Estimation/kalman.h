@@ -8,8 +8,8 @@
 #define HDGRATE	1
 #define BIAS 	2
 
-float kfGetX(int i);
 void headingKalmanInit(float x0);
-float headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro);
+void headingKalman(float dt, float Hgps, bool gps, float dHgyro, bool gyro);
+float kfGetX(int i);
 
 #endif
