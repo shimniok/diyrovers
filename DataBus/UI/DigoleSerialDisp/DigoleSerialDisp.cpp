@@ -11,6 +11,7 @@
 
 char null = 0;
 
+#define SCREEN_WIDTH 18
 
 // that resetting the Arduino doesn't reset the LCD, so we
 // can't assume that its in that state when a sketch starts (and the
@@ -18,36 +19,31 @@ char null = 0;
 
 //UART function
 
-DigoleSerialDisp::DigoleSerialDisp(PinName sda, PinName scl, uint8_t address):
-    _device(sda, scl)
+DigoleSerialDisp::DigoleSerialDisp(PinName tx, PinName rx):
+	Serial(tx, rx)
 {
-    _address = (address<<1);
-    _device.frequency(100000);
+    baud(9600);
     _Comdelay=70;
 }
 
 size_t DigoleSerialDisp::write(const char x)
 {
-    _device.write(_address, (char *) &x, 1);
+	Serial::write(&x, 1);
 
     return 1;
 }
 
-size_t DigoleSerialDisp::write(const char *str) 
+size_t DigoleSerialDisp::write(const char *str)
 {
+	int len = strlen(str);
     if (str == NULL) return 0;
-    return write(str, strlen(str));
+    if (len > SCREEN_WIDTH) len = SCREEN_WIDTH; // TODO 3: parameterize
+    return Serial::write(str, len);
 }
-    
+
 size_t DigoleSerialDisp::write(const char *buffer, size_t size)
 {
-    int len = 0;
-    if (buffer != NULL) {
-        _device.write(_address, (char *) buffer, size);
-        len = size;
-        delay(7);
-    }
-    return len;
+	return Serial::write(buffer, size);
 }
 
 
@@ -57,7 +53,7 @@ size_t DigoleSerialDisp::print(const char c)
     buf[1] = 'T';
     buf[2] = c;
     buf[3] = 0;
-    write(buf);
+    puts(buf); // TODO 3: chop string to screen width
     write(null);
     return 1;
 }
@@ -71,7 +67,7 @@ size_t DigoleSerialDisp::print(const char s[])
     buf[0] = 'T';
     buf[1] = 'T';
     buf[2] = 0;
-    strncat(buf, s, 125);
+    strncat(buf, s, SCREEN_WIDTH+2); // TODO 3 parameterize
     write(buf);
     write(null);
     return len;
@@ -281,6 +277,10 @@ void DigoleSerialDisp::drawStr(uint8_t x, uint8_t y, const char *s)
     write(null);
 }
 
+void DigoleSerialDisp::pos(uint8_t x, uint8_t y) {
+	setPrintPos(x, y, _TEXT_);
+}
+
 void DigoleSerialDisp::setPrintPos(uint8_t x, uint8_t y, uint8_t graph) 
 {
     if (graph == _TEXT_) {
@@ -294,7 +294,7 @@ void DigoleSerialDisp::setPrintPos(uint8_t x, uint8_t y, uint8_t graph)
     }
 }
 
-void DigoleSerialDisp::clearScreen(void) 
+void DigoleSerialDisp::clear(void) 
 {
     //write(null);
     write("CL");
@@ -306,13 +306,6 @@ void DigoleSerialDisp::setLCDColRow(uint8_t col, uint8_t row)
     write(col);
     write(row);
     write("\x80\xC0\x94\xD4");
-}
-
-void DigoleSerialDisp::setI2CAddress(uint8_t add) 
-{
-    write("SI2CA");
-    write(add);
-    _address = (add<<1);
 }
 
 void DigoleSerialDisp::displayConfig(uint8_t v) 

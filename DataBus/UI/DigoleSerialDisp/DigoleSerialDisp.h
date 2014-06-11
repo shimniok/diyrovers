@@ -30,22 +30,22 @@
  *
  * Includes Arduino Print class member functions
  */
-class DigoleSerialDisp {
+class DigoleSerialDisp: public Serial {
 public:
 
     /** Create a new Digole Serial Display interface
      *
-     * @param sda is the pin for I2C SDA
-     * @param scl is the pin for I2C SCL
-     * @param address is the 7-bit address (default is 0x27 for the device)
+     * @param tx is the pin for UART tx
+     * @param rx is the pin for UART rx
      */
-    DigoleSerialDisp(PinName sda, PinName scl, uint8_t address=0x27);
+    DigoleSerialDisp(PinName rx, PinName tx);
 
 
-    /** Carryover from Arduino library, not needed
+    /** send a null terminated string
+     * @param s is the null terminated string
+     * @returns non-negative if successful, EOF otherwise
      */
-    void begin(void) { } // nothing to do here
-
+//    int DigoleSerialDisp::puts(char *s);
 
     /** Write out a raw character
      * @param x is the character to write
@@ -216,6 +216,12 @@ public:
      * @param s is the string to display
      */
     void drawStr(uint8_t x, uint8_t y, const char *s);
+
+    /** Sets the print position for text
+     * @param x is the x coordinate to display the string
+     * @param y is the y coordinate to display the string
+     */
+    void pos(uint8_t x, uint8_t y);
     
     /** Sets the print position for graphics or text
      * @param x is the x coordinate to display the string
@@ -225,18 +231,13 @@ public:
     void setPrintPos(uint8_t x, uint8_t y, uint8_t graph = _TEXT_);
     
     /** Clears the display screen */
-    void clearScreen(void);
+    void clear(void);
     
     /** Configure your LCD if other than 1602 and the chip is other than KS0066U/F / HD44780 
      * @param col is the number of columns
      * @param row is the number of rows
      */
     void setLCDColRow(uint8_t col, uint8_t row);
-    
-    /** Sets a new I2C address for the display (default is 0x27), the adapter will store the new address in memory
-     * @param address is the the new address 
-     */
-    void setI2CAddress(uint8_t add);
     
     /** Display Config on/off, the factory default set is on, 
      * so, when the module is powered up, it will display 
@@ -315,8 +316,12 @@ public:
     void setTextPosBack(void);    
     
     void setTextPosOffset(char xoffset, char yoffset);
+
+    /** set absolute text position */
     void setTextPosAbs(uint8_t x, uint8_t y);
+
     void setLinePattern(uint8_t pattern);
+
     /** Only for universal serial adapter */
     void setLCDChip(uint8_t chip);
 
@@ -341,8 +346,6 @@ public:
     void digitalOutput(uint8_t x);
 
 private:
-    I2C _device;
-    uint8_t _address;
     uint8_t _Comdelay;
     char buf[128];
 

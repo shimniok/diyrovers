@@ -82,6 +82,7 @@ INCLUDE_PATHS += \
 	-I./UI/Buttons/PinDetect \
 	-I./UI/Display \
 	-I./UI/LCD \
+	-I./UI/DigoleSerialDisp/ \
 	-I./UI/Menu \
 	-I./UI/SerialGraphicLCD \
 	-I./logging

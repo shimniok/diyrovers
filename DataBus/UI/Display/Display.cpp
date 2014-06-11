@@ -2,16 +2,12 @@
 #include "util.h"
 #include "Display.h"
 
-// TODO 3 would also be nice if we did all the printf crap here too
-
-#define LCD_FMT "%-20s" // used to fill a single line on the LCD screen
-
-// This is for the Sparkfun module
+// TODO 3: move to Sparkfun class. This is for the Sparkfun module
 #define DISPLAY_CLEAR     0x01
 #define DISPLAY_SET_POS   0x08
 
 Display::Display(void): 
-        lcd(p17, p18, SD_FW),
+        lcd(p17, p18),
         v(1, 20, 35, 20, 'V'),
         //a(11, 40, 15, 'A'),
         g1(22, 20, 35, 20, 'G'),
@@ -22,8 +18,8 @@ Display::Display(void):
 
 void Display::init()
 {
-    lcd.baud(115200);
-    lcd.puts("test\n"); // hopefully force 115200 on powerup
+    lcd.baud(9600);
+    lcd.print("test\n"); // hopefully force 115200 on powerup
     lcd.clear();
     wait(0.3);
 }
@@ -32,13 +28,14 @@ void Display::status(const char *st)
 {
 	int pad;
 	char *s = (char *) st;
-	for (pad=20; pad > 0; pad--) {
+	// TODO 3: parameterize screen width
+	for (pad=15; pad > 0; pad--) {
 		if (*s++ == '\0') break;
 	}
     lcd.pos(0,1);
-    lcd.puts(st);
+    lcd.print(st);
     while (pad--) {
-    	lcd.puts(" ");
+    	lcd.print(" ");
     }
 }
 
@@ -50,20 +47,20 @@ void Display::menu(const char *itemName)
 		if (*s++ == '\0') break;
 	}
     lcd.pos(0,0);
-    lcd.puts("< ");
-    lcd.puts(itemName);
-    lcd.puts(" >");
+    lcd.print("< ");
+    lcd.print(itemName);
+    lcd.print(" >");
     pad -= 4; // account for "< " and " >"
     while (pad--) {
-    	lcd.puts(" ");
+    	lcd.print(" ");
     }
 }
 
 void Display::select(const char *itemName)
 {
     lcd.pos(0,0);
-    lcd.puts(">>");
-	lcd.puts(itemName);
+    lcd.print(">>");
+	lcd.print(itemName);
 }
 
 // display gauge at a given position (slot) along the bottom
@@ -76,25 +73,25 @@ void Display::gauge(int slot)
 void Display::update(SystemState *state) {
 	if (state) {
 		// TODO 2 fix padding/overwrite
-		lcd.pos(0,3);
-		lcd.puts("V:");
-		lcd.puts(cvftos(state->voltage, 1));
-		lcd.puts(" G:");
-		lcd.puts(cvftos(state->gpsHDOP, 1));
-		lcd.puts(" ");
-		lcd.puts(cvitos(state->gpsSats));
+		lcd.pos(0,2);
+		lcd.print("V:");
+		lcd.print(cvftos(state->voltage, 1));
+		lcd.print(" G:");
+		lcd.print(cvftos(state->gpsHDOP, 1));
+		lcd.print(" ");
+		lcd.print(cvitos(state->gpsSats));
 
-		lcd.pos(0,4);
-		lcd.puts("H:");
-		lcd.puts(cvftos(state->estHeading, 1));
-		lcd.puts(" B:");
-		lcd.puts(cvftos(state->bearing, 1));
-		lcd.puts(" ");
-		lcd.puts(cvftos(state->LABrg, 1));
+		lcd.pos(0,3);
+		lcd.print("H:");
+		lcd.print(cvftos(state->estHeading, 1));
+		lcd.print(" B:");
+		lcd.print(cvftos(state->bearing, 1));
+		lcd.print(" ");
+		lcd.print(cvftos(state->LABrg, 1));
 	}
 }
 
- void Display::redraw() { // TODO 3 rename
+void Display::redraw() { // TODO 3 rename
 }
 
 

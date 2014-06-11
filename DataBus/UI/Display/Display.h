@@ -1,8 +1,9 @@
 #ifndef __Display_H
 #define __Display_H
 
+#include "devices.h"
 #include "SystemState.h"
-#include "SerialGraphicLCD.h"
+#include "DigoleSerialDisp.h"
 #include "Bargraph.h"
 
 class Display {
@@ -43,7 +44,7 @@ public:
     /** initializes the update display */
     void redraw(void);
 
-    SerialGraphicLCD lcd;
+    DigoleSerialDisp lcd;
     
 private:
     Bargraph v;
