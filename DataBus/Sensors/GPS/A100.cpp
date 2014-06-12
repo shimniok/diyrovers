@@ -4,7 +4,7 @@
 
 // TODO 3 parameterize LED
 
-const int A100::lag=50;
+const int A100::lag=50; // FIXME lag variable
 
 A100::A100(PinName tx, PinName rx):
     serial(tx, rx)
@@ -14,10 +14,18 @@ A100::A100(PinName tx, PinName rx):
 
 void A100::init()
 {
-    setBaud(38400);
+    setBaud(57600);
     enable();
     disableVerbose();
-    setUpdateRate(10);
+    setUpdateRate(5);
+    /*
+    serial.puts("$JASC,GPGGA,10\r\n");
+	wait(3);
+	serial.puts("$JASC,GPGSV,1\r\n");
+	wait(3);
+	serial.puts("$JASC,GPRMC,10\r\n");
+	wait(3);
+	*/
 }
 
 void A100::setBaud(int baud)
@@ -59,6 +67,7 @@ void A100::disableVerbose(void)
 
 void A100::setNmeaMessages(char gga, char gsa, char gsv, char gll, char rmc, char vtg)
 {
+#if 0
 	if (gga) {
 		serial.puts("$JASC,GPGGA,10\r\n");
 	}
@@ -72,11 +81,12 @@ void A100::setNmeaMessages(char gga, char gsa, char gsv, char gll, char rmc, cha
 		serial.puts("$JASC,GPGLL,10\r\n");
 	}
 	if (rmc) {
-		serial.puts("$JASC,GPRMC,10\r\n");
+		serial.puts("$JASC,GPRMC,5\r\n");
 	}
 	if (vtg) {
-		serial.puts("$JASC,GPVTG,10\r\n");
+		serial.puts("$JASC,GPVTG,5\r\n");
 	}
+#endif
 }
 
 void A100::setUpdateRate(int rate)

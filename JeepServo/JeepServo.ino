@@ -1,19 +1,25 @@
 #include <Servo.h>
 
-#define INTERVAL     20  // Update interval
+#define INTERVAL     10  // Update interval
+
+// Steering motor speed controller values
 #define MOTORRIGHT 1800  // Motor speed control limit (CCW or CW?)
-#define MOTORFAST   200  // fast motor speed, added or subtracted to/from MOTORCTR
-#define MOTORSLOW   100  //
 #define MOTORCTR   1500  // Motor stopped speed control
 #define MOTORLEFT  1200  // Motor speed control limit (CCW or CW?)
+#define MOTORFAST   200  // fast motor speed, added to or subtracted from MOTORCTR
+#define MOTORSLOW   100  // slow motor speed, added to or subtracted from MOTORCTR
+
+// Pin definitions
 #define POT           0  // Feedback potentiometer pin
 #define MOTOR         3  // Motor servo-PWM out pin
 #define INPWM         4  // Control servo-PWM in pin
 #define LED           5  // LED status pin
 
+// Feedback settings
 #define RANGE_WIDE   10  // threshold range for pot value
-#define RANGE_NARROW  5
+#define RANGE_NARROW  0  // threshold range for pot value
 
+// Feedback sensor values
 #define FULL_RIGHT  367  // POT ADC value at full right lock
 #define FULL_LEFT 823    // POT ADC value at full left lock
 #define CENTER 560       // POT ADC value at center (approximately)
@@ -35,31 +41,34 @@ void setup() {
 void loop() {
 
   if (millis() > next) {
+    // Convert incoming PWM to position value (raw ADC)
     target = 500;
 //    target = pulseWidthToPosition(pwmin);
-//    
 
+    // Move the steering wheel until it reaches the target position
+    //
     // For motorVal > MOTORCTR, wheel turns right
     // For motorVal < MOTORCTR, wheel turns left
     // If analogRead(POT) > target, steering is left of target and must be turned right
     // If analogRead(POT) < target, steering is right of target and must be turned left
     int motorVal = MOTORCTR;
     int sensor = analogRead(POT);
-    if (sensor > target + RANGE_WIDE) { // Target is quite a bit to the right
-      motorVal = (MOTORCTR+200); // turn wheel right
-    } else if (sensor < target-10) { // Target is quite a bit to the left
-      motorVal = (MOTORCTR-200); // turn wheel left
-    } else if (sensor > target) { // Target is a little bit to the right
-      motorVal = (MOTORCTR+100); // turn wheel right
-    } else if (sensor < target) { // Target is a little bit to the left
-      motorVal = (MOTORCTR-100); // turn wheel left
+    
+    if (sensor > target + RANGE_WIDE) {           // Target is quite a bit to the right
+      motorVal = MOTORCTR + MOTORFAST;            // turn wheel right
+    } else if (sensor < target - RANGE_WIDE) {    // Target is quite a bit to the left
+      motorVal = MOTORCTR - MOTORFAST;            // turn wheel left
+    } else if (sensor > target + RANGE_NARROW) {  // Target is a little bit to the right
+      motorVal = MOTORCTR + MOTORSLOW;            // turn wheel right
+    } else if (sensor < target - RANGE_NARROW) {  // Target is a little bit to the left
+      motorVal = MOTORCTR - MOTORSLOW;            // turn wheel left
     } else {
-      motorVal = (1500);
+      motorVal = MOTORCTR;
     }
     motorWrite(motorVal);
     
     //Serial.print("T: "); Serial.println(analogRead(POT));
-    //next += INTERVAL;
+    next += INTERVAL;
     /*
     Serial.print(" in=");
     Serial.print(pwmin);

@@ -77,8 +77,7 @@ bool TinyGPS::encode(char c)
   bool valid_sentence = false;
 
   ++_encoded_characters;
-  switch(c)
-  {
+  switch(c) {
   case ',': // term terminators
     _parity ^= c;
     // no break
@@ -101,6 +100,7 @@ bool TinyGPS::encode(char c)
     _sentence_type = _GPS_SENTENCE_OTHER;
     _is_checksum_term = false;
     _gps_data_good = false;
+    fputs("begin\n", stdout);
     return valid_sentence;
   }
 
@@ -191,49 +191,58 @@ bool TinyGPS::term_complete()
     
         byte checksum = 16 * from_hex(_term[0]) + from_hex(_term[1]);
         if (checksum == _parity) {
-        
+
+        	fputs("parity ok\n", stdout);
+
             if (_gps_data_good) {
+
+            	fputs("data good\n", stdout);
             
 #ifndef _GPS_NO_STATS
-            ++_good_sentences;
+            	++_good_sentences;
 #endif
-            _last_time_fix = _new_time_fix;
-            _last_position_fix = _new_position_fix;
+				_last_time_fix = _new_time_fix;
+				_last_position_fix = _new_position_fix;
 
-            switch(_sentence_type) {
-            case _GPS_SENTENCE_GPRMC:
-                _time      = _new_time;
-                _date      = _new_date;
-                _latitude  = _new_latitude;
-                _longitude = _new_longitude;
-                _speed     = _new_speed;
-                _course    = _new_course;
-                _rmc_ready = true;
-                break;
-            case _GPS_SENTENCE_GPGGA:
-                _altitude  = _new_altitude;
-                _time      = _new_time;
-                _latitude  = _new_latitude;
-                _longitude = _new_longitude;
-                _hdop      = _new_hdop;
-                _sat_count = _new_sat_count;
-                _gga_ready = true;
-                break;
-            case _GPS_SENTENCE_GPGSV:
-                _gsv_ready = true;
-                break;
-            }
+				switch(_sentence_type) {
+				case _GPS_SENTENCE_GPRMC:
+					_time      = _new_time;
+					_date      = _new_date;
+					_latitude  = _new_latitude;
+					_longitude = _new_longitude;
+					_speed     = _new_speed;
+					_course    = _new_course;
+					_rmc_ready = true;
+					fputs("GPRMC\n", stdout);
+					break;
+				case _GPS_SENTENCE_GPGGA:
+					_altitude  = _new_altitude;
+					_time      = _new_time;
+					_latitude  = _new_latitude;
+					_longitude = _new_longitude;
+					_hdop      = _new_hdop;
+					_sat_count = _new_sat_count;
+					_gga_ready = true;
+					fputs("GPGGA\n", stdout);
+					break;
+				case _GPS_SENTENCE_GPGSV:
+					_gsv_ready = true;
+					fputs("GPGSV\n", stdout);
+					break;
+				}
 
-            return true;
-        }
-    }
+				return true;
+            } // switch
+
+        } // if checksum == _parity
 
 #ifndef _GPS_NO_STATS
-    else
-        ++_failed_checksum;
+        else {
+        	++_failed_checksum;
+        } // if checksum == _parity
 #endif
-    return false;
-    }
+        return false;
+    } // if checksum term
 
     // the first term determines the sentence type
     if (_term_number == 0) {
