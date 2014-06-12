@@ -53,7 +53,7 @@ void loop() {
     // If analogRead(POT) < target, steering is right of target and must be turned left
     int motorVal = MOTORCTR;
     int sensor = analogRead(POT);
-    
+
     if (sensor > target + RANGE_WIDE) {           // Target is quite a bit to the right
       motorVal = MOTORCTR + MOTORFAST;            // turn wheel right
     } else if (sensor < target - RANGE_WIDE) {    // Target is quite a bit to the left
@@ -69,15 +69,6 @@ void loop() {
     
     //Serial.print("T: "); Serial.println(analogRead(POT));
     next += INTERVAL;
-    /*
-    Serial.print(" in=");
-    Serial.print(pwmin);
-    Serial.println();
-    Serial.print(" out=");
-    Serial.print(i);
-    Serial.print(" pos=");
-    Serial.print(pulseWidthToPosition(pwmin));
-    */
   }    
 }
 
