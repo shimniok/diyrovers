@@ -71,6 +71,7 @@ void Display::gauge(int slot)
 #define WIDTH 22
 
 void Display::update(SystemState *state) {
+#if 0
 	if (state) {
 		// TODO 2 fix padding/overwrite
 		lcd.pos(0,2);
@@ -89,6 +90,7 @@ void Display::update(SystemState *state) {
 		lcd.print(" ");
 		lcd.print(cvftos(state->LABrg, 1));
 	}
+#endif
 }
 
 void Display::redraw() { // TODO 3 rename
