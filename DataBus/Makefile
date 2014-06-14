@@ -40,13 +40,9 @@ OBJECTS += \
 	./Telemetry/Telemetry.o \
 	./UI/Beep/Beep.o \
 	./UI/Buttons/Buttons.o \
-	./UI/DigoleSerialDisp/DigoleSerialDisp.o \
 	./UI/Display/Display.o \
-	./UI/LCD/Bargraph.o \
-	./UI/LCD/GPSStatus.o \
-	./UI/LCD/lcd.o \
+	./UI/SerialTextLCD/SerialTextLCD.o \
 	./UI/Menu/Menu.o \
-	./UI/SerialGraphicLCD/SerialGraphicLCD.o \
 	./UI/shell.o \
 	./logging/logging.o
 SYS_OBJECTS = ./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/cmsis_nvic.o ./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/system_LPC17xx.o ./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/startup_LPC17xx.o ./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/retarget.o 
@@ -82,9 +78,8 @@ INCLUDE_PATHS += \
 	-I./UI/Buttons/PinDetect \
 	-I./UI/Display \
 	-I./UI/LCD \
-	-I./UI/DigoleSerialDisp/ \
+	-I./UI/SerialTextLCD/ \
 	-I./UI/Menu \
-	-I./UI/SerialGraphicLCD \
 	-I./logging
 LIBRARY_PATHS = -L./mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM 
 LIBRARIES = -lmbed 

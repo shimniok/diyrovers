@@ -21,8 +21,10 @@
 #define UART2RX 	p27
 #define UART3TX 	p17
 #define UART3RX 	p18
-#define THROTTLE	p22
 #define STEERING	p21
+#define THROTTLE	p22
+#define RXSTR		p23
+#define RXSPD		p24
 #define ENCALEFT	p30
 #define ALEFT		ENCALEFT
 #define ENCARIGHT	p29
@@ -47,6 +49,7 @@
 // REV 0.6
 #define IO0			p11
 #define IO1			p12
+#define IO2
 #define PW0			p25
 #define PW1			p26
 #define AN0 		p15

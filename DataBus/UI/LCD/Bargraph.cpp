@@ -18,6 +18,7 @@ Bargraph::Bargraph(int x, int y, int size, int width, char name):
 
 void Bargraph::init() 
 {
+#if 0
     if (lcd) {
         if (_n != ' ') {
             lcd->posXY(_x + (_w/2 - CHAR_WIDTH/2), _y2+2); // horizontal center
@@ -31,6 +32,7 @@ void Bargraph::init()
         _last = 0;
         update(value);
     }
+#endif
 }
 
 void Bargraph::calibrate(float min, float max)
@@ -52,7 +54,8 @@ void Bargraph::update(float value)
 
 void Bargraph::update(int value)
 {
-    if (lcd) {
+#if 0
+	if (lcd) {
         if (value >= 0 && value < _s) {
             int newY = _y2-value;
             
@@ -63,5 +66,6 @@ void Bargraph::update(int value)
         }
         _last = value;
     }
+#endif
 }
 

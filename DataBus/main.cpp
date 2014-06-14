@@ -69,6 +69,8 @@ DigitalOut updaterStatus(LED4);         // update loop status LED
 //DigitalOut sonarStart(p18);           // Sends signal to start sonar array pings
 Display display;                        // UI display
 //Beep speaker(p24);                      // Piezo speaker
+DigitalOut horn(HORN);					// Warning 'ooga' horn
+DigitalOut brake(BRAKE);				// Brake actuator
 
 // INPUT
 Menu menu;
@@ -77,7 +79,6 @@ Buttons keypad;
 // COMM
 Serial pc(USBTX, USBRX);                // PC usb communications
 SerialMux mux(&pc);						// Multiplexed output
-SerialGraphicLCD lcd(LCDTX, LCDRX, SD_FW);  // Graphic LCD with summoningdark firmware
 Serial tel(TELEMTX, TELEMRX);			// UART for telemetry
 Telemetry telem(tel);					// Setup telemetry system
 
@@ -163,19 +164,20 @@ int main()
     NVIC_SetPriority(TIMER1_IRQn, 10); 	// unused(?)
     NVIC_SetPriority(TIMER2_IRQn, 10); 	// unused(?)
 
+    // Send data back to the PC
+    pc.baud(115200);
+    fputs("Data Bus 2014\n", stdout);
+    fflush(stdin);
+
     // Something here is jacking up the I2C stuff
     // Also when initializing with ESC powered, it causes motor to run which
     // totally jacks up everything (noise?)
     initSteering();
     initThrottle();
+    brake = BRAKE_ENABLE;
 
     display.init();
     display.status("Data Bus 2014");
-
-    // Send data back to the PC
-    pc.baud(115200);
-    fputs("Data Bus 2014\n", stdout);
-    fflush(stdin);
 
     fputs("Initializing...\n", stdout);
     display.status("Initializing");
@@ -519,6 +521,7 @@ int autonomousMode()
             if (keypad.pressed == true) { // && started
                 fputs(">>>>>>>>>>>>>>>>>>>>>>> HALT\n", stdout);
                 display.status("HALT.");
+                brake = BRAKE_ENABLE;
                 navDone = true;
                 goGoGo = false;
                 keypad.pressed = false;
@@ -526,8 +529,23 @@ int autonomousMode()
             }
         } else {
             if (keypad.pressed == true) {
-                fputs(">>>>>>>>>>>>>>>>>>>>>>> GO GO GO\n", stdout);
+                // Honk the horn
+            	fputs("HONK\n", stdout);
+                display.status("HONK!");
+                horn = 1;
+                wait(0.3);
+                horn = 0;
+                wait(1);
+
+                // Disable the brake
+            	fputs("Brake disable\n", stdout);
+                display.status("Brake off");
+                brake = BRAKE_DISABLE;
+                wait(0.5);
+
+            	fputs(">>>>>>>>>>>>>>>>>>>>>>> GO GO GO\n", stdout);
                 display.status("GO GO GO!");
+
                 goGoGo = true;
                 keypad.pressed = false;
                 beginRun();
@@ -728,12 +746,12 @@ int setBacklight(void) {
                 case NEXT_BUTTON:
                     backlight+=5;
                     if (backlight > 100) backlight = 100;
-                    lcd.backlight(backlight);
+//                    lcd.backlight(backlight);
                     break;
                 case PREV_BUTTON:
                     backlight-=5;
                     if (backlight < 0) backlight = 0;
-                    lcd.backlight(backlight);
+//                    lcd.backlight(backlight);
                     break;
                 case SELECT_BUTTON:
                     done = true;
@@ -742,7 +760,7 @@ int setBacklight(void) {
         }
         if (printUpdate) {
             printUpdate = false;
-            lcd.pos(0,1);
+//            lcd.pos(0,1);
             // TODO 3 lcd.printf("%3d%%%-16s", backlight, "");
         }
     }
@@ -751,8 +769,6 @@ int setBacklight(void) {
 }
 
 int reverseScreen(void) {
-    lcd.reverseMode();
-    
     return 0;
 }
 

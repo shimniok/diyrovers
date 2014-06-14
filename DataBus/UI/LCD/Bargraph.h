@@ -1,8 +1,6 @@
 #ifndef __BARGRAPH_H
 #define __BARGRAPH_H
 
-#include "SerialGraphicLCD.h"
-
 class Bargraph {
 public:
     Bargraph() {}
@@ -12,8 +10,6 @@ public:
     void calibrate(float min, float max);
     void update(float value);
     void update(int value);
-
-    static SerialGraphicLCD *lcd;
 
 private:
     int _x;

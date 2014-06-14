@@ -6,61 +6,57 @@
 #define DISPLAY_CLEAR     0x01
 #define DISPLAY_SET_POS   0x08
 
-Display::Display(void): 
-        lcd(p17, p18),
-        v(1, 20, 35, 20, 'V'),
-        //a(11, 40, 15, 'A'),
-        g1(22, 20, 35, 20, 'G'),
-        g2(43, 20, 35, 20, 'H')
+Display::Display(void)
 {
-  // nothin to do
+	// nothin to do
 }
 
 void Display::init()
 {
-    lcd.baud(9600);
-    lcd.print("test\n"); // hopefully force 115200 on powerup
-    lcd.clear();
-    wait(0.3);
+//    for (int i=0; i < 100; i++) {
+//    	_lcd.print("test\n"); // hopefully force 115200 on powerup
+//    }
+//	_lcd.clear();
+//    wait(0.3);
 }
 
 void Display::status(const char *st)
 {
-	int pad;
-	char *s = (char *) st;
-	// TODO 3: parameterize screen width
-	for (pad=15; pad > 0; pad--) {
-		if (*s++ == '\0') break;
-	}
-    lcd.pos(0,1);
-    lcd.print(st);
-    while (pad--) {
-    	lcd.print(" ");
-    }
+//	int pad;
+//	char *s = (char *) st;
+//	// TODO 3: parameterize screen width
+//	for (pad=15; pad > 0; pad--) {
+//		if (*s++ == '\0') break;
+//	}
+//    lcd.pos(0,1);
+//    lcd.print(st);
+//    while (pad--) {
+//    	lcd.print(" ");
+//    }
 }
 
 void Display::menu(const char *itemName)
 {
-	int pad;
-	char *s = (char *) itemName;
-	for (pad=20; pad > 0; pad--) {
-		if (*s++ == '\0') break;
-	}
-    lcd.pos(0,0);
-    lcd.print("< ");
-    lcd.print(itemName);
-    lcd.print(" >");
-    pad -= 4; // account for "< " and " >"
-    while (pad--) {
-    	lcd.print(" ");
-    }
+//	int pad;
+//	char *s = (char *) itemName;
+//	for (pad=20; pad > 0; pad--) {
+//		if (*s++ == '\0') break;
+//	}
+//    lcd.pos(0,0);
+//    lcd.print("< ");
+//    lcd.print(itemName);
+//    lcd.print(" >");
+//    pad -= 4; // account for "< " and " >"
+//    while (pad--) {
+//    	lcd.print(" ");
+//    }
 }
 
 void Display::select(const char *itemName)
 {
-    lcd.pos(0,0);
-    lcd.print(">>");
-	lcd.print(itemName);
+//    lcd.pos(0,0);
+//    lcd.print(">>");
+//	lcd.print(itemName);
 }
 
 // display gauge at a given position (slot) along the bottom
@@ -74,21 +70,21 @@ void Display::update(SystemState *state) {
 #if 0
 	if (state) {
 		// TODO 2 fix padding/overwrite
-		lcd.pos(0,2);
-		lcd.print("V:");
-		lcd.print(cvftos(state->voltage, 1));
-		lcd.print(" G:");
-		lcd.print(cvftos(state->gpsHDOP, 1));
-		lcd.print(" ");
-		lcd.print(cvitos(state->gpsSats));
+		_lcd.pos(0,2);
+		_lcd.print("V:");
+		_lcd.print(cvftos(state->voltage, 1));
+		_lcd.print(" G:");
+		_lcd.print(cvftos(state->gpsHDOP, 1));
+		_lcd.print(" ");
+		_lcd.print(cvitos(state->gpsSats));
 
-		lcd.pos(0,3);
-		lcd.print("H:");
-		lcd.print(cvftos(state->estHeading, 1));
-		lcd.print(" B:");
-		lcd.print(cvftos(state->bearing, 1));
-		lcd.print(" ");
-		lcd.print(cvftos(state->LABrg, 1));
+		_lcd.pos(0,3);
+		_lcd.print("H:");
+		_lcd.print(cvftos(state->estHeading, 1));
+		_lcd.print(" B:");
+		_lcd.print(cvftos(state->bearing, 1));
+		_lcd.print(" ");
+		_lcd.print(cvftos(state->LABrg, 1));
 	}
 #endif
 }

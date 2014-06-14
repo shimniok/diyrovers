@@ -2,7 +2,6 @@
 #include "globals.h"
 #include "logging.h"
 #include "SDFileSystem.h"
-#include "SerialGraphicLCD.h"
 
 // TODO 2 set up logging out of low priority interrupt handler
 
@@ -220,8 +219,7 @@ FILE *openlog(const char *prefix)
         if ((fp = fopen(myname, "w")) == 0) {
             pc.printf("Waiting for filesystem to come online...");
             wait(0.200);
-            lcd.pos(0,1);
-            lcd.printf("%-16s", "Waiting for fs");
+            display.status("Waiting for fs");
         }
     }
     fclose(fp);
@@ -242,9 +240,8 @@ FILE *openlog(const char *prefix)
         // TODO 3 set error message, get rid of writing to terminal
 
         //status = true;
-        pc.printf("opened %s for writing\n", myname);
-        lcd.pos(0,1);
-        lcd.printf("%-16s", myname);
+    	pc.printf("opened %s for writing\n", myname);
+    	display.status(myname);
     }
 
     return fp;

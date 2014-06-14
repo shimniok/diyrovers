@@ -76,6 +76,9 @@ bool TinyGPS::encode(char c)
 {
   bool valid_sentence = false;
 
+  if (c >= 32 && c <= 127)
+	  fputc(c, stdout);
+
   ++_encoded_characters;
   switch(c) {
   case ',': // term terminators
@@ -100,7 +103,6 @@ bool TinyGPS::encode(char c)
     _sentence_type = _GPS_SENTENCE_OTHER;
     _is_checksum_term = false;
     _gps_data_good = false;
-    fputs("begin\n", stdout);
     return valid_sentence;
   }
 

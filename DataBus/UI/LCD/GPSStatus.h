@@ -1,15 +1,11 @@
 #ifndef __GPSSTATUS_H
 #define __GPSSTATUS_H
 
-#include "SerialGraphicLCD.h"
-
 class GPSStatus {
 public:
     GPSStatus(int x, int y);
     void init();
     void update(float hdop);
-
-    static SerialGraphicLCD *lcd;
 
 private:
     int _x;

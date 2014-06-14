@@ -9,7 +9,6 @@
 #define MOTORCTR   1500  // Motor stopped speed control
 #define MOTORLEFT  1200  // Motor speed control limit (CCW or CW?)
 #define MOTORFAST   200  // fast motor speed, added to or subtracted from MOTORCTR
-#define MOTORSLOW   100  // slow motor speed, added to or subtracted from MOTORCTR
 
 // Pin definitions
 #define POT           0  // Feedback potentiometer pin
@@ -45,8 +44,8 @@ void loop() {
     int targetPosition;  // target steering position
 
     // Convert incoming PWM to position value (raw ADC), and clamp just in case
-    targetPosition = 500; // test
-//    targetPosition = pulseWidthToPosition(pwmin);
+    //targetPosition = 500; // test
+    targetPosition = pulseWidthToPosition(pwmin);
     if (targetPosition > FULL_LEFT) {
       targetPosition = FULL_LEFT;
     } else if (targetPosition < FULL_RIGHT) {

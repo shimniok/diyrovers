@@ -12,11 +12,11 @@
 #include "Steering.h"
 #include "Buttons.h"
 #include "Serial.h"
-#include "SerialGraphicLCD.h"
+#include "Display.h"
 
+extern Display display;
 extern Steering steering;
 extern Serial pc;
-extern SerialGraphicLCD lcd;
 extern Buttons keypad;
 
 #endif

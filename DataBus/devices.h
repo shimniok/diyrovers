@@ -12,6 +12,7 @@
 
 #include "mbed.h"
 #include "boards.h"
+#include "SerialTextLCD.h"
 
 /** GPS */
 #define GPSTX			UART1TX
@@ -26,8 +27,18 @@
 #define LCDRX			UART3RX
 
 /** UI Buttons */
-#define BUTTONNEXT		_D1
-#define BUTTONPREV		_P1
-#define BUTTONSELECT	_D0
+#define BUTTONNEXT		IO0
+#define BUTTONPREV		IO1
+#define BUTTONSELECT	PW0
+
+/** Horn */
+#define HORN			RXSTR
+extern DigitalOut horn;
+
+/** Brake */
+#define BRAKE			RXSPD
+#define BRAKE_DISABLE	1
+#define BRAKE_ENABLE	0
+extern DigitalOut brake;
 
 #endif /* CONFIG_H_ */

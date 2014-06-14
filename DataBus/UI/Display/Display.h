@@ -3,12 +3,9 @@
 
 #include "devices.h"
 #include "SystemState.h"
-#include "DigoleSerialDisp.h"
-#include "Bargraph.h"
 
 class Display {
 public:
-
     /** create new display instance
      *
      */
@@ -43,14 +40,8 @@ public:
     
     /** initializes the update display */
     void redraw(void);
-
-    DigoleSerialDisp lcd;
-    
-private:
-    Bargraph v;
-    Bargraph a;
-    Bargraph g1;
-    Bargraph g2;
+//private:
+//    SerialTextLCD _lcd;
 };        
 
 #endif

@@ -33,7 +33,7 @@ void GPSStatus::init()
 
 void GPSStatus::update(float hdop)
 {
-    lcd->pixel(_x+5, _y+1, hdop < 3.0);    
+	lcd->pixel(_x+5, _y+1, hdop < 3.0);
 
     lcd->pixel(_x+6, _y+1, hdop < 2.0);    
     lcd->pixel(_x+6, _y+2, hdop < 2.0);    

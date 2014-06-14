@@ -15,18 +15,20 @@ A100::A100(PinName tx, PinName rx):
 void A100::init()
 {
     setBaud(57600);
-    enable();
-    disableVerbose();
-    setUpdateRate(5);
-    /*
+//    enable();
+//    disableVerbose();
+//    setUpdateRate(5);
     serial.puts("$JASC,GPGGA,10\r\n");
-	wait(3);
-	serial.puts("$JASC,GPGSV,1\r\n");
-	wait(3);
+	wait(1);
 	serial.puts("$JASC,GPRMC,10\r\n");
-	wait(3);
-	*/
+	wait(1);
+	serial.puts("$JASC,GPGSV,1\r\n");
+	wait(1);
+	while (serial.readable() > 0) {
+		fputc(serial.getc(), stdout);
+	}
 }
+
 
 void A100::setBaud(int baud)
 {
