@@ -14,19 +14,21 @@ A100::A100(PinName tx, PinName rx):
 
 void A100::init()
 {
-    setBaud(57600);
+    setBaud(115200);
+//    for (int i=0; i < 100; i++) {
+//    	serial.puts("$JDIFF,WAAS\r\n");
+//    	wait(0.2);
+//    }
+//    serial.puts("$JSHOW\r\n");
 //    enable();
 //    disableVerbose();
 //    setUpdateRate(5);
-    serial.puts("$JASC,GPGGA,10\r\n");
-	wait(1);
-	serial.puts("$JASC,GPRMC,10\r\n");
-	wait(1);
-	serial.puts("$JASC,GPGSV,1\r\n");
-	wait(1);
-	while (serial.readable() > 0) {
-		fputc(serial.getc(), stdout);
-	}
+//    serial.puts("$JASC,GPGGA,10\r\n");
+//	wait(1);
+//	serial.puts("$JASC,GPRMC,10\r\n");
+//	wait(1);
+//	serial.puts("$JASC,GPGSV,1\r\n");
+//	wait(1);
 }
 
 
