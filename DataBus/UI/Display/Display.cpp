@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "devices.h"
 #include "util.h"
 #include "Display.h"
 
@@ -6,17 +7,18 @@
 #define DISPLAY_CLEAR     0x01
 #define DISPLAY_SET_POS   0x08
 
-Display::Display(void)
+Display::Display(void):
+	_lcd(LCDTX, LCDRX)
 {
+	_lcd.baud(9600);
 	// nothin to do
 }
 
 void Display::init()
 {
-//    for (int i=0; i < 100; i++) {
-//    	_lcd.print("test\n"); // hopefully force 115200 on powerup
-//    }
-//	_lcd.clear();
+//	_lcd.puts("test\n"); // hopefully force 115200 on powerup
+//    _lcd.putc(0x7c);
+//    _lcd.putc(0x01);
 //    wait(0.3);
 }
 

@@ -40,8 +40,8 @@ public:
     
     /** initializes the update display */
     void redraw(void);
-//private:
-//    SerialTextLCD _lcd;
+private:
+    Serial _lcd;
 };        
 
 #endif
