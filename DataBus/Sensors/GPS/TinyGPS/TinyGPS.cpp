@@ -76,8 +76,8 @@ bool TinyGPS::encode(char c)
 {
   bool valid_sentence = false;
 
-  if (c >= 32 && c <= 127)
-	  fputc(c, stdout);
+//  if (c == '\r' || c == '\n' || (c >= 32 && c <= 127))
+//	  fputc(c, stdout);
 
   ++_encoded_characters;
   switch(c) {
@@ -194,11 +194,11 @@ bool TinyGPS::term_complete()
         byte checksum = 16 * from_hex(_term[0]) + from_hex(_term[1]);
         if (checksum == _parity) {
 
-        	fputs("parity ok\n", stdout);
+//        	fputs("parity ok\n", stdout);
 
             if (_gps_data_good) {
 
-            	fputs("data good\n", stdout);
+//            	fputs("data good\n", stdout);
             
 #ifndef _GPS_NO_STATS
             	++_good_sentences;
@@ -215,7 +215,7 @@ bool TinyGPS::term_complete()
 					_speed     = _new_speed;
 					_course    = _new_course;
 					_rmc_ready = true;
-					fputs("GPRMC\n", stdout);
+//					fputs("GPRMC\n", stdout);
 					break;
 				case _GPS_SENTENCE_GPGGA:
 					_altitude  = _new_altitude;
@@ -225,11 +225,11 @@ bool TinyGPS::term_complete()
 					_hdop      = _new_hdop;
 					_sat_count = _new_sat_count;
 					_gga_ready = true;
-					fputs("GPGGA\n", stdout);
+//					fputs("GPGGA\n", stdout);
 					break;
 				case _GPS_SENTENCE_GPGSV:
 					_gsv_ready = true;
-					fputs("GPGSV\n", stdout);
+//					fputs("GPGSV\n", stdout);
 					break;
 				}
 
