@@ -257,7 +257,7 @@ void update()
     //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
     nowSpeed = sensors.encSpeed;
 
-    sensors.Read_Gyro(); 
+//    sensors.Read_Gyro();
     //sensors.Read_Rangers();
     //sensors.Read_Accel();
     //sensors.Read_Camera();
