@@ -320,7 +320,7 @@ int main()
     wait(0.2);
     // Startup sensor/AHRS ticker; update every UPDATE_PERIOD
     restartNav();
-//    startUpdater();
+    startUpdater();
 
     pc.puts("Starting keypad...\n");
 
