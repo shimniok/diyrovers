@@ -1,8 +1,5 @@
 # Data Bus Config File
 #
-# Gyro settings
-#	gyro,x,y,z,x,y,z -- gyro offsets (float ok) and scaling factors
-#
 # Declination (deprecated
 #	decl,decl    -- magnetic compass declination (e.g., +9 enter 9)
 #
@@ -15,21 +12,65 @@
 
 #########################################################################################################
 # Navigation config
-#	nav,intercept,waypoint distance, brake distance, min radius 	
-#	intercept distance, waypoint distance, brake distance, minimum turn radius
 #
-#nav,2.5,5.0,6.0,3.5
-#nav,5.0,5.0,6.0,5.0
-#nav,4.0,4.0,4.0,3.0
-nav,3.0,3.0,3.0,2.5
+#	nav,intercept distance,waypoint distance, brake distance, min turn radius 
+#	
+#	intercept distance	the distance for path following algorithm, how far away the 'rabbit' is
+#	waypoint distance	distance threshold at which robot switches to next waypoint
+#	brake distance		distance at which turn speed is selected as the new speed
+#	min turn radius		minimum turn radius permitted
+#
+nav,2.0,2.0,3.0,1.0
+
+########################################################################################################## 
+# Vehicle config
+#
+#	veh, tire circ, wheelbase, track
+#
+#	wheelbase	distance between front and rear axles
+#	track		distance between left and right tire contact patches
+#
+veh,0.290,0.280
+
+########################################################################################################## 
+# Encoder config
+#
+#	enc,tire circ,stripe count
+#
+#	tire circ	circumference of tire
+#	stripe count	number of black and white stripes
+#
+# calibrated with 4 runs, average for both tires
+enc,0.321537,32
+
+########################################################################################################## 
+# Throttle (Speed) config
+#
+#	speed, minimum, stop, max, stop speed, turn speed, Kp, Ki, Kd
+#
+#	brake		esc value when braking
+#	off		esc value when stopped, idle
+#	max		max esc value
+#	scale		ratio of servo to throttle value (probably 1)
+#	top speed	default cruise speed in m/s
+#	turn speed	turn speed in m/s
+#	start speed	speed to use at the start
+#	Kp		Speed PID, proportional constant
+#	Ki		Speed PID, integral constant
+#	Kd		Speed PID, derivative constant
+#
+speed,1100,1410,2000,4.0,4.0,3.0,40.0,60.0,0.0
 
 ########################################################################################################## 
 # Steering config
-#	steer,center,gain,gain angle,cte Ki,alg 
-#	center servo setting, steering gain (overcomes steering slop, hills, etc), 
-#		angle below which gain takes effect
+#
+#	steer,center,scale
+#
+#	center		servo center setting
+#	scale		ratio of servo to steering angle
+#
 #steer,0.5,2.0,5.0
-steer,0.5,0.05,1.0
+steer,0.5,0.001238
 
 ########################################################################################################## 
 # Curb avoid settings
@@ -42,28 +83,46 @@ steer,0.5,0.05,1.0
 curb,110.0,0.0
 
 ########################################################################################################## 
-# Throttle (Speed) config
-#	speed,min,off,max,top,turn,Kp,Ki,Kd	
-#	brake setting, off setting, max throttle, 
-#		top speed, turn speed, start speed, PID values: P, I, and D
-# ~4m/s (9mph) 515
-# ~5m/s (11mph) 530
-# ~6m/s (13mph) 550
-# 6/16/2012
-#speed,398,400,830,9.0,7.5,3.5,60.0,30.0,0.0
-# 5/8/2013
-speed,410,410,600,5.0,4.8,3.5,60.0,20.0,0.0
-
-# Waypoint
-# 	W,lat,lon,speedadj,turnspeedadj -- waypoint 0, latitude, longitude, top speed adj, turn speed adj
-#	W,lat,lon,speedadj,turnspeedadj -- waypoint 1, latitude, longitude, top speed adj, turn speed adj
-#	...                             -- and so on up to max ### Home
+# Gyro configuration
 #
+#	gyro, zscale
+#
+#	zscale		scale converting gyro Z to degrees per second
+#
+gyro,-0.00444633
+
+########################################################################################################## 
+# GPS configuration
+#
+#	gps, valid speed
+#
+#	valid speed	speed above which gps data is trustworthy(ish)
+#
+gps,2.0
+
+########################################################################################################## 
+# Waypoint
+# 	W,lat,lon,speedadj,turnspeedadj, name -- latitude, longitude, top speed adj, turn speed adj
+#	W,lat,lon,speedadj,turnspeedadj, name -- latitude, longitude, top speed adj, turn speed adj
+#	...                                   -- and so on up to max
+#
+
+## Home
+#
+wpt,39.59756978,-104.93290105,0,0, Home0
+wpt,39.59756944,-104.93277222,0,0, Home1
+wpt,39.59766111,-104.93277222,0,0, Home2
+wpt,39.59766111,-104.93286340,0,0, Home3
+wpt,39.59756978,-104.93290105,0,0, Home0
+
+#wpt,39.59738611,-104.93288611,0,0, Home4
+#wpt,39.59738611,-104.93275833,0,0, Home5
 
 ## Lois Lenski Site A
 #
-wpt,39.60212530,-104.92975933,0,0, Lenski0
-wpt,39.60203564,-104.93008435,1,0.5, Lenski1
-wpt,39.60191143,-104.93002912,,, Lenski2
-wpt,39.60199645,-104.92969969,2,1, Lenski3
-wpt,39.60212530,-104.92975933,0,0, Lenski0
+#wpt,39.60212530,-104.92975933,0,0, Lenski0
+#wpt,39.60203564,-104.93008435,1,0.5, Lenski1
+#wpt,39.60191143,-104.93002912,,, Lenski2
+#wpt,39.60199645,-104.92969969,2,1, Lenski3
+#wpt,39.60212530,-104.92975933,0,0, Lenski0
+
