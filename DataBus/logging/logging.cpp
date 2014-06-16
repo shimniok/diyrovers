@@ -106,7 +106,7 @@ void logData( SystemState *s )
 		fputc(',',logp);
 		fputs(cvftos(s->LAy, 4), logp);
 		fputc('\n',logp);
-//		fflush(logp);
+		fflush(logp);
 
 		t2 = logtimer.read_us();
 		fputs(cvitos(t2-t1), stdout);
