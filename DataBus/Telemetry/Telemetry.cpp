@@ -52,10 +52,10 @@ void Telemetry::sendPacket(SystemState *s) {
 	if (s) {
 		// Bearing is given as absolute; we want to send relative bearing
 		float bearing = s->bearing - s->estHeading;
-		while (bearing >= 360.0) {
+		if (bearing >= 360.0) {
 			bearing -= 360.0;
 		}
-		while (bearing < 0) {
+		if (bearing < 0) {
 			bearing += 360.0;
 		}
 
