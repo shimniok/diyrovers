@@ -1,4 +1,4 @@
-/** Code for "Data Bus" UGV entry for Sparkfun AVC 2014
+/** Code for "SHARC FSV" UGV entry for Sparkfun AVC 2014
  *  http://www.bot-thoughts.com/
  */
 
@@ -164,13 +164,14 @@ int main()
     NVIC_SetPriority(TIMER1_IRQn, 10); 	// unused(?)
     NVIC_SetPriority(TIMER2_IRQn, 10); 	// unused(?)
 
-	display.init();
-    display.status("Data Bus 2014");
-
     // Send data back to the PC
     pc.baud(115200);
-    fputs("Data Bus 2014\n", stdout);
+    fputs("SHARC FSV 2014\n", stdout);
     fflush(stdin);
+
+	display.init();
+    display.status("SHARC FSV 2014");
+    wait(1);
 
     // Something here is jacking up the I2C stuff
     // Also when initializing with ESC powered, it causes motor to run which
@@ -352,14 +353,15 @@ int main()
     while (1) {
 
         thisUpdate = timer.read_ms();
+
         if (thisUpdate > nextDisplayUpdate) {
-            // Pulling out current state so we get the most current
+        	// Pulling out current state so we get the most current
             SystemState *s = fifo_first();
             // TODO 3 fix this so gps is already in state
             // Now populate in the current GPS data
             s->gpsHDOP = sensors.gps.hdop();
             s->gpsSats = sensors.gps.sat_count();
-
+            // FIXME hanging on telem.sendPacket
             telem.sendPacket(s);
             display.update(s);
             nextDisplayUpdate = thisUpdate + 200;
@@ -393,7 +395,6 @@ int main()
             }//switch  
             keypad.pressed = false;
         }// if (keypad.pressed)
-
             
         if (printLCDMenu) {
             display.menu( menu.getItemName() );
@@ -401,10 +402,10 @@ int main()
             display.redraw();
             printLCDMenu = false;
         }
-        
+
         // TODO 3 move to UI area
         if (printMenu) {
-            fputs("\n==============\nData Bus Menu\n==============\n", stdout);
+            fputs("\n==============\nSHARC FSV Menu\n==============\n", stdout);
             fputs("0) Autonomous mode\n", stdout);
             fputs("1) Bridge serial to GPS\n", stdout);
             fputs("2) Gyro calibrate\n", stdout);
@@ -453,7 +454,7 @@ int main()
 
 		} // if (pc.readable())
 
-        wait(0.1);
+        wait(0.05);
 
     } // while
 
