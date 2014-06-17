@@ -23,22 +23,20 @@ Display::Display(void):
 void Display::init()
 {
 	_lcd.baud(9600);
-	// Set brightness
-	for (int i=0; i < 2000; i++) {
-		_lcd.putc(0x12);
-	}
-	wait(0.5);
-	// 9600 baud
+//	for (int i=0; i < 2000; i++) {
+//		_lcd.putc(0x12);
+//	}
+//	wait(0.5);
 	_lcd.putc(LCD_COMMAND);
 	_lcd.putc(0x0D);
-	wait(0.5);
+	wait(0.1);
 	// Set backlight
-//	_lcd.putc(LCD_COMMAND);
-//	_lcd.putc(150);
+	_lcd.putc(LCD_COMMAND);
+	_lcd.putc(155);
 	// Clear screen
 	_lcd.putc(LCD_EXTENDED);
 	_lcd.putc(LCD_CLEAR);
-	wait(0.5);
+	wait(0.1);
 }
 
 void Display::status(const char *st)
