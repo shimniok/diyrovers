@@ -61,7 +61,7 @@ void Display::menu(const char *itemName)
 {
 	int pad;
 	char *s = (char *) itemName;
-	for (pad=20; pad > 0; pad--) {
+	for (pad=WIDTH; pad > 0; pad--) {
 		if (*s++ == '\0') break;
 	}
 	_lcd.putc(0xfe);

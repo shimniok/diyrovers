@@ -3,7 +3,7 @@
 #include "PinDetect.h"
 
 PinDetect nextButton(BUTTONNEXT);
-PinDetect selectButton(BUTTONSELECT);            // Input selectButton
+PinDetect selectButton(p20);            // Input selectButton
 PinDetect prevButton(BUTTONPREV);
 
 Buttons::Buttons(void): which(0), pressed(false)
