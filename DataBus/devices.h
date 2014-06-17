@@ -33,6 +33,8 @@
 
 /** Horn */
 #define HORN			RXSTR
+#define HORN_ENABLE		1
+#define HORN_DISABLE	0
 extern DigitalOut horn;
 
 /** Brake */
