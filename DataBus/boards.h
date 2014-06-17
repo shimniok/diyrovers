@@ -50,8 +50,8 @@
 #define IO0			p11
 #define IO1			p12
 #define IO2
-#define PW0			p25
-#define PW1			p26
+#define PW0			p26
+#define PW1			p25
 #define AN0 		p15
 #define AN1 		p16
 #define AN2 		p19
