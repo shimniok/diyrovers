@@ -138,11 +138,8 @@ int resetMe()
 
 int main()
 {
-	//checkit(__FILE__, __LINE__);
-	//xTaskCreate( shell, (const signed char * ) "shell", 128, NULL, (tskIDLE_PRIORITY+3), NULL );
-    //checkit(__FILE__, __LINE__);
-	//vTaskStartScheduler(); // should never get past this line.
-	//while(1);
+	brake = BRAKE_ENABLE;
+	horn = HORN_DISABLE;
 
     // Let's try setting priorities...
     //NVIC_SetPriority(DMA_IRQn, 0);
@@ -178,7 +175,6 @@ int main()
     // totally jacks up everything (noise?)
     initSteering();
     initThrottle();
-    brake = BRAKE_ENABLE;
 
     fputs("Initializing...\n", stdout);
     display.status("Initializing");
@@ -533,9 +529,9 @@ int autonomousMode()
                 // Honk the horn
             	fputs("HONK\n", stdout);
                 display.status("HONK!");
-                horn = 1;
+                horn = HORN_ENABLE;
                 wait(0.3);
-                horn = 0;
+                horn = HORN_DISABLE;
                 wait(1);
 
                 // Disable the brake
