@@ -1,15 +1,11 @@
-# Data Bus Config File
+# CONFIG.TXT for
+#    _________ ___ ___    _____ ___________________   ________________________   ____
+#   /   _____//   |   \  /  _  \\______   \_   ___ \  \_   _____/   _____/\   \ /   /
+#   \_____  \/    ~    \/  /_\  \|       _/    \  \/   |    __) \_____  \  \   Y   / 
+#   /        \    Y    /    |    \    |   \     \____  |     \  /        \  \     /  
+#  /_______  /\___|_  /\____|__  /____|_  /\______  /  \___  / /_______  /   \___/   
+#          \/       \/         \/       \/        \/       \/          \/            
 #
-# Declination (deprecated
-#	decl,decl    -- magnetic compass declination (e.g., +9 enter 9)
-#
-# Magnetometer settings (deprecated)
-#	mag,x,y,z,x,y,z -- magnetometer offsets and scales in raw values
-#
-# GPS settings (removed)
-#	gps,baud,type -- set GPS baud and type (1=SIRF, 2=MTK, 3=VENUS)
-#
-
 #########################################################################################################
 # Navigation config
 #
