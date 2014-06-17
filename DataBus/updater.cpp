@@ -245,6 +245,7 @@ void update()
         now = 1;    // new input slot
     }
 
+#if 0
     //////////////////////////////////////////////////////////////////////////////
     // SENSOR UPDATES
     //////////////////////////////////////////////////////////////////////////////
@@ -257,10 +258,11 @@ void update()
     //   nowSpeed = 0.8*nowSpeed + 0.2*sensors.encSpeed;
     nowSpeed = sensors.encSpeed;
 
-//    sensors.Read_Gyro();
+    sensors.Read_Gyro();
     //sensors.Read_Rangers();
     //sensors.Read_Accel();
     //sensors.Read_Camera();
+#endif
 
     //////////////////////////////////////////////////////////////////////////////
     // Obtain GPS data                        
@@ -278,7 +280,16 @@ void update()
         nowState.gpsCourse_deg = sensors.gps.heading_deg();
         nowState.gpsSpeed_mps = sensors.gps.speed_mps(); // if need to convert from mph to mps, use *0.44704
         nowState.gpsSats = sensors.gps.sat_count();
-        
+
+        // Set current Cartesian position to reported GPS position estimate
+        GeoPosition gpsPos(nowState.gpsLatitude, nowState.gpsLongitude);
+        mapper.geoToCart(gpsPos, &here);
+        // Set current heading to reported GPS heading
+        history[now].hdg = nowState.gpsCourse_deg;
+        // Set current speed to GPS speed
+        nowSpeed = nowState.gpsSpeed_mps;
+
+#if 0
         // May 26, 2013, moved the useGps setting in here, so that we'd only use the GPS heading in the
         // Kalman filter when it has just been received. Before this I had a bug where it was using the
         // last known GPS data at every call to this function, meaning the more stale the GPS data, the more
@@ -292,9 +303,12 @@ void update()
                   nowState.lrEncSpeed > config.gpsValidSpeed &&
                   nowState.rrEncSpeed > config.gpsValidSpeed &&
                   (thisTime-timeZero) > 3000); // gps hdg converges by 3-5 sec.                
+#endif
     }
 
     useGpsStat = useGps;
+
+#if 0
     
     //////////////////////////////////////////////////////////////////////////////
     // HEADING AND POSITION UPDATE
@@ -409,6 +423,7 @@ void update()
     }
     // "here" is the current position
     here.set(history[now].x, history[now].y);
+#endif
 
     //////////////////////////////////////////////////////////////////////////////
     // NAVIGATION UPDATE
