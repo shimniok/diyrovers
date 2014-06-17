@@ -164,6 +164,9 @@ int main()
     NVIC_SetPriority(TIMER1_IRQn, 10); 	// unused(?)
     NVIC_SetPriority(TIMER2_IRQn, 10); 	// unused(?)
 
+	display.init();
+    display.status("Data Bus 2014");
+
     // Send data back to the PC
     pc.baud(115200);
     fputs("Data Bus 2014\n", stdout);
@@ -175,9 +178,6 @@ int main()
     initSteering();
     initThrottle();
     brake = BRAKE_ENABLE;
-
-    display.init();
-    display.status("Data Bus 2014");
 
     fputs("Initializing...\n", stdout);
     display.status("Initializing");
