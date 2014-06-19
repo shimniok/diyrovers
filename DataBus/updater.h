@@ -8,9 +8,6 @@
 /** initialize throttle to center position */
 void initThrottle(void);
 
-/** initialize steering to center position */
-void initSteering(void);
-
 /** attach the update routine to Ticker interrupt */
 void startUpdater(void);
 
