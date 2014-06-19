@@ -25,7 +25,7 @@
 
 Servo motor;             // Servo PWM output for motor control
 int pwmin=1500;          // Commanded position PWM value in ms
-unsigned long nextUpdate;          // Keep track of the next update time
+unsigned long nextUpdate;// Keep track of the next update time
 
 void setup() {
   Serial.begin(115200);
@@ -82,15 +82,15 @@ void loop() {
       motorWrite(MOTORCTR);
     }
 
-    //Serial.print("T: "); Serial.print(targetPosition); Serial.print(" ");
-    //Serial.print("P: "); Serial.print(currentPosition); Serial.print(" ");
+    Serial.print("T: "); Serial.print(targetPosition); Serial.print(" ");
+    Serial.print("P: "); Serial.print(currentPosition); Serial.print(" ");
     //Serial.print("M: "); Serial.print(motorSpeed); 
     //Serial.print("T: "); Serial.println(analogRead(POT));
     nextUpdate += INTERVAL;
 
-    Serial.print(millis());
-    Serial.print(" ");
-    Serial.print(nextUpdate);   
+//    Serial.print(millis());
+//    Serial.print(" ");
+//    Serial.print(nextUpdate);   
     Serial.println();
 
   }    
