@@ -19,8 +19,10 @@
 #define GPSRX			UART1RX
 
 /** Telemetry */
-#define TELEMTX			UART2TX
-#define TELEMRX			UART2RX
+//#define TELEMTX			UART2TX
+//#define TELEMRX			UART2RX
+#define TELEMTX			USBTX
+#define TELEMRX			USBRX
 
 /** LCD */
 #define LCDTX			UART3TX
