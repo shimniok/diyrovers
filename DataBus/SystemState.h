@@ -89,7 +89,8 @@ typedef struct {
     float LAy;
 } SystemState;
 
-void state_clear( SystemState *s );
+void state_clear(SystemState *s);
+void state_copy(SystemState *to, SystemState *from);
 bool fifo_init(void);
 void fifo_reset(void);
 bool fifo_available(void);

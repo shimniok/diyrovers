@@ -15,7 +15,7 @@ volatile int outState = 0; // pull pointer
 SystemState *state;
 SystemState mystate[SSBUF];
 
-void state_clear( SystemState *s )
+void state_clear(SystemState *s)
 {
     s->millis = 0;
     s->current = s->voltage = 0.0;
@@ -33,6 +33,33 @@ void state_clear( SystemState *s )
     s->nextWaypoint = 0;
     s->bearing = s->distance = 0.0;
     s->LABrg = s->LAx = s->LAy = 0.0;
+}
+
+void state_copy(SystemState *to, SystemState *from)
+{
+	memcpy(to, from, sizeof(SystemState));
+/*
+    to->millis = from->millis;
+    to->current = from->current;
+    to->voltage = from->voltage;
+    for (int i=0; i < 3; i++) {
+    	to->g[i] = from->g[i];
+    	to->gyro[i] = from->gyro[i];
+    	to->a[i] = from->a[i];
+    	to->m[i] = from->m[i];
+    }
+    to->gTemp = from->gTemp;
+    to->gHeading = from->gHeading;
+    to->cHeading = from->cHeading;
+    s->gpsLatitude = s->gpsLongitude = s->gpsCourse_deg = s->gpsSpeed_mps = s->gpsHDOP = 0.0;
+    s->lrEncDistance = s->rrEncDistance = 0.0;
+    s->lrEncSpeed = s->rrEncSpeed = s->encHeading = 0.0;
+    s->estHeading = s->estLatitude = s->estLongitude = 0.0;
+    s->estX = s->estY = 0.0;
+    s->nextWaypoint = 0;
+    s->bearing = s->distance = 0.0;
+    s->LABrg = s->LAx = s->LAy = 0.0;
+    */
 }
 
 bool fifo_init() {
