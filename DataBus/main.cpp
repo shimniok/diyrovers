@@ -173,7 +173,7 @@ int main()
     // Something here is jacking up the I2C stuff
     // Also when initializing with ESC powered, it causes motor to run which
     // totally jacks up everything (noise?)
-    initSteering();
+    steering = 0;
     initThrottle();
 
     fputs("Initializing...\n", stdout);
@@ -217,6 +217,7 @@ int main()
 
     pc.puts("Steering: steerZero=");
     pc.puts(cvftos(config.steerZero, 2));
+    steering.setCenter(config.steerZero);
     pc.puts(" steerScale=");
     pc.puts(cvftos(config.steerScale, 1));
     pc.puts("\n");
@@ -357,7 +358,6 @@ int main()
             // Now populate in the current GPS data
             s->gpsHDOP = sensors.gps.hdop();
             s->gpsSats = sensors.gps.sat_count();
-            // FIXME hanging on telem.sendPacket
             telem.sendPacket(s);
             display.update(s);
             nextDisplayUpdate = thisUpdate + 200;
