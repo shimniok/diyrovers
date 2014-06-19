@@ -6,6 +6,7 @@
 
 Steering::Steering(PinName pin):
 	_steering(pin),
+	_center(1500),
 	_scale(0),
 	_track(0),
 	_wheelbase(0),
@@ -14,11 +15,9 @@ Steering::Steering(PinName pin):
 }
 
 
-void Steering::initSteering()
+void Steering::setCenter(int center)
 {
-	_steering = 0.4;
-    // TODO: 3 parameterize this in config file ?
-    _steering.calibrate(0.005, 45.0);
+	_steering = _center = center;
 }
 
 void Steering::setScale(float scale) {
@@ -42,14 +41,16 @@ void Steering::setSteering(float steerAngle)
 {
     // Convert steerAngle to servo value
     // Testing determined near linear conversion between servo ms setting and steering angle
-    // up to 20*.  Assumes a particular servo library with range = 0.005
-    // In that case, f(SA) = servoPosition = 0.500 + SA/762.5
+    // up to 20*.  Assumes units of usec signal duration (e.g., 1000-2000usec pulse width),
+	// which is the standard for hobby servos.
+	// FIXME--comments old
+	// In that case, f(SA) = servoPosition = 0.500 + SA/762.5
     // between 20 and 24* the slope is approximately 475
     // What if we ignore the linearity and just set to a max angle
     // also range is 0.535-0.460 --> slope = 800
     // steering = 0.500 + (double) steerAngle / 762.5;
     //
-    _steering = 0.500 + (double) steerAngle * _scale;
+    _steering = _center + (double) steerAngle * _scale;
 }
 
 

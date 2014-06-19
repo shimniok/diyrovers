@@ -3,7 +3,7 @@
 
 #include "globals.h"
 #include "devices.h"
-#include "Servo.h"
+#include "Servo2.h"
 #include "Config.h"
 
 /** A class for managing steering angle calculations based on current and desired heading
@@ -19,8 +19,9 @@ class Steering
 
 	/** Initalize steering actuator (servo)
 	 *
+	 * @param center -- is the center signal in hobby servo usec (e.g., 1500)
 	 */
-	void initSteering(void);
+	void setCenter(int center);
 
 
     /** Set the track width (left to right contact patch distance)
@@ -118,8 +119,9 @@ class Steering
     inline static float toDegrees(float rad) {return (180/PI)*rad;}
 
   private:
-    Servo _steering;                // Steering Servo
-    float _scale;					// Steering scale factor
+    Servo2 _steering;               // Steering Servo
+    float _center;					// Center setting for steering, aka when angle = 0
+    float _scale;					// Steering scale factor, convert angle to usec (1000-2000)
     float _track;					// vehicle track used for steering intercept calc
     float _wheelbase;				// vehicle wheelbase used for steering intercept calc
     float _intercept;				// circle intercept distance
