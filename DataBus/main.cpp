@@ -478,6 +478,9 @@ int autonomousMode()
     navDone = false;
     keypad.pressed = false;
     //bool started = false;  // flag to indicate robot has exceeded min speed.
+
+    fputs("Opening log.\n", stdout);
+    display.status("Open log...");
     
     if (initLogfile()) logStatus = 1; // Open the log file in sprintf format string style; numbers go in %d
     wait(0.2);
@@ -518,7 +521,6 @@ int autonomousMode()
             if (keypad.pressed == true) { // && started
                 fputs(">>>>>>>>>>>>>>>>>>>>>>> HALT\n", stdout);
                 display.status("HALT.");
-                brake = BRAKE_ENABLE;
                 navDone = true;
                 goGoGo = false;
                 keypad.pressed = false;
@@ -582,11 +584,14 @@ int autonomousMode()
         }
 
     } // while
+
+    brake = BRAKE_ENABLE;
+
     closeLogfile();
-    wait(2.0);
+    wait(1.0);
     logStatus = 0;
     display.status("Completed. Saved.");
-    wait(2.0);
+    wait(1.0);
 
     updaterStatus = 0;
     gpsStatus = 0;

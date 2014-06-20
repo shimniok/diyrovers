@@ -14,6 +14,8 @@
 #include "GeoPosition.h"
 #include "kalman.h"
 
+#define PURE_PURSUIT 1
+
 #define UPDATE_PERIOD 0.010             // update period in s
 // TODO 3 put x,y,z defines somewhere else
 #define _x_ 0
@@ -214,7 +216,7 @@ void update() {
 		lastWaypoint = 0;
 
 		// initialize heading to bearing between waypoint 0 and 1
-		heading = here.bearingTo(config.cwpt[nextWaypoint]);
+		heading = nowState.estHeading = here.bearingTo(config.cwpt[nextWaypoint]);
 		// point next fifo input to slot 1, slot 0 occupied/initialized, now
 
 		state_clear(&nowState);
@@ -257,13 +259,12 @@ void update() {
 		nowState.gpsHDOP = sensors.gps.hdop();
 		nowState.gpsSpeed_mps = sensors.gps.speed_mps(); // if need to convert from mph to mps, use *0.44704
 
-//		if (nowState.gpsSpeed_mps > config.gpsValidSpeed) {
-			nowState.gpsCourse_deg = sensors.gps.heading_deg();
-//		}
+		if (nowState.gpsSpeed_mps > config.gpsValidSpeed) {
+			// Set current heading to reported GPS heading
+			heading = nowState.gpsCourse_deg = sensors.gps.heading_deg();
+		}
 		nowState.gpsSats = sensors.gps.sat_count();
 
-		// Set current heading to reported GPS heading
-		heading = nowState.gpsCourse_deg;
 		// Set current speed to GPS speed
 		nowSpeed = nowState.gpsSpeed_mps;
 #if 0
@@ -463,6 +464,9 @@ void update() {
 		//////////////////////////////////////////////////////////////////////////////////////
 		// Steering Control
 		//
+		float sign = 1;
+
+#if PURE_PURSUIT
 		static CartPosition A, C;
 
 		// Update the A and C points
@@ -475,7 +479,6 @@ void update() {
 		// Robot vector
 		float Rx = here.x - A.x;
 		float Ry = here.y - A.y;
-		float sign = 1;
 
 		// Find the goal point, a projection of the bot vector onto the current leg, moved
 		// along the path by the lookahead distance.
@@ -484,6 +487,9 @@ void update() {
 		// Now find projection point + lookahead, along leg, relative to A.
 		LA.set(A.x + (proj + config.intercept) * Lx / legLength,
 				A.y + (proj + config.intercept) * Ly / legLength);
+#else
+		LA.set(config.cwpt[nextWaypoint]);
+#endif
 		//
 		// Compute a circle that is tangential to bot heading and intercepts bot
 		// and goal point LA, the intercept circle. Then compute the steering
@@ -508,22 +514,18 @@ void update() {
 			// when subtracting track/2.0, so just take absolute value and multiply sign
 			// later on
 			sign = (relBrg < 0) ? -1 : 1;
-			float radius = config.intercept
-					/ fabs(2 * sin(Steering::toRadians(relBrg)));
+			float radius = config.intercept / fabs(2 * sin(Steering::toRadians(relBrg)));
 			// optionally, limit radius min/max
 			// Now compute the steering angle to achieve the circle of
 			// Steering angle is based on wheelbase and track width
-			steerAngle = sign
-					* Steering::toDegrees(
-							asin(
-									config.wheelbase
-											/ (radius - config.track / 2.0)));
+			steerAngle = sign * Steering::toDegrees(asin(config.wheelbase / (radius - config.track / 2.0)));
 			// Apply gain factor for near straight line
 			// TODO 3 figure out a better, continuous way to deal with steering gain
 			//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 			steering = steerAngle;
 		}
 //        timeB = timer.read_us();
+
 		//
 		//////////////////////////////////////////////////////////////////////////////////////
 
@@ -562,9 +564,9 @@ void update() {
 		}
 
 		speedDt = 0; // reset dt to begin counting for next time
-		control_count = CTRL_SKIP;
 #endif
 
+		control_count = CTRL_SKIP;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -583,8 +585,7 @@ void update() {
 		nowState.a[i] = 0.0; // unused
 	}
 	nowState.gTemp = 0.0; // unused
-	nowState.lrEncSpeed = nowSpeed;
-	nowState.rrEncSpeed = nowSpeed;
+	nowState.lrEncSpeed = nowState.rrEncSpeed = nowState.gpsSpeed_mps;
 	nowState.lrEncDistance = 0.0; // unused
 	nowState.rrEncDistance = 0.0; // unused
 	//state.encHeading += (state.lrEncDistance - state.rrEncDistance) / TRACK;

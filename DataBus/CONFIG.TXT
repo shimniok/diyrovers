@@ -16,17 +16,17 @@
 #	brake distance		distance at which turn speed is selected as the new speed
 #	min turn radius		minimum turn radius permitted
 #
-nav,2.0,2.0,3.0,1.0
+nav,3.0,5.0,4.0,3.0
 
 ########################################################################################################## 
 # Vehicle config
 #
-#	veh, tire circ, wheelbase, track
+#	veh, tire circ, wheelbase, track in m
 #
 #	wheelbase	distance between front and rear axles
 #	track		distance between left and right tire contact patches
 #
-veh,0.290,0.280
+veh,2.7686,1.6764
 
 ########################################################################################################## 
 # Encoder config
@@ -65,8 +65,8 @@ speed,1100,1410,2000,4.0,4.0,3.0,40.0,60.0,0.0
 #	center		servo center setting
 #	scale		ratio of servo to steering angle
 #
-#steer,0.5,2.0,5.0
-steer,0.5,0.001238
+# FSJ: about 25* at full lock
+steer,1500,-20
 
 ########################################################################################################## 
 # Curb avoid settings
@@ -94,7 +94,7 @@ gyro,-0.00444633
 #
 #	valid speed	speed above which gps data is trustworthy(ish)
 #
-gps,2.0
+gps,0.5
 
 ########################################################################################################## 
 # Waypoint
@@ -103,22 +103,9 @@ gps,2.0
 #	...                                   -- and so on up to max
 #
 
-## Home
+## Lois Lenski
 #
-wpt,39.59756978,-104.93290105,0,0, Home0
-wpt,39.59756944,-104.93277222,0,0, Home1
-wpt,39.59766111,-104.93277222,0,0, Home2
-wpt,39.59766111,-104.93286340,0,0, Home3
-wpt,39.59756978,-104.93290105,0,0, Home0
-
-#wpt,39.59738611,-104.93288611,0,0, Home4
-#wpt,39.59738611,-104.93275833,0,0, Home5
-
-## Lois Lenski Site A
-#
-#wpt,39.60212530,-104.92975933,0,0, Lenski0
-#wpt,39.60203564,-104.93008435,1,0.5, Lenski1
-#wpt,39.60191143,-104.93002912,,, Lenski2
-#wpt,39.60199645,-104.92969969,2,1, Lenski3
-#wpt,39.60212530,-104.92975933,0,0, Lenski0
-
+wpt,39.60148486,-104.92945617,0,0, lois0
+wpt,39.60164196,-104.92968592,0,0, lois1
+wpt,39.60153350,-104.92984930,0,0, lois2
+wpt,39.60130262,-104.92950943,0,0, lois3
