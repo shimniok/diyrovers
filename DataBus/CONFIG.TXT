@@ -16,7 +16,7 @@
 #	brake distance		distance at which turn speed is selected as the new speed
 #	min turn radius		minimum turn radius permitted
 #
-nav,3.0,5.0,4.0,3.0
+nav,7.0,7.0,6.0,3.5
 
 ########################################################################################################## 
 # Vehicle config
@@ -29,35 +29,6 @@ nav,3.0,5.0,4.0,3.0
 veh,2.7686,1.6764
 
 ########################################################################################################## 
-# Encoder config
-#
-#	enc,tire circ,stripe count
-#
-#	tire circ	circumference of tire
-#	stripe count	number of black and white stripes
-#
-# calibrated with 4 runs, average for both tires
-enc,0.321537,32
-
-########################################################################################################## 
-# Throttle (Speed) config
-#
-#	speed, minimum, stop, max, stop speed, turn speed, Kp, Ki, Kd
-#
-#	brake		esc value when braking
-#	off		esc value when stopped, idle
-#	max		max esc value
-#	scale		ratio of servo to throttle value (probably 1)
-#	top speed	default cruise speed in m/s
-#	turn speed	turn speed in m/s
-#	start speed	speed to use at the start
-#	Kp		Speed PID, proportional constant
-#	Ki		Speed PID, integral constant
-#	Kd		Speed PID, derivative constant
-#
-speed,1100,1410,2000,4.0,4.0,3.0,40.0,60.0,0.0
-
-########################################################################################################## 
 # Steering config
 #
 #	steer,center,scale
@@ -68,24 +39,6 @@ speed,1100,1410,2000,4.0,4.0,3.0,40.0,60.0,0.0
 # FSJ: about 25* at full lock
 steer,1500,-20
 
-########################################################################################################## 
-# Curb avoid settings
-# Specify threshold distance and steering gain
-#	curb,distance,gain
-#	threshold distance below which steering correction is made
-#	steering gain multiplies difference between threshold distance and actual distance
-#	set gain to 0 to disable
-#
-curb,110.0,0.0
-
-########################################################################################################## 
-# Gyro configuration
-#
-#	gyro, zscale
-#
-#	zscale		scale converting gyro Z to degrees per second
-#
-gyro,-0.00444633
 
 ########################################################################################################## 
 # GPS configuration
@@ -103,9 +56,13 @@ gps,0.5
 #	...                                   -- and so on up to max
 #
 
-## Lois Lenski
+## Sparkfun
 #
-wpt,39.60148486,-104.92945617,0,0, lois0
-wpt,39.60164196,-104.92968592,0,0, lois1
-wpt,39.60153350,-104.92984930,0,0, lois2
-wpt,39.60130262,-104.92950943,0,0, lois3
+wpt,40.07138484,-105.22978022,0,0, SFE0
+wpt,40.07130248,-105.23010748,0,0, SFE1
+wpt,40.07107792,-105.23003439,0,0, SFE2
+wpt,40.07072739,-105.22975117,0,0, SFE3
+wpt,40.07091525,-105.22915032,0,0, SFE4
+wpt,40.07126913,-105.22941132,0,0, SFE5
+wpt,40.07145620,-105.22948369,0,0, SFE6
+wpt,40.07135744,-105.22988892,0,0, SFE7
