@@ -267,6 +267,14 @@ int main()
     pc.puts("\n");
     sensors.configureEncoders(config.tireCirc, config.encStripes);
 
+    display.status("Steering configuration");
+    pc.puts("Steering scale: ");
+    pc.puts(cvftos(config.steerScale, 2));
+    pc.puts("\n");
+    pc.puts("Steering center: ");
+    pc.puts(cvftos(config.steerZero, 2));
+    pc.puts("\n");
+
     display.status("Nav configuration   ");
     pc.puts("Intercept distance: ");
     pc.puts(cvftos(config.intercept, 1));
