@@ -43,12 +43,6 @@ void Steering::setSteering(float steerAngle)
     // Testing determined near linear conversion between servo ms setting and steering angle
     // up to 20*.  Assumes units of usec signal duration (e.g., 1000-2000usec pulse width),
 	// which is the standard for hobby servos.
-	// FIXME--comments old
-	// In that case, f(SA) = servoPosition = 0.500 + SA/762.5
-    // between 20 and 24* the slope is approximately 475
-    // What if we ignore the linearity and just set to a max angle
-    // also range is 0.535-0.460 --> slope = 800
-    // steering = 0.500 + (double) steerAngle / 762.5;
     //
     _steering = _center + (double) steerAngle * _scale;
 }
