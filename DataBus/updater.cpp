@@ -38,7 +38,7 @@ SystemState prevState;
 #define CTRL_SKIP 5     // 50ms control update
 #define MAG_SKIP 2      // 20ms magnetometer update
 #define LOG_SKIP 2
-#define PWR_SKIP 10		// 100ms log entry entered into fifo
+#define PWR_SKIP 10
 Ticker sched;                         // scheduler for interrupt driven routines
 
 int led_count = LED_SKIP;					// blink led slower as heartbeat
@@ -152,8 +152,10 @@ void beginRun() {
 
 /** instruct the controller that we're done with the run */
 void endRun() {
+	__disable_irq();
 	go = false;
 	initNav = true;
+	__enable_irq();
 
 	return;
 }
@@ -515,13 +517,12 @@ void update() {
 			// later on
 			sign = (relBrg < 0) ? -1 : 1;
 			float radius = config.intercept / fabs(2 * sin(Steering::toRadians(relBrg)));
-			// optionally, limit radius min/max
+			// Hopefully fixes bug where steerAngle returns NaN by clamping asin() arg to -1..1
+			// This would really only happen when fabs(radius) < config.track
+			//if (fabs(radius) < config.track) radius = config.track;
 			// Now compute the steering angle to achieve the circle of
 			// Steering angle is based on wheelbase and track width
 			steerAngle = sign * Steering::toDegrees(asin(config.wheelbase / (radius - config.track / 2.0)));
-			// Apply gain factor for near straight line
-			// TODO 3 figure out a better, continuous way to deal with steering gain
-			//        if (fabs(steerAngle) < config.steerGainAngle) steerAngle *= config.steerGain;
 			steering = steerAngle;
 		}
 //        timeB = timer.read_us();
