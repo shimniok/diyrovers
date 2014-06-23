@@ -19,9 +19,9 @@
 // Feedback sensor values
 // position < CENTER, position is right
 // position > CENTER, position is left
-#define FULL_RIGHT  367  // POT ADC value at full right lock
-#define CENTER      560  // POT ADC value at center (approximately)
-#define FULL_LEFT   823  // POT ADC value at full left lock
+#define FULL_RIGHT  135  // POT ADC value at full right lock
+#define CENTER      352  // POT ADC value at center (approximately)
+#define FULL_LEFT   575  // POT ADC value at full left lock
 
 Servo motor;             // Servo PWM output for motor control
 int pwmin=1500;          // Commanded position PWM value in ms
@@ -82,10 +82,10 @@ void loop() {
       motorWrite(MOTORCTR);
     }
 
+    Serial.print("pwm: "); Serial.print(pwmin); Serial.print(" ");
     Serial.print("T: "); Serial.print(targetPosition); Serial.print(" ");
     Serial.print("P: "); Serial.print(currentPosition); Serial.print(" ");
     //Serial.print("M: "); Serial.print(motorSpeed); 
-    //Serial.print("T: "); Serial.println(analogRead(POT));
     nextUpdate += INTERVAL;
 
 //    Serial.print(millis());

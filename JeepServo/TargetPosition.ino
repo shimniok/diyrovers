@@ -1,7 +1,7 @@
-#define M1 386L
-#define B1 -19000L
-#define M2 526L
-#define B2 -229000L
+#define M1 440L
+#define B1 -310000L
+#define M2 440L
+#define B2 -310000L
 
 /* Convert pulse width to target position (raw ADC read value)
  * @param pw is the pulse width value in ms
