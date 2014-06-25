@@ -53,6 +53,7 @@ void logData( SystemState *s )
 		fputs(cvftos(s->gpsLatitude, 7), logp);
 		fputc(',',logp);
 		fputs(cvftos(s->gpsLongitude, 7), logp);
+		fputc(',',logp);
 		//printFloat(logp, s->gpsLatitude, 7);
 		//fputc(',',logp);
 		//printFloat(logp, s->gpsLongitude, 7);
@@ -80,6 +81,8 @@ void logData( SystemState *s )
 		fputs(cvftos(s->estHeading, 2), logp);
 		fputc(',',logp);
 		fputs(cvftos(s->estLagHeading, 2), logp);
+		fputc(',',logp);
+		fputs(cvftos(s->gbias, 6), logp);
 		fputc(',',logp);
 		fputs(cvftos(s->estLatitude,  7), logp);
 		fputc(',',logp);
