@@ -1,3 +1,9 @@
+/**
+ * uBlox UBX Protocol Reader - Wayne Holder
+ * Ported to mbed - Michael Shimniok
+ *
+ * Note: RX pad on 3DR Module is output, TX is input
+ */
 #include "mbed.h"
 #include "Ublox6.h"
 
