@@ -4,7 +4,7 @@ Files for DIY Rovers code for autonomous robot rovers
 
 `Blinky/` is an LED blinky demo; it blinks LED2 on the LPCXpresso board
 
-`DataBus/` is the code for DataBus written for mbed offline compile
+`DataBus/` is the code for DataBus (and Jeep FSV) written for mbed offline compile
 
 `FreeRTOS_mbed/` a 2-task LED blinky demo using mbed and FreeRTOS together
 
